@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1321517357549178966}
   - component: {fileID: 5169020441988675985}
   - component: {fileID: 3768540980427019057}
-  - component: {fileID: 8631545172032423323}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -88,19 +87,3 @@ MonoBehaviour:
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit
   m_CancelButton: Cancel
---- !u!114 &8631545172032423323
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6128527395543462002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 167a1e7543fca47488a9159ccc03226f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  keepSingleton: 0
-  trackingOrigin: 1
-  deadZoneX: 0.01
-  deadZoneY: 0.01

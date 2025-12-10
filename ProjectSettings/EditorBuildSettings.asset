@@ -9,7 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 30021c7184b94c941a9eb03280de160f, type: 2}
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: 8f2386df9cf3e96428191b3c07c4550f, type: 2}
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: f57f41694dff8764ba52f7d4f30f2c48, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: b2c4bc9c7339deb469b672359cb4cf1c, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: cf4f8d388e9e0f942ac4ba4dfec4faa9, type: 3}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 5d641777cf4fc7a4a8f0dafe817feb90, type: 2}

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Localization-Assets-Shared
+  m_EditorClassIdentifier: 
+  m_GroupName: Localization-Assets-Shared
+  m_GUID: f987d097fb6905b4eaa868550ea2b8a7
+  m_SerializeEntries:
+  - m_GUID: 257ead27c8625854286d326eaf4457a9
+    m_Address: Packages/com.datea83.vrfordots/Plugins/ChoyUtilities/Locale/Table/UI/UI
+      Table Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 1
+  m_Settings: {fileID: 11400000, guid: fc2c2e819a426f24d929b5a2fa876c78, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 4b28eac8ca673714fb6901a82548e295, type: 2}
+    - {fileID: 11400000, guid: 1c3a6c6b28fa784439e85ebbf24d5a20, type: 2}

@@ -1,0 +1,14 @@
+{
+    "name": "Datea83.Vrfordots.Editor.Tests",
+    "references": [
+        "Datea83.Vrfordots.Editor",
+        "Datea83.Vrfordots"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}

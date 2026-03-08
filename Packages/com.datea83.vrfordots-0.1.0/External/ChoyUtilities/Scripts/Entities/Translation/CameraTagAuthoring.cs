@@ -1,7 +1,6 @@
 using EugeneC.Utilities;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEditor;
 using UnityEngine;
 
 namespace EugeneC.ECS
@@ -68,22 +67,4 @@ namespace EugeneC.ECS
 			ecb.Playback(state.EntityManager);
 		}
 	}
-
-#if UNITY_EDITOR
-
-	[CustomEditor(typeof(CameraTagAuthoring))]
-	public class CameraTagEditor : Editor
-	{
-		public override void OnInspectorGUI()
-		{
-			EditorGUILayout.HelpBox("Don't put this in the camera", MessageType.Warning);
-			EditorGUILayout.HelpBox("For camera use CameraTrackerController", MessageType.Warning);
-			EditorGUILayout.HelpBox("This is used for the camera to track the attached entity's transform",
-				MessageType.Info);
-			EditorGUILayout.HelpBox("Make sure only have a single entity have this component in any given runtime!!!",
-				MessageType.Warning);
-		}
-	}
-
-#endif
 }

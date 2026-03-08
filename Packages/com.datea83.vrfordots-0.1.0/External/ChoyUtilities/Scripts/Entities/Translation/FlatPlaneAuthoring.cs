@@ -3,7 +3,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEditor;
 using UnityEngine;
 
 namespace EugeneC.ECS
@@ -54,26 +53,6 @@ namespace EugeneC.ECS
             }
         }
     }
-
-#if UNITY_EDITOR
-    [CustomEditor(typeof(FlatPlaneAuthoring))]
-    public class FLatPlaneEditor : Editor
-    {
-        public override void OnInspectorGUI()
-        {
-            var authoring = (FlatPlaneAuthoring)target;
-            authoring.planePrefab = (GameObject)EditorGUILayout.ObjectField("Prefab", authoring.planePrefab, typeof(GameObject), false);
-            authoring.planeSize = (uint)EditorGUILayout.IntField("Size", (int)authoring.planeSize);
-            authoring.unitsPerPlane = EditorGUILayout.FloatField("Units per Plane", authoring.unitsPerPlane);
-            authoring.planeOffset = EditorGUILayout.Vector3Field("Offset", authoring.planeOffset);
-            authoring.seed = (byte)EditorGUILayout.IntField("Seed", authoring.seed);
-
-            if (GUILayout.Button("This is a button")) authoring.seed = (byte)UnityEngine.Random.Range(0, byte.MaxValue);
-            
-            serializedObject.ApplyModifiedProperties();
-        }
-    }
-#endif    
 
     public struct PlaneGenerationIData : IComponentData
     {

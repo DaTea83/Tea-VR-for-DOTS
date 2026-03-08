@@ -65,11 +65,15 @@ namespace EugeneC.Editor
 
 			//Cover up the default box
 
-			bool isSelected = Selection.instanceIDs.Contains(instanceID);
-			bool isHovering = selectionRect.Contains(Event.current.mousePosition);
+#if UNITY_6000_3_OR_NEWER			
+            var isSelected = Selection.entityIds.Contains(instanceID);
+#else
+            var isSelected = Selection.instanceIDs.Contains(instanceID);
+#endif
+			var isHovering = selectionRect.Contains(Event.current.mousePosition);
 
-			Color color = EditorBackgroundColor.GetColor(isSelected, isHovering, _hierarchyHasFocus);
-			Rect background = selectionRect;
+			var color = EditorBackgroundColor.GetColor(isSelected, isHovering, _hierarchyHasFocus);
+			var background = selectionRect;
 			background.width = 18.5f;
 			EditorGUI.DrawRect(background, color);
 

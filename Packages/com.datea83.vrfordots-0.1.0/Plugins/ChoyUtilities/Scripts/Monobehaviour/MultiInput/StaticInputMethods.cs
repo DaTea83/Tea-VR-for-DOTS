@@ -41,27 +41,27 @@ namespace EugeneC.Utilities
 			}
 		}
 
-		public static ControlSchemeEnum GetDeviceType(InputDevice device)
+		public static EControlSchemeEnum GetDeviceType(InputDevice device)
 		{
-			ControlSchemeEnum scheme = ControlSchemeEnum.Gamepad;
+			EControlSchemeEnum scheme = EControlSchemeEnum.Gamepad;
 
 			if (device is Gamepad)
-				scheme = ControlSchemeEnum.Gamepad;
+				scheme = EControlSchemeEnum.Gamepad;
 			else if (device is Keyboard)
-				scheme = ControlSchemeEnum.Keyboard;
+				scheme = EControlSchemeEnum.Keyboard;
 
 			return scheme;
 		}
 
-		public static string GetControlType(this ControlSchemeEnum control)
+		public static string GetControlType(this EControlSchemeEnum eControl)
 		{
 			string mode = null;
-			switch (control)
+			switch (eControl)
 			{
-				case ControlSchemeEnum.Keyboard:
+				case EControlSchemeEnum.Keyboard:
 					mode = nameof(Keyboard);
 					break;
-				case ControlSchemeEnum.Gamepad:
+				case EControlSchemeEnum.Gamepad:
 					mode = nameof(Gamepad);
 					break;
 			}

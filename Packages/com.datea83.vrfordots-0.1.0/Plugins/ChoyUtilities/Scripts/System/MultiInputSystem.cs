@@ -9,7 +9,7 @@ namespace EugeneC.Utilities
 {
 	public class MultiInputSystem
 	{
-		public MultiInputSystem(InputDevice device, InputActionAsset asset, ControlSchemeEnum controltype)
+		public MultiInputSystem(InputDevice device, InputActionAsset asset, EControlSchemeEnum controltype)
 		{
 			User = InputUser.PerformPairingWithDevice(device);
 			Device = device;

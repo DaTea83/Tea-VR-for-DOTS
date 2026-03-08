@@ -5,7 +5,7 @@ namespace EugeneC.Utilities
 	[RequireComponent(typeof(RectTransform))]
     public sealed class AutoResize : MonoBehaviour
     {
-        [SerializeField] private FitMode fitMode;
+        [SerializeField] private EFitMode eFitMode;
         private RectTransform _rectTransform;
         private RectTransform _parentRectTransform;
 
@@ -23,8 +23,8 @@ namespace EugeneC.Utilities
 	        var ratio = _parentRectTransform.rect.width / width;
 	        var newHeight = height * ratio;
 
-	        if (fitMode == FitMode.FitWidth || (fitMode == FitMode.Expand && newHeight >= _parentRectTransform.rect.height) ||
-	            (fitMode == FitMode.Shrink && newHeight <= _parentRectTransform.rect.height))
+	        if (eFitMode == EFitMode.FitWidth || (eFitMode == EFitMode.Expand && newHeight >= _parentRectTransform.rect.height) ||
+	            (eFitMode == EFitMode.Shrink && newHeight <= _parentRectTransform.rect.height))
 	        {
 		        _rectTransform.offsetMin *= ratio;
 		        _rectTransform.offsetMax *= ratio;

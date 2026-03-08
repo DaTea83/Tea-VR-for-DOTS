@@ -24,31 +24,19 @@ namespace EugeneC.Utilities
 
 		public static float RandomValue(this GameObject obj)
 		{
-#if UNITY_6000_3_OR_NEWER			
-			var ran = Random.CreateFromIndex((uint)obj.GetEntityId() + (uint)Time.time + (uint)Time.deltaTime);
-#else
-			var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount + (uint)Time.deltaTime);
-#endif
+            var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount + (uint)Time.deltaTime);
 			return ran.NextFloat();
 		}
 		
 		public static float RandomValue(this GameObject obj, float min, float max)
 		{
-#if UNITY_6000_3_OR_NEWER			
-			var ran = Random.CreateFromIndex((uint)obj.GetEntityId() + (uint)Time.time + (uint)Time.deltaTime);
-#else
-			var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount + (uint)Time.deltaTime);
-#endif
+            var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount + (uint)Time.deltaTime);
 			return ran.NextFloat(min, max);
 		}
 
 		public static int RandomValue(this GameObject obj, int min, int max)
 		{
-#if UNITY_6000_3_OR_NEWER			
-			var ran = Random.CreateFromIndex((uint)obj.GetEntityId() + (uint)Time.time + (uint)Time.deltaTime);
-#else
-			var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount + (uint)Time.deltaTime);
-#endif
+            var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount + (uint)Time.deltaTime);
 			return ran.NextInt(min, max);
 		}
 

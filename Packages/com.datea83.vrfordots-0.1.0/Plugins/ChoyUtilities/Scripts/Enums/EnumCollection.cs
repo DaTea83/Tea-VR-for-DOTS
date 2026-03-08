@@ -16,7 +16,7 @@ namespace EugeneC.Utilities
 		Z = 1 << 1
 	}
 
-	public enum ControlSchemeEnum : byte
+	public enum EControlSchemeEnum : byte
 	{
 		Keyboard,
 		Gamepad,
@@ -25,7 +25,7 @@ namespace EugeneC.Utilities
 		NotDefined = byte.MaxValue
 	}
 	
-	public enum FitMode : byte
+	public enum EFitMode : byte
 	{
 		Expand = 0,
 		Shrink = 1,

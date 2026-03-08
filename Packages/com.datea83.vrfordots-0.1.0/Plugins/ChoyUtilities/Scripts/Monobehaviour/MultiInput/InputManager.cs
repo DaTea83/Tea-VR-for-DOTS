@@ -10,44 +10,44 @@ namespace EugeneC.Utilities
 // For objects that already existed
 	public class InputManager : GenericSingleton<InputManager>
 	{
-		[SerializeField] InputActionAsset ActionAsset;
-		[SerializeField] int PlayerLimitCount = 3;
-		[SerializeField] bool AllowNewJoin = true;
-		[SerializeField] bool AllowKeyboard;
+		[SerializeField] private InputActionAsset actionAsset;
+		[SerializeField] private int playerLimitCount = 3;
+		[SerializeField] private bool allowNewJoin = true;
+		[SerializeField] private bool allowKeyboard;
 
-		public Dictionary<InputDevice, MultiInputSystem> DeviceRegistry = new();
-		public Dictionary<MultiInputSystem, IControlBinder> PlayerRegistry = new();
+        private readonly Dictionary<InputDevice, MultiInputSystem> _deviceRegistry = new();
+        private readonly Dictionary<MultiInputSystem, IControlBinder> _playerRegistry = new();
 
-		public bool GetAllowKeyboard() => AllowKeyboard;
+		public bool GetAllowKeyboard() => allowKeyboard;
 
 		public bool RegisterPlayer(IControlBinder playerObject, InputDevice device)
 		{
-			if (!AllowNewJoin)
+			if (!allowNewJoin)
 			{
 				Debug.LogWarning("New players are not allowed to join at this time.");
 				return false;
 			}
 
-			if (PlayerRegistry.Count > PlayerLimitCount)
+			if (_playerRegistry.Count > playerLimitCount)
 			{
 				Debug.LogWarning("Player limit reached. Cannot register new player.");
 				return false;
 			}
 
-			if (DeviceRegistry.ContainsKey(device))
+			if (_deviceRegistry.ContainsKey(device))
 			{
 				Debug.LogWarning($"{device.displayName} is already registered.");
 				return false;
 			}
 
-			ControlSchemeEnum controlScheme = UtilityMethods.GetDeviceType(device);
-			MultiInputSystem registry = new MultiInputSystem(device, ActionAsset, controlScheme);
+			var eControlScheme = UtilityMethods.GetDeviceType(device);
+			var registry = new MultiInputSystem(device, actionAsset, eControlScheme);
 
-			DeviceRegistry.Add(device, registry);
-			PlayerRegistry.Add(registry, playerObject);
+			_deviceRegistry.Add(device, registry);
+			_playerRegistry.Add(registry, playerObject);
 
 			registry.BindObject(playerObject);
-			Debug.Log($"Current player count: {PlayerRegistry.Count}");
+			Debug.Log($"Current player count: {_playerRegistry.Count}");
 			return true;
 		}
 
@@ -55,20 +55,18 @@ namespace EugeneC.Utilities
 		{
 			MultiInputSystem registry = null;
 
-			foreach (var entry in PlayerRegistry)
-			{
-				if (entry.Value == playerObject)
-				{
-					registry = entry.Key;
-					break;
-				}
-			}
+			foreach (var entry in _playerRegistry)
+            {
+                if (entry.Value != playerObject) continue;
+                registry = entry.Key;
+                break;
+            }
 
 			if (registry != null)
 			{
 				registry.UnbindObject();
-				PlayerRegistry.Remove(registry);
-				DeviceRegistry.Remove(registry.Device);
+				_playerRegistry.Remove(registry);
+				_deviceRegistry.Remove(registry.Device);
 				Debug.Log($"Player with device {registry.Device} has been unregistered.");
 			}
 			else
@@ -77,11 +75,11 @@ namespace EugeneC.Utilities
 
 		public void UnregisterAll()
 		{
-			foreach (var entry in PlayerRegistry)
+			foreach (var entry in _playerRegistry)
 				entry.Key.UnbindObject();
 
-			PlayerRegistry.Clear();
-			DeviceRegistry.Clear();
+			_playerRegistry.Clear();
+			_deviceRegistry.Clear();
 
 			Debug.Log("All players have been unregistered.");
 		}

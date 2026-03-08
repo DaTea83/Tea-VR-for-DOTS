@@ -2,10 +2,11 @@
 using EugeneC.Utilities;
 using UnityEditor.Animations;
 using UnityEngine;
+// ReSharper disable CheckNamespace
 
 // ReSharper disable Unity.PerformanceCriticalCodeInvocation
 
-namespace EugeneC.Editor.ChoyUtilities.Scripts.Editor
+namespace EugeneC.Editor
 {
 	[AddComponentMenu("Eugene/Animation Recorder")]
 	[RequireComponent(typeof(Animator))]

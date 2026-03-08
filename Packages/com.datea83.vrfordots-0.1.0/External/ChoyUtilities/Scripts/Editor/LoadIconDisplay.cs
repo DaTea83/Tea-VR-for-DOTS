@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+// ReSharper disable CheckNamespace
 
 //Origin: https://www.youtube.com/watch?v=EFh7tniBqkk
 
@@ -9,7 +10,7 @@ using UnityEngine;
 //In case of debugging and this is blocking the way just comment out [InitializeOnLoad]
 //After finish debugging uncomment back
 
-namespace EugeneC.Editor.ChoyUtilities.Scripts.Editor
+namespace EugeneC.Editor
 {
 #if UNITY_EDITOR
 

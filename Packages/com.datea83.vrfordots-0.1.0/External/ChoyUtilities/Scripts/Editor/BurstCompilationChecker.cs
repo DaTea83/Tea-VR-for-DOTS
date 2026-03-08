@@ -1,7 +1,8 @@
 using Unity.Burst;
 using UnityEngine;
+// ReSharper disable CheckNamespace
 
-namespace EugeneC.Editor.ChoyUtilities.Scripts.Editor
+namespace EugeneC.Editor
 {
 #if UNITY_EDITOR
 	/// <summary>

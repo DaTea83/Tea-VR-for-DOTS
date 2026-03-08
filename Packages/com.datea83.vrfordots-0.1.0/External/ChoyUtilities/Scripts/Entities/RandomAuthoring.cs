@@ -47,7 +47,7 @@ namespace EugeneC.ECS
 		/// </summary>
 		ManualOverride = 1,
 		/// <summary>
-		/// System milliseconds value will initialize <see cref="RandomIData"/> using index from the system's millisecond time value at the time of initialization in the <see cref="InitializeEntityRandomSystem"/>
+		/// System milliseconds value will initialize <see cref="RandomIData"/> using index from the system's millisecond time value at the time of initialization in the <see cref="InitializeRandomISystem"/>
 		/// </summary>
 		SystemMilliseconds = 2
 	}

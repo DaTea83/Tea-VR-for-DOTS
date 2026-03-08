@@ -1,12 +1,13 @@
+using EugeneC.ECS;
 using UnityEditor;
-using UnityEngine;
+// ReSharper disable CheckNamespace
 
-namespace TeaFramework
+namespace EugeneC.Editor
 {
 #if UNITY_EDITOR    
     
-    [CustomEditor(typeof(DestroyEntityAuthoring))]
-    public class DestroyEntityEditor : Editor
+    [CustomEditor(typeof(DestroyAuthoring))]
+    public class DestroyEntityEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

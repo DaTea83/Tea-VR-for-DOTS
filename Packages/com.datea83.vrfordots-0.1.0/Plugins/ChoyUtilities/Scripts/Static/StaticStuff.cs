@@ -10,10 +10,10 @@ namespace EugeneC.Utilities
 		// Can be non-static but the use case is rare, usually do interface instead
 		public static void CallStaticMethod(string className, string methodName)
 		{
-			Type classtype = Type.GetType(className);
+			var classtype = Type.GetType(className);
 			if (classtype != null)
 			{
-				MethodInfo method = classtype.GetMethod(methodName);
+				var method = classtype.GetMethod(methodName);
 				if (method != null)
 					method.Invoke(className, null);
 				else
@@ -26,17 +26,17 @@ namespace EugeneC.Utilities
 		// Use this if the singleton is self-declared
 		public static void CallInstanceMethod(string instanceClassName, string methodName)
 		{
-			Type classtype = Assembly.GetExecutingAssembly().GetType(instanceClassName);
+			var classtype = Assembly.GetExecutingAssembly().GetType(instanceClassName);
 
 			if (classtype != null)
 			{
-				PropertyInfo property = classtype.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+				var property = classtype.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
 				if (property != null)
 				{
-					object classInstance = property.GetValue(null);
+					var classInstance = property.GetValue(null);
 					if (classInstance != null)
 					{
-						MethodInfo method = classtype.GetMethod(methodName);
+						var method = classtype.GetMethod(methodName);
 						if (method != null)
 							method.Invoke(classInstance, null);
 						else
@@ -55,13 +55,13 @@ namespace EugeneC.Utilities
 		// For any singleton inherited from generic singleton
 		public static void CallGenericInstanceMethod(string instanceClassName, string methodName)
 		{
-			Type classType = Assembly.GetExecutingAssembly().GetType(instanceClassName);
+			var classType = Assembly.GetExecutingAssembly().GetType(instanceClassName);
 
 			if (classType != null && typeof(MonoBehaviour).IsAssignableFrom(classType))
 			{
-				Type genericSingletonType = typeof(GenericSingleton<>).MakeGenericType(classType);
+				var genericSingletonType = typeof(GenericSingleton<>).MakeGenericType(classType);
 
-				PropertyInfo instanceProperty =
+				var instanceProperty =
 					genericSingletonType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
 
 				if (instanceProperty != null)

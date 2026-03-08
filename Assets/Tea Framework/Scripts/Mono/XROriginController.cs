@@ -40,7 +40,7 @@ namespace TeaFramework
             foreach (var sub in _subsystems)
             {
                 var supportedModes = sub.GetSupportedTrackingOriginModes();
-                bool supportsModes = (trackingOrigin & supportedModes) != 0;
+                bool supportsModes = (supportedModes & trackingOrigin) != 0;
                 
                 if(!supportsModes) continue;
                 if (!sub.running)

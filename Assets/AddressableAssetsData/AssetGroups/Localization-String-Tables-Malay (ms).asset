@@ -14,7 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GroupName: Localization-String-Tables-Malay (ms)
   m_GUID: a2461af6a84ae0044b473289c31f2abd
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 97d99fe62c2c7314395c0bc5ba7f03a8
+    m_Address: UI Table_ms
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ms
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: fc2c2e819a426f24d929b5a2fa876c78, type: 2}
   m_SchemaSet:

@@ -21,7 +21,8 @@
         "com.unity.physics": "1.4.5",
         "com.unity.modules.xr": "1.0.0",
         "com.unity.modules.vr": "1.0.0",
-        "com.unity.inputsystem": "1.18.0"
+        "com.unity.inputsystem": "1.18.0",
+        "com.unity.localization": "1.5.9"
       }
     },
     "com.datea83.vrfordots": {

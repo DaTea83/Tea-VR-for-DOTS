@@ -72,14 +72,14 @@ MonoBehaviour:
   m_EnableXRInput: 1
   m_EnableMouseInput: 1
   m_EnableTouchInput: 1
-  m_PointAction: {fileID: -5023353988859156445, guid: cf4f8d388e9e0f942ac4ba4dfec4faa9, type: 3}
-  m_LeftClickAction: {fileID: 3203352793465708564, guid: cf4f8d388e9e0f942ac4ba4dfec4faa9, type: 3}
-  m_MiddleClickAction: {fileID: 4857223541113533197, guid: cf4f8d388e9e0f942ac4ba4dfec4faa9, type: 3}
-  m_RightClickAction: {fileID: -6540634352642925880, guid: cf4f8d388e9e0f942ac4ba4dfec4faa9, type: 3}
-  m_ScrollWheelAction: {fileID: 3178246174667697563, guid: cf4f8d388e9e0f942ac4ba4dfec4faa9, type: 3}
-  m_NavigateAction: {fileID: -4567930953974445680, guid: cf4f8d388e9e0f942ac4ba4dfec4faa9, type: 3}
-  m_SubmitAction: {fileID: 4409302440103185728, guid: cf4f8d388e9e0f942ac4ba4dfec4faa9, type: 3}
-  m_CancelAction: {fileID: 4678740910246165772, guid: cf4f8d388e9e0f942ac4ba4dfec4faa9, type: 3}
+  m_PointAction: {fileID: -5023353988859156445, guid: 8176b3f34ae8ae545b35bfef4625d9e5, type: 3}
+  m_LeftClickAction: {fileID: 3203352793465708564, guid: 8176b3f34ae8ae545b35bfef4625d9e5, type: 3}
+  m_MiddleClickAction: {fileID: 4857223541113533197, guid: 8176b3f34ae8ae545b35bfef4625d9e5, type: 3}
+  m_RightClickAction: {fileID: -6540634352642925880, guid: 8176b3f34ae8ae545b35bfef4625d9e5, type: 3}
+  m_ScrollWheelAction: {fileID: 3178246174667697563, guid: 8176b3f34ae8ae545b35bfef4625d9e5, type: 3}
+  m_NavigateAction: {fileID: -4567930953974445680, guid: 8176b3f34ae8ae545b35bfef4625d9e5, type: 3}
+  m_SubmitAction: {fileID: 4409302440103185728, guid: 8176b3f34ae8ae545b35bfef4625d9e5, type: 3}
+  m_CancelAction: {fileID: 4678740910246165772, guid: 8176b3f34ae8ae545b35bfef4625d9e5, type: 3}
   m_EnableBuiltinActionsAsFallback: 1
   m_EnableGamepadInput: 0
   m_EnableJoystickInput: 0

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="44d1c45d-e58f-4230-b4dc-4817fae4673c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.plastic/plastic.changes" beforeDir="false" afterPath="$PROJECT_DIR$/.plastic/plastic.changes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.plastic/plastic.wktree" beforeDir="false" afterPath="$PROJECT_DIR$/.plastic/plastic.wktree" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/Enums.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/Enums/EnumCollection.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/Enums/EnumCollection.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/System.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/System/HealthSystem.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/System/HealthSystem.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/System/MultiInputSystem.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/System/MultiInputSystem.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Resources/Input Assets/XR Default.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Resources/Input Assets/XR Default.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Runtime/Common/Interaction.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Runtime/Common/Physics.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Runtime/Common/Translation.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Runtime/Input.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Third Party Notices.md" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Third Party Notices.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.probuilder/Settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.probuilder/Settings.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "DaTea83"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/DaTea83/Tea-VR-for-DOTS.git",
+    "accountId": "3698610d-8878-484c-b7cb-7c2e735d35ac"
+  }
+}]]></component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="3AjVb7oKqlcT5l6z8qxkWYEI6ta" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "Branch-DynamicHands",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="44d1c45d-e58f-4230-b4dc-4817fae4673c" name="Changes" comment="" />
+      <created>1773106039736</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1773106039736</updated>
+      <workItem from="1773106041400" duration="378000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

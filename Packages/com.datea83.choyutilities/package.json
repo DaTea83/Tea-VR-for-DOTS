@@ -2,9 +2,9 @@
   "name": "com.datea83.choyutilities",
   "displayName": "ChoyUtilities",
   "version": "0.1.0",
-  "unity": "2022.3",
+  "unity": "2023.1",
   "unityRelease": "6f1",
-  "description": "Replace this with your own description of the package. \n\nFor best results, use this text to summarize: \n\u25aa What the package does \n\u25aa How it can benefit the user \n\nNote: Special formatting characters are supported, including line breaks ('\\n') and bullets ('\\u25AA').",
+  "description": "Bruh",
   "dependencies": {
     "com.unity.test-framework": "1.6.0",
     "com.unity.burst": "1.8.27",
@@ -13,8 +13,6 @@
     "com.unity.entities": "1.4.5",
     "com.unity.entities.graphics": "1.4.18",
     "com.unity.physics": "1.4.5",
-    "com.unity.modules.xr": "1.0.0",
-    "com.unity.modules.vr": "1.0.0",
     "com.unity.inputsystem": "1.18.0",
     "com.unity.localization": "1.5.9"
   },

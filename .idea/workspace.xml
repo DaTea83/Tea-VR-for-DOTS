@@ -4,28 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="44d1c45d-e58f-4230-b4dc-4817fae4673c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.plastic/plastic.changes" beforeDir="false" afterPath="$PROJECT_DIR$/.plastic/plastic.changes" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.plastic/plastic.wktree" beforeDir="false" afterPath="$PROJECT_DIR$/.plastic/plastic.wktree" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/Enums.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/Enums/EnumCollection.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/Enums/EnumCollection.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/System.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/System/HealthSystem.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/System/HealthSystem.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/System/MultiInputSystem.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/Runtime/System/MultiInputSystem.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/com.datea83.choyutilities/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Resources/Input Assets/XR Default.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Resources/Input Assets/XR Default.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Runtime/Common/Interaction.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Runtime/Common/Physics.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Runtime/Common/Translation.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Runtime/Input.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Third Party Notices.md" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/com.datea83.vrfordots/Third Party Notices.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.probuilder/Settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.probuilder/Settings.json" afterDir="false" />
-    </list>
+    <list default="true" id="44d1c45d-e58f-4230-b4dc-4817fae4673c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -79,6 +58,13 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecapSpentCounter">
+    <option name="endsOfQuotaMs" value="1774245611129" />
+    <option name="spentUsd" value="0.00483205" />
+  </component>
+  <component name="RecapUselessUpdatesCounter">
+    <option name="suspendCountdown" value="9" />
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -93,7 +79,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1773106039736</updated>
-      <workItem from="1773106041400" duration="378000" />
+      <workItem from="1773106041400" duration="924000" />
     </task>
     <servers />
   </component>

@@ -11,7 +11,7 @@ namespace EugeneC.ECS
 		public float overrideSpeed;
 		public float pointThreshold = 0.2f;
 		
-		public float3 position => transform.position;
+		public float3 Position => transform.position;
 
 		private void OnDrawGizmos()
 		{

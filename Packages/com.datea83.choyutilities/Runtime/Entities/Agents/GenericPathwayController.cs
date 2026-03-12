@@ -66,7 +66,7 @@ namespace EugeneC.ECS
 					
 					foreach (var t in pointSerializable[i].agentPoints)
 					{
-						originBuilder[i] = t.position;
+						originBuilder[i] = t.Position;
 					}
 					
 					using var bakedPoints = CreateSpline(pathIds[p], i);
@@ -113,7 +113,7 @@ namespace EugeneC.ECS
 
 				for (var k = 0; k < n; k++)
 				{
-					nativePoints[k] = p.paths[i].agentPoints[k].position;
+					nativePoints[k] = p.paths[i].agentPoints[k].Position;
 				}
 						
 				switch (p.paths[i].bakingLineType)
@@ -133,8 +133,8 @@ namespace EugeneC.ECS
 
 						for(var k = 0; k < p.paths[i].agentPoints.Length - 1; k += 2)
 						{
-							float3 a = p.paths[i].agentPoints[k].position;
-							float3 b = p.paths[i].agentPoints[k + 1].position;
+							float3 a = p.paths[i].agentPoints[k].Position;
+							float3 b = p.paths[i].agentPoints[k + 1].Position;
 							
 							if (j == 0) bakedPoints.Add(a);
 							

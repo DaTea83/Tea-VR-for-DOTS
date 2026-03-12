@@ -14,7 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Assets-Shared
   m_GUID: f987d097fb6905b4eaa868550ea2b8a7
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 257ead27c8625854286d326eaf4457a9
+    m_Address: Packages/com.datea83.choyutilities/Resources/Locale/Table/UI/UI Table
+      Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: fc2c2e819a426f24d929b5a2fa876c78, type: 2}
   m_SchemaSet:

@@ -7,6 +7,14 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.bovinelabs.core": {
+      "version": "file:com.bovinelabs.core",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.entities": "1.4.0-pre.3"
+      }
+    },
     "com.datea83.choyutilities": {
       "version": "file:com.datea83.choyutilities",
       "depth": 0,

@@ -16,7 +16,7 @@ namespace EugeneC.Utilities
 
 		public bool IsCameraReady { get; private set; }
 
-		private async void OnEnable()
+		private async void Start()
 		{
 			try
 			{

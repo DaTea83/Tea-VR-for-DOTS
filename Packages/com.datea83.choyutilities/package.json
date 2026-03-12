@@ -16,6 +16,11 @@
     "com.unity.inputsystem": "1.18.0",
     "com.unity.localization": "1.5.9"
   },
+  "keywords": [
+    "DOTS",
+    "Entities",
+    "ECS"
+  ],
   "hideInEditor": false,
   "author": {
     "name": "datea83",

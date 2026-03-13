@@ -40,6 +40,3 @@ Script naming scheme:
                           is for a static class that holds a bunch of static methods and extensions 
                           
 (Suffix) -Editor        : Editor class for customized view
-
-// Editor class I rarely open a new file and put it in the Editor folder, unless the script is too huge
-// Most of the time I'll just put directly under the corresponding classes

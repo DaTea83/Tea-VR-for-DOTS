@@ -29,6 +29,7 @@ namespace EugeneC.Utilities
 
 		public async Awaitable RunFadeScreen(UtilityCollection.EFadeType fadeType, float duration)
 		{
+            IsCameraReady = false;
 			await Awaitable.EndOfFrameAsync(Token);
 			await Token.FadeScreenAsync(blackScreenImg, fadeType, duration, Time.deltaTime);
 			IsCameraReady = true;

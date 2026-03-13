@@ -3,21 +3,19 @@ using EugeneC.Utilities;
 using UnityEditor.Animations;
 using UnityEngine;
 // ReSharper disable CheckNamespace
-
 // ReSharper disable Unity.PerformanceCriticalCodeInvocation
 
 namespace EugeneC.Editor
 {
 	[AddComponentMenu("Eugene/Animation Recorder")]
 	[RequireComponent(typeof(Animator))]
-	public class AnimationRecorder : MonoBehaviour
+	public class AnimationRecorderEditor : MonoBehaviour
 	{
-		[SerializeField] AnimationClip animationClip;
-		[SerializeField] float duration = 1.0f;
+		[SerializeField] private AnimationClip animationClip;
+		[SerializeField] private float duration = 1.0f;
 
 		[Header("Fire Event")] 
 		[SerializeField] private string className;
-
 		[SerializeField] private string methodName;
 
 		private float _timer;
@@ -51,16 +49,14 @@ namespace EugeneC.Editor
 		{
 			_timer -= Time.unscaledDeltaTime;
 			if (_timer < 0)
-			{
-				if (_recorder.isRecording)
-				{
-					_recorder.SaveToClip(animationClip);
-					print("End Recording");
+            {
+                if (!_recorder.isRecording) return;
+                _recorder.SaveToClip(animationClip);
+                print("End Recording");
 
-					_canRecord = false;
-					_timer = duration;
-				}
-			}
+                _canRecord = false;
+                _timer = duration;
+            }
 			else
 			{
 				_recorder.TakeSnapshot(Time.unscaledDeltaTime);

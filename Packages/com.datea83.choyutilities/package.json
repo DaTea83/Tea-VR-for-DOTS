@@ -1,10 +1,10 @@
 {
   "name": "com.datea83.choyutilities",
   "displayName": "ChoyUtilities",
-  "version": "0.1.0",
-  "unity": "2023.1",
-  "unityRelease": "6f1",
-  "description": "Bruh",
+  "version": "0.1.2",
+  "unity": "2022.3",
+  "unityRelease": "1f1",
+  "description": "Eugene Choy's Personal Unity Library",
   "dependencies": {
     "com.unity.test-framework": "1.6.0",
     "com.unity.burst": "1.8.27",

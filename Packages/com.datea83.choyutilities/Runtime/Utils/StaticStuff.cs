@@ -10,11 +10,11 @@ namespace EugeneC.Utilities
 		// Can be non-static but the use case is rare, usually do interface instead
 		public static void CallStaticMethod(string className, string methodName)
 		{
-			var classtype = Type.GetType(className);
-			if (classtype != null)
+			var classType = Type.GetType(className);
+			if (classType is not null)
 			{
-				var method = classtype.GetMethod(methodName);
-				if (method != null)
+				var method = classType.GetMethod(methodName);
+				if (method is not null)
 					method.Invoke(className, null);
 				else
 					Debug.LogWarning($"Method '{methodName}' not found on {className}.");
@@ -26,18 +26,18 @@ namespace EugeneC.Utilities
 		// Use this if the singleton is self-declared
 		public static void CallInstanceMethod(string instanceClassName, string methodName)
 		{
-			var classtype = Assembly.GetExecutingAssembly().GetType(instanceClassName);
+			var classType = Assembly.GetExecutingAssembly().GetType(instanceClassName);
 
-			if (classtype != null)
+			if (classType is not null)
 			{
-				var property = classtype.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
-				if (property != null)
+				var property = classType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+				if (property is not null)
 				{
 					var classInstance = property.GetValue(null);
-					if (classInstance != null)
+					if (classInstance is not null)
 					{
-						var method = classtype.GetMethod(methodName);
-						if (method != null)
+						var method = classType.GetMethod(methodName);
+						if (method is not null)
 							method.Invoke(classInstance, null);
 						else
 							Debug.LogWarning($"Method '{methodName}' not found on {instanceClassName}.");
@@ -57,20 +57,20 @@ namespace EugeneC.Utilities
 		{
 			var classType = Assembly.GetExecutingAssembly().GetType(instanceClassName);
 
-			if (classType != null && typeof(MonoBehaviour).IsAssignableFrom(classType))
+			if (classType is not null && typeof(MonoBehaviour).IsAssignableFrom(classType))
 			{
 				var genericSingletonType = typeof(GenericSingleton<>).MakeGenericType(classType);
 
 				var instanceProperty =
 					genericSingletonType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
 
-				if (instanceProperty != null)
+				if (instanceProperty is not null)
 				{
-					object classInstance = instanceProperty.GetValue(null);
+					var classInstance = instanceProperty.GetValue(null);
 					if (classInstance != null)
 					{
-						MethodInfo method = classType.GetMethod(methodName);
-						if (method != null)
+						var method = classType.GetMethod(methodName);
+						if (method is not null)
 							method.Invoke(classInstance, null);
 						else
 							Debug.LogWarning($"Method '{methodName}' not found on {instanceClassName}.");

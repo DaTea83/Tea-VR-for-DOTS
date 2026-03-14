@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Windows.Favourites
-{
+namespace BovineLabs.Core.Editor.Windows.Favourites {
     using System;
     using System.Collections.Generic;
     using BovineLabs.Core.Editor.EditorPreferences;
@@ -15,18 +14,14 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
     /// </summary>
     [CoreEditorPreference("Favourites")]
     [Serializable]
-    public class FavouritesPreferences : BaseDisplayPreferences
-    {
-        [SerializeField]
-        [Tooltip("Whether to show confirmation dialog when removing favourites")]
+    public class FavouritesPreferences : BaseDisplayPreferences {
+        [SerializeField] [Tooltip("Whether to show confirmation dialog when removing favourites")]
         private bool confirmRemoval = true;
 
-        [SerializeField]
-        [HideInInspector] // Hide from preferences UI
+        [SerializeField] [HideInInspector] // Hide from preferences UI
         private List<SerializableFavouriteItem> favouritesData = new();
 
-        public FavouritesPreferences()
-        {
+        public FavouritesPreferences() {
             // Set defaults specific to favourites
             this.GreyOutUnloadedObjects = true;
         }
@@ -34,31 +29,24 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
         /// <summary>
         /// Gets or sets a value indicating whether to show confirmation dialog when removing favourites.
         /// </summary>
-        public bool ConfirmRemoval
-        {
-            get => this.confirmRemoval;
-            set => this.confirmRemoval = value;
-        }
+        public bool ConfirmRemoval { get => this.confirmRemoval; set => this.confirmRemoval = value; }
 
         /// <summary>
         /// Gets or sets the favourites data. Hidden from preferences UI.
         /// </summary>
-        public List<SerializableFavouriteItem> FavouritesData
-        {
+        public List<SerializableFavouriteItem> FavouritesData {
             get => this.favouritesData;
             set => this.favouritesData = value ?? new List<SerializableFavouriteItem>();
         }
 
         /// <inheritdoc />
-        public override string[] GetSearchKeywords()
-        {
+        public override string[] GetSearchKeywords() {
             return IEditorPreference.GetSearchKeywordsFromType(typeof(FavouritesPreferences));
         }
     }
 
     [Serializable]
-    public class SerializableFavouriteItem
-    {
+    public class SerializableFavouriteItem {
         public string Name = string.Empty;
         public string TypeName = string.Empty;
         public string AssetPath = string.Empty;

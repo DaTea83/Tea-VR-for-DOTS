@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Extensions
-{
+namespace BovineLabs.Core.Tests.Extensions {
     using System.Collections.Generic;
     using BovineLabs.Core.Extensions;
     using NUnit.Framework;
@@ -11,11 +10,9 @@ namespace BovineLabs.Core.Tests.Extensions
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Mathematics;
 
-    public class NativeParallelMultiHashMapExtensionsTests
-    {
+    public class NativeParallelMultiHashMapExtensionsTests {
         [Test]
-        public void ClearAndAddBatchTest()
-        {
+        public void ClearAndAddBatchTest() {
             var length = 9;
 
             var hashMap = new NativeParallelMultiHashMap<int, short>(4, Allocator.Temp);
@@ -23,24 +20,21 @@ namespace BovineLabs.Core.Tests.Extensions
             var keys = new NativeArray<int>(length, Allocator.Temp);
             var values = new NativeArray<short>(length, Allocator.Temp);
 
-            for (short i = 0; i < length; i++)
-            {
+            for (short i = 0; i < length; i++) {
                 keys[i] = i;
                 values[i] = (short)(length - (i / 2));
             }
 
             hashMap.ClearAndAddBatch(keys, values);
 
-            for (short i = 0; i < length; i++)
-            {
+            for (short i = 0; i < length; i++) {
                 Assert.IsTrue(hashMap.TryGetFirstValue(i, out var value, out _));
                 Assert.AreEqual(values[i], value);
             }
         }
 
         [Test]
-        public void AddBatchTest()
-        {
+        public void AddBatchTest() {
             var length = 9;
             var split = 3;
 
@@ -49,8 +43,7 @@ namespace BovineLabs.Core.Tests.Extensions
             var keys = new NativeArray<int>(length, Allocator.Temp);
             var values = new NativeArray<short>(length, Allocator.Temp);
 
-            for (short i = 0; i < length; i++)
-            {
+            for (short i = 0; i < length; i++) {
                 keys[i] = i;
                 values[i] = (short)(length - (i / 2));
             }
@@ -59,20 +52,17 @@ namespace BovineLabs.Core.Tests.Extensions
             hashMap.AddBatchUnsafe(keys.GetSubArray(split, length - split), values.GetSubArray(split, length - split));
             // hashMap.AddBatchUnsafe(keys, values);
 
-            for (short i = 0; i < length; i++)
-            {
+            for (short i = 0; i < length; i++) {
                 Assert.IsTrue(hashMap.TryGetFirstValue(i, out var value, out _));
                 Assert.AreEqual(values[i], value);
             }
         }
 
         [Test]
-        public void AddBatchSliceArrayTest()
-        {
+        public void AddBatchSliceArrayTest() {
             var array = new NativeArray<float2>(16, Allocator.Temp);
 
-            for (var i = 0; i < array.Length; i++)
-            {
+            for (var i = 0; i < array.Length; i++) {
                 array[i] = new float2(i);
             }
 
@@ -86,15 +76,13 @@ namespace BovineLabs.Core.Tests.Extensions
 
             var keys = hashMap.GetKeyArray(Allocator.Temp);
 
-            for (var i = 0; i < keys.Length; i++)
-            {
+            for (var i = 0; i < keys.Length; i++) {
                 Assert.AreEqual((31 - i) % 16, keys[i]);
             }
         }
 
         [Test]
-        public void AddBatchSingleKeyTest()
-        {
+        public void AddBatchSingleKeyTest() {
             var length = 9;
             var split = 3;
 
@@ -103,8 +91,7 @@ namespace BovineLabs.Core.Tests.Extensions
 
             var key = 23;
 
-            for (short i = 0; i < length; i++)
-            {
+            for (short i = 0; i < length; i++) {
                 values[i] = (short)(length - i);
             }
 
@@ -114,16 +101,13 @@ namespace BovineLabs.Core.Tests.Extensions
             Assert.IsTrue(hashMap.TryGetFirstValue(key, out var value, out var it));
 
             var results = new HashSet<int>();
-            foreach (var v in values)
-            {
+            foreach (var v in values) {
                 results.Add(v);
             }
 
-            do
-            {
+            do {
                 Assert.IsTrue(results.Remove(value));
-            }
-            while (hashMap.TryGetNextValue(out value, ref it));
+            } while (hashMap.TryGetNextValue(out value, ref it));
 
             Assert.AreEqual(0, results.Count);
         }

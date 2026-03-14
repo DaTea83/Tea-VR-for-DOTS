@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Windows.Favourites
-{
+namespace BovineLabs.Core.Editor.Windows.Favourites {
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -15,8 +14,7 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
     /// <summary>
     /// Service that manages favourites collection in Unity Editor.
     /// </summary>
-    public sealed class FavouritesService : BaseObjectService<FavouritesItem, FavouritesPreferences>
-    {
+    public sealed class FavouritesService : BaseObjectService<FavouritesItem, FavouritesPreferences> {
         public const string PreferenceKey = "Favourites";
 
         private static FavouritesService? instance;
@@ -24,20 +22,15 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
         private readonly List<FavouritesItem> favourites = new();
 
         private FavouritesService()
-            : base(PreferenceKey)
-        {
-        }
+            : base(PreferenceKey) { }
 
         /// <summary>Gets the current favourites as a read-only list.</summary>
         public override IReadOnlyList<FavouritesItem> Items => new List<FavouritesItem>(this.favourites);
 
         /// <summary>Gets the singleton instance of the favourites service.</summary>
-        public static FavouritesService Instance
-        {
-            get
-            {
-                if (instance == null || instance.Disposed)
-                {
+        public static FavouritesService Instance {
+            get {
+                if (instance == null || instance.Disposed) {
                     instance = new FavouritesService();
                 }
 
@@ -51,10 +44,8 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
         /// <summary>Adds an object to favourites.</summary>
         /// <param name="obj"> The object to add. </param>
         /// <returns> True if added, false if already exists. </returns>
-        public bool AddFavourite(Object obj)
-        {
-            if (obj == null)
-            {
+        public bool AddFavourite(Object obj) {
+            if (obj == null) {
                 return false;
             }
 
@@ -62,8 +53,7 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
 
             // Check if already exists
             var existingIndex = this.favourites.FindIndex(f => f.GlobalId.Equals(objectId));
-            if (existingIndex >= 0)
-            {
+            if (existingIndex >= 0) {
                 return false; // Already exists
             }
 
@@ -79,8 +69,7 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
         /// <summary>Adds multiple objects to favourites.</summary>
         /// <param name="objects"> The objects to add. </param>
         /// <returns> Number of objects successfully added. </returns>
-        public int AddFavourites(IEnumerable<Object> objects)
-        {
+        public int AddFavourites(IEnumerable<Object> objects) {
             var addedCount = 0;
             var hasChanges = false;
 
@@ -89,19 +78,16 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
             var objectIds = new GlobalObjectId[o.Length];
             GlobalObjectId.GetGlobalObjectIdsSlow(o, objectIds);
 
-            for (var index = 0; index < o.Length; index++)
-            {
+            for (var index = 0; index < o.Length; index++) {
                 var obj = o[index];
-                if (obj == null)
-                {
+                if (obj == null) {
                     continue;
                 }
 
                 var objectId = objectIds[index];
 
                 // Check if already exists
-                if (this.favourites.Any(f => f.GlobalId.Equals(objectId)))
-                {
+                if (this.favourites.Any(f => f.GlobalId.Equals(objectId))) {
                     continue;
                 }
 
@@ -112,8 +98,7 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
                 hasChanges = true;
             }
 
-            if (hasChanges)
-            {
+            if (hasChanges) {
                 this.Save();
                 this.NotifyItemsChanged();
             }
@@ -124,18 +109,15 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
         /// <summary>Removes an object from favourites by object reference.</summary>
         /// <param name="obj"> The object to remove. </param>
         /// <returns> True if removed, false if not found. </returns>
-        public bool RemoveFavourite(Object obj)
-        {
-            if (obj == null)
-            {
+        public bool RemoveFavourite(Object obj) {
+            if (obj == null) {
                 return false;
             }
 
             var objectId = GlobalObjectId.GetGlobalObjectIdSlow(obj);
             var index = this.favourites.FindIndex(f => f.GlobalId.Equals(objectId));
 
-            if (index >= 0)
-            {
+            if (index >= 0) {
                 this.favourites.RemoveAt(index);
                 this.Save();
                 this.NotifyItemsChanged();
@@ -146,10 +128,8 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
         }
 
         /// <summary>Clears all favourites.</summary>
-        public void ClearFavourites()
-        {
-            if (this.favourites.Count > 0)
-            {
+        public void ClearFavourites() {
+            if (this.favourites.Count > 0) {
                 this.favourites.Clear();
                 this.Save();
                 this.NotifyItemsChanged();
@@ -159,10 +139,8 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
         /// <summary>Checks if an object is already in favourites.</summary>
         /// <param name="obj"> The object to check. </param>
         /// <returns> True if in favourites, false otherwise. </returns>
-        public bool IsFavourite(Object obj)
-        {
-            if (obj == null)
-            {
+        public bool IsFavourite(Object obj) {
+            if (obj == null) {
                 return false;
             }
 
@@ -173,13 +151,11 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
         /// <summary>Reorders a favourite item to a new position relative to another item.</summary>
         /// <param name="itemToMove"> The item to move. </param>
         /// <param name="targetItem"> The item to move it relative to. </param>
-        public void ReorderFavourite(FavouritesItem itemToMove, FavouritesItem targetItem)
-        {
+        public void ReorderFavourite(FavouritesItem itemToMove, FavouritesItem targetItem) {
             var oldIndex = this.favourites.IndexOf(itemToMove);
             var newIndex = this.favourites.IndexOf(targetItem);
 
-            if (oldIndex == -1 || newIndex == -1 || oldIndex == newIndex)
-            {
+            if (oldIndex == -1 || newIndex == -1 || oldIndex == newIndex) {
                 return;
             }
 
@@ -193,40 +169,30 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
 
         /// <summary>Selects an object from favourites.</summary>
         /// <param name="item"> The item to select. </param>
-        public void SelectFromFavourites(FavouritesItem item)
-        {
+        public void SelectFromFavourites(FavouritesItem item) {
             var obj = item.GetObject();
-            if (obj == null)
-            {
+            if (obj == null) {
                 return;
             }
 
             Selection.activeObject = obj;
 
             // If it's a scene object, also ping it
-            if (!item.IsAsset)
-            {
+            if (!item.IsAsset) {
                 EditorGUIUtility.PingObject(obj);
             }
         }
 
         /// <inheritdoc/>
-        protected override bool TryRemoveItem(FavouritesItem item)
-        {
-            return this.favourites.Remove(item);
-        }
+        protected override bool TryRemoveItem(FavouritesItem item) { return this.favourites.Remove(item); }
 
         /// <inheritdoc/>
-        protected override void Save()
-        {
-            try
-            {
+        protected override void Save() {
+            try {
                 this.Preferences.FavouritesData.Clear();
 
-                foreach (var item in this.favourites)
-                {
-                    var serializableItem = new SerializableFavouriteItem
-                    {
+                foreach (var item in this.favourites) {
+                    var serializableItem = new SerializableFavouriteItem {
                         Name = item.Name,
                         TypeName = item.TypeName,
                         AssetPath = item.AssetPath,
@@ -238,27 +204,22 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
                     this.Preferences.FavouritesData.Add(serializableItem);
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 Debug.LogWarning($"Failed to save favourites: {ex.Message}");
             }
         }
 
         /// <inheritdoc/>
-        protected override void Load()
-        {
-            try
-            {
-                if (this.Preferences.FavouritesData.Count == 0)
-                {
+        protected override void Load() {
+            try {
+                if (this.Preferences.FavouritesData.Count == 0) {
                     return;
                 }
 
                 var pathCache = new Dictionary<string, Object>();
                 var allObjects = Resources.FindObjectsOfTypeAll<Object>().ToList();
 
-                foreach (var item in this.Preferences.FavouritesData)
-                {
+                foreach (var item in this.Preferences.FavouritesData) {
                     // Create favourite item
                     GlobalObjectId.TryParse(item.GlobalIdString, out var savedGlobalId);
                     var obj = TryGetAssetIfLoaded(item.AssetPath, allObjects, pathCache);
@@ -268,12 +229,12 @@ namespace BovineLabs.Core.Editor.Windows.Favourites
                     GlobalObjectId.TryParse(item.Icon, out var iconId);
                     var icon = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(iconId) as Texture2D;
 
-                    var favouriteItem = new FavouritesItem(obj, item.Name, item.TypeName, item.AssetPath, savedGlobalId, icon, timestamp);
+                    var favouriteItem = new FavouritesItem(obj, item.Name, item.TypeName, item.AssetPath, savedGlobalId,
+                        icon, timestamp);
                     this.favourites.Add(favouriteItem);
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 Debug.LogWarning($"Failed to load favourites: {ex.Message}");
             }
         }

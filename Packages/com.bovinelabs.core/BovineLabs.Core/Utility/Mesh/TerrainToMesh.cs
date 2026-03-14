@@ -4,8 +4,7 @@
 
 #if UNITY_TERRAIN
 // Modified version of com.unity.rendering.light-transport\Runtime\UnifiedRayTracing\Common\TerrainToMesh.cs
-namespace BovineLabs.Core.Utility
-{
+namespace BovineLabs.Core.Utility {
     using System;
     using BovineLabs.Core.Assertions;
     using Unity.Burst;
@@ -15,17 +14,14 @@ namespace BovineLabs.Core.Utility
     using UnityEngine;
     using UnityEngine.Rendering;
 
-    public static class TerrainToMesh
-    {
-        public static Result Convert(TerrainData terrainData, Allocator allocator = Allocator.TempJob)
-        {
+    public static class TerrainToMesh {
+        public static Result Convert(TerrainData terrainData, Allocator allocator = Allocator.TempJob) {
             var request = ConvertAsync(terrainData, allocator);
             request.WaitForCompletion();
             return request;
         }
 
-        public static Result ConvertAsync(TerrainData terrainData, Allocator allocator = Allocator.TempJob)
-        {
+        public static Result ConvertAsync(TerrainData terrainData, Allocator allocator = Allocator.TempJob) {
             var width = terrainData.heightmapTexture.width;
             var height = terrainData.heightmapTexture.height;
             var heightmap = terrainData.GetHeights(0, 0, width, height);
@@ -35,19 +31,21 @@ namespace BovineLabs.Core.Utility
         }
 
         public static Result ConvertAsync(
-            int width, int height, Vector3 heightmapScale, float[,] heightmap, bool[,] holes, Allocator allocator = Allocator.TempJob)
-        {
+            int width,
+            int height,
+            Vector3 heightmapScale,
+            float[,] heightmap,
+            bool[,] holes,
+            Allocator allocator = Allocator.TempJob) {
             var vertexCount = width * height;
             var job = default(ComputeTerrainMeshJob);
             job.Heightmap = new NativeArray<float>(vertexCount, allocator);
-            for (var i = 0; i < vertexCount; ++i)
-            {
+            for (var i = 0; i < vertexCount; ++i) {
                 job.Heightmap[i] = heightmap[i / width, i % width];
             }
 
             job.Holes = new NativeArray<bool>((width - 1) * (height - 1), allocator);
-            for (var i = 0; i < (width - 1) * (height - 1); ++i)
-            {
+            for (var i = 0; i < (width - 1) * (height - 1); ++i) {
                 job.Holes[i] = holes[i / (width - 1), i % (width - 1)];
             }
 
@@ -65,13 +63,11 @@ namespace BovineLabs.Core.Utility
             return new Result(job, jobHandle);
         }
 
-        public struct Result : IDisposable
-        {
+        public struct Result : IDisposable {
             private JobHandle jobHandle;
             private ComputeTerrainMeshJob job;
 
-            public Result(ComputeTerrainMeshJob job, JobHandle jobHandle)
-            {
+            public Result(ComputeTerrainMeshJob job, JobHandle jobHandle) {
                 this.job = job;
                 this.jobHandle = jobHandle;
             }
@@ -80,13 +76,9 @@ namespace BovineLabs.Core.Utility
 
             public JobHandle Dependency => this.jobHandle;
 
-            public void Dispose()
-            {
-                this.job.DisposeArrays();
-            }
+            public void Dispose() { this.job.DisposeArrays(); }
 
-            public Mesh GetMesh()
-            {
+            public Mesh GetMesh() {
                 Check.Assume(this.Done);
 
                 var mesh = new Mesh { indexFormat = IndexFormat.UInt32 };
@@ -98,44 +90,36 @@ namespace BovineLabs.Core.Utility
                 return mesh;
             }
 
-            public NativeArray<float3> GetVerts(Allocator allocator)
-            {
+            public NativeArray<float3> GetVerts(Allocator allocator) {
                 Check.Assume(this.Done);
 
                 return new NativeArray<float3>(this.job.Positions, allocator);
             }
 
-            public NativeList<int> GetTris(Allocator allocator)
-            {
+            public NativeList<int> GetTris(Allocator allocator) {
                 Check.Assume(this.Done);
 
                 return this.TriangleIndicesWithoutHoles(allocator);
             }
 
-            public void WaitForCompletion()
-            {
-                this.jobHandle.Complete();
-            }
+            public void WaitForCompletion() { this.jobHandle.Complete(); }
 
-            private NativeList<int> TriangleIndicesWithoutHoles(Allocator allocator)
-            {
-                var trianglesWithoutHoles = new NativeList<int>((this.job.Width - 1) * (this.job.Height - 1) * 6, allocator);
-                for (var i = 0; i < this.job.Indices.Length; i += 3)
-                {
+            private NativeList<int> TriangleIndicesWithoutHoles(Allocator allocator) {
+                var trianglesWithoutHoles =
+                    new NativeList<int>((this.job.Width - 1) * (this.job.Height - 1) * 6, allocator);
+                for (var i = 0; i < this.job.Indices.Length; i += 3) {
                     var i1 = this.job.Indices[i];
                     var i2 = this.job.Indices[i + 1];
                     var i3 = this.job.Indices[i + 2];
 
-                    if (i1 != 0 && i2 != 0 && i3 != 0)
-                    {
+                    if (i1 != 0 && i2 != 0 && i3 != 0) {
                         trianglesWithoutHoles.Add(i1);
                         trianglesWithoutHoles.Add(i2);
                         trianglesWithoutHoles.Add(i3);
                     }
                 }
 
-                if (trianglesWithoutHoles.Length == 0)
-                {
+                if (trianglesWithoutHoles.Length == 0) {
                     trianglesWithoutHoles.Add(0);
                     trianglesWithoutHoles.Add(0);
                     trianglesWithoutHoles.Add(0);
@@ -146,13 +130,10 @@ namespace BovineLabs.Core.Utility
         }
 
         [BurstCompile]
-        public struct ComputeTerrainMeshJob : IJobFor
-        {
-            [ReadOnly]
-            public NativeArray<float> Heightmap;
+        public struct ComputeTerrainMeshJob : IJobFor {
+            [ReadOnly] public NativeArray<float> Heightmap;
 
-            [ReadOnly]
-            public NativeArray<bool> Holes;
+            [ReadOnly] public NativeArray<bool> Holes;
 
             public int Width;
             public int Height;
@@ -162,11 +143,9 @@ namespace BovineLabs.Core.Utility
             public NativeArray<float2> Uvs;
             public NativeArray<float3> Normals;
 
-            [NativeDisableParallelForRestriction]
-            public NativeArray<int> Indices;
+            [NativeDisableParallelForRestriction] public NativeArray<int> Indices;
 
-            public void DisposeArrays()
-            {
+            public void DisposeArrays() {
                 this.Heightmap.Dispose();
                 this.Holes.Dispose();
                 this.Positions.Dispose();
@@ -175,8 +154,7 @@ namespace BovineLabs.Core.Utility
                 this.Indices.Dispose();
             }
 
-            public void Execute(int i)
-            {
+            public void Execute(int i) {
                 var vertexIndex = i;
                 var x = i % this.Width;
                 var y = i / this.Height;
@@ -185,10 +163,10 @@ namespace BovineLabs.Core.Utility
 
                 this.Positions[vertexIndex] = v * this.HeightmapScale;
                 this.Uvs[vertexIndex] = v.xz / new float2(this.Width, this.Height);
-                this.Normals[vertexIndex] = CalculateTerrainNormal(this.Heightmap, x, y, this.Width, this.Height, this.HeightmapScale);
+                this.Normals[vertexIndex] =
+                    CalculateTerrainNormal(this.Heightmap, x, y, this.Width, this.Height, this.HeightmapScale);
 
-                if (x < this.Width - 1 && y < this.Height - 1)
-                {
+                if (x < this.Width - 1 && y < this.Height - 1) {
                     var i1 = (y * this.Width) + x;
                     var i2 = i1 + 1;
                     var i3 = i1 + this.Width;
@@ -196,8 +174,7 @@ namespace BovineLabs.Core.Utility
 
                     var faceIndex = x + (y * (this.Width - 1));
 
-                    if (!this.Holes[faceIndex])
-                    {
+                    if (!this.Holes[faceIndex]) {
                         i1 = i2 = i3 = i4 = 0;
                     }
 
@@ -211,8 +188,12 @@ namespace BovineLabs.Core.Utility
                 }
             }
 
-            private static float3 CalculateTerrainNormal(NativeArray<float> heightmap, int x, int y, int width, int height, float3 scale)
-            {
+            private static float3 CalculateTerrainNormal(NativeArray<float> heightmap,
+                int x,
+                int y,
+                int width,
+                int height,
+                float3 scale) {
                 var dX = SampleHeight(x - 1, y - 1, width, height, heightmap, scale.y) * -1.0F;
                 dX += SampleHeight(x - 1, y, width, height, heightmap, scale.y) * -2.0F;
                 dX += SampleHeight(x - 1, y + 1, width, height, heightmap, scale.y) * -1.0F;
@@ -234,8 +215,12 @@ namespace BovineLabs.Core.Utility
                 return math.normalize(new float3(-dX, 8, -dY));
             }
 
-            private static float SampleHeight(int x, int y, int width, int height, NativeArray<float> heightmap, float scale)
-            {
+            private static float SampleHeight(int x,
+                int y,
+                int width,
+                int height,
+                NativeArray<float> heightmap,
+                float scale) {
                 x = math.clamp(x, 0, width - 1);
                 y = math.clamp(y, 0, height - 1);
 

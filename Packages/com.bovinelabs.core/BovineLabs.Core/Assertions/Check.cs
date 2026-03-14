@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Assertions
-{
+namespace BovineLabs.Core.Assertions {
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
@@ -13,30 +12,26 @@ namespace BovineLabs.Core.Assertions
     using Debug = UnityEngine.Debug;
 
     [DebuggerStepThrough]
-    public static class Check
-    {
+    public static class Check {
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Assume([AssertionCondition(AssertionConditionType.IS_TRUE)]bool assumption)
-        {
+        public static void Assume([AssertionCondition(AssertionConditionType.IS_TRUE)] bool assumption) {
             IsTrue(assumption);
             Hint.Assume(assumption);
         }
 
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Assume([AssertionCondition(AssertionConditionType.IS_TRUE)]bool assumption, string message)
-        {
+        public static void Assume([AssertionCondition(AssertionConditionType.IS_TRUE)] bool assumption,
+            string message) {
             IsTrue(assumption, message);
             Hint.Assume(assumption);
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [Conditional("UNITY_DOTS_DEBUG")]
-        private static void IsTrue(bool condition)
-        {
-            if (condition)
-            {
+        private static void IsTrue(bool condition) {
+            if (condition) {
                 return;
             }
 
@@ -46,10 +41,8 @@ namespace BovineLabs.Core.Assertions
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [Conditional("UNITY_DOTS_DEBUG")]
-        private static void IsTrue(bool condition, string message)
-        {
-            if (condition)
-            {
+        private static void IsTrue(bool condition, string message) {
+            if (condition) {
                 return;
             }
 

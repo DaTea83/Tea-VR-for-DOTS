@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Utility
-{
+namespace BovineLabs.Core.Utility {
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
@@ -16,21 +15,19 @@ namespace BovineLabs.Core.Utility
     /// Which was originally adapted from SkiaForUnity:
     /// https://github.com/ammariqais/SkiaForUnity/blob/f43322218c736d1c41f3a3df9355b90db4259a07/SkiaUnity/Assets/SkiaSharp/SkiaSharp-Bindings/SkiaSharp.HarfBuzz.Shared/HarfBuzzSharp.Shared/LibraryLoader.cs
     /// </summary>
-    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "Platform specific")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter",
+        Justification = "Platform specific")]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Platform specific")]
-    public static class LibraryLoader
-    {
+    public static class LibraryLoader {
         /// <summary> Allows to retrieve a function delegate for the library. </summary>
         /// <typeparam name="T">type to cast the function.</typeparam>
         /// <param name="library">library handle.</param>
         /// <param name="name">function name.</param>
         /// <returns>function delegate.</returns>
         public static T GetSymbolDelegate<T>(IntPtr library, string name)
-            where T : Delegate
-        {
+            where T : Delegate {
             var symbol = GetSymbol(library, name);
-            if (symbol == IntPtr.Zero)
-            {
+            if (symbol == IntPtr.Zero) {
                 throw new EntryPointNotFoundException($"Unable to load symbol '{name}'.");
             }
 
@@ -40,37 +37,36 @@ namespace BovineLabs.Core.Utility
         /// <summary> Loads the provided library in a cross-platform manner. </summary>
         /// <param name="libraryName">library path.</param>
         /// <returns>library handle.</returns>
-        public static IntPtr LoadLibrary(string libraryName)
-        {
-            if (string.IsNullOrEmpty(libraryName))
-            {
+        public static IntPtr LoadLibrary(string libraryName) {
+            if (string.IsNullOrEmpty(libraryName)) {
                 throw new ArgumentNullException(nameof(libraryName));
             }
 
             IntPtr handle;
-            if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsServer)
-            {
+            if (Application.platform == RuntimePlatform.WindowsEditor ||
+                Application.platform == RuntimePlatform.WindowsPlayer ||
+                Application.platform == RuntimePlatform.WindowsServer) {
                 handle = Win32.LoadLibrary(libraryName);
             }
-            else if (Application.platform == RuntimePlatform.LinuxEditor || Application.platform == RuntimePlatform.LinuxPlayer || Application.platform == RuntimePlatform.LinuxServer)
-            {
+            else if (Application.platform == RuntimePlatform.LinuxEditor ||
+                     Application.platform == RuntimePlatform.LinuxPlayer ||
+                     Application.platform == RuntimePlatform.LinuxServer) {
                 handle = Linux.dlopen(libraryName);
             }
-            else if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXServer)
-            {
+            else if (Application.platform == RuntimePlatform.OSXEditor ||
+                     Application.platform == RuntimePlatform.OSXPlayer ||
+                     Application.platform == RuntimePlatform.OSXServer) {
                 handle = Mac.dlopen(libraryName);
             }
-            else if (Application.platform == RuntimePlatform.Android)
-            {
+            else if (Application.platform == RuntimePlatform.Android) {
                 handle = Android.dlopen(libraryName);
             }
-            else if (Application.platform == RuntimePlatform.IPhonePlayer)
-            {
+            else if (Application.platform == RuntimePlatform.IPhonePlayer) {
                 handle = iOS.dlopen(libraryName);
             }
-            else
-            {
-                throw new PlatformNotSupportedException($"Current platform is unknown, unable to load library '{libraryName}'.");
+            else {
+                throw new PlatformNotSupportedException(
+                    $"Current platform is unknown, unable to load library '{libraryName}'.");
             }
 
             return handle;
@@ -80,41 +76,39 @@ namespace BovineLabs.Core.Utility
         /// <param name="library">library handle.</param>
         /// <param name="symbolName">function name.</param>
         /// <returns>function handle.</returns>
-        public static IntPtr GetSymbol(IntPtr library, string symbolName)
-        {
-            if (string.IsNullOrEmpty(symbolName))
-            {
+        public static IntPtr GetSymbol(IntPtr library, string symbolName) {
+            if (string.IsNullOrEmpty(symbolName)) {
                 throw new ArgumentNullException(nameof(symbolName));
             }
 
             IntPtr handle;
-            if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsServer)
-            {
+            if (Application.platform == RuntimePlatform.WindowsEditor ||
+                Application.platform == RuntimePlatform.WindowsPlayer ||
+                Application.platform == RuntimePlatform.WindowsServer) {
                 handle = Win32.GetProcAddress(library, symbolName);
             }
-            else if (Application.platform == RuntimePlatform.LinuxEditor || Application.platform == RuntimePlatform.LinuxPlayer || Application.platform == RuntimePlatform.LinuxServer)
-            {
+            else if (Application.platform == RuntimePlatform.LinuxEditor ||
+                     Application.platform == RuntimePlatform.LinuxPlayer ||
+                     Application.platform == RuntimePlatform.LinuxServer) {
                 handle = Linux.dlsym(library, symbolName);
             }
-            else if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXServer)
-            {
+            else if (Application.platform == RuntimePlatform.OSXEditor ||
+                     Application.platform == RuntimePlatform.OSXPlayer ||
+                     Application.platform == RuntimePlatform.OSXServer) {
                 handle = Mac.dlsym(library, symbolName);
             }
-            else if (Application.platform == RuntimePlatform.Android)
-            {
+            else if (Application.platform == RuntimePlatform.Android) {
                 handle = Android.dlsym(library, symbolName);
             }
-            else if (Application.platform == RuntimePlatform.IPhonePlayer)
-            {
+            else if (Application.platform == RuntimePlatform.IPhonePlayer) {
                 handle = iOS.dlsym(library, symbolName);
             }
-            else
-            {
-                throw new PlatformNotSupportedException($"Current platform is unknown, unable to load symbol '{symbolName}' from library {library}.");
+            else {
+                throw new PlatformNotSupportedException(
+                    $"Current platform is unknown, unable to load symbol '{symbolName}' from library {library}.");
             }
 
-            if (handle == IntPtr.Zero)
-            {
+            if (handle == IntPtr.Zero) {
                 throw new EntryPointNotFoundException($"Unable to load symbol '{symbolName}'.");
             }
 
@@ -123,41 +117,39 @@ namespace BovineLabs.Core.Utility
 
         /// <summary> Frees up the library. </summary>
         /// <param name="library">library handle.</param>
-        public static void FreeLibrary(IntPtr library)
-        {
-            if (library == IntPtr.Zero)
-            {
+        public static void FreeLibrary(IntPtr library) {
+            if (library == IntPtr.Zero) {
                 return;
             }
 
-            if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsServer)
-            {
+            if (Application.platform == RuntimePlatform.WindowsEditor ||
+                Application.platform == RuntimePlatform.WindowsPlayer ||
+                Application.platform == RuntimePlatform.WindowsServer) {
                 Win32.FreeLibrary(library);
             }
-            else if (Application.platform == RuntimePlatform.LinuxEditor || Application.platform == RuntimePlatform.LinuxPlayer || Application.platform == RuntimePlatform.LinuxServer)
-            {
+            else if (Application.platform == RuntimePlatform.LinuxEditor ||
+                     Application.platform == RuntimePlatform.LinuxPlayer ||
+                     Application.platform == RuntimePlatform.LinuxServer) {
                 Linux.dlclose(library);
             }
-            else if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXServer)
-            {
+            else if (Application.platform == RuntimePlatform.OSXEditor ||
+                     Application.platform == RuntimePlatform.OSXPlayer ||
+                     Application.platform == RuntimePlatform.OSXServer) {
                 Mac.dlclose(library);
             }
-            else if (Application.platform == RuntimePlatform.Android)
-            {
+            else if (Application.platform == RuntimePlatform.Android) {
                 Android.dlclose(library);
             }
-            else if (Application.platform == RuntimePlatform.IPhonePlayer)
-            {
+            else if (Application.platform == RuntimePlatform.IPhonePlayer) {
                 iOS.dlclose(library);
             }
-            else
-            {
-                throw new PlatformNotSupportedException($"Current platform is unknown, unable to close library '{library}'.");
+            else {
+                throw new PlatformNotSupportedException(
+                    $"Current platform is unknown, unable to close library '{library}'.");
             }
         }
 
-        private static class Mac
-        {
+        private static class Mac {
             private const string SystemLibrary = "/usr/lib/libSystem.dylib";
 
             private const int RTLD_LAZY = 1;
@@ -176,8 +168,7 @@ namespace BovineLabs.Core.Utility
             public static extern void dlclose(IntPtr handle);
         }
 
-        private static class Linux
-        {
+        private static class Linux {
             private const string SystemLibrary = "libdl.so";
             private const string SystemLibrary2 = "libdl.so.2"; // newer Linux distros use this
 
@@ -186,32 +177,25 @@ namespace BovineLabs.Core.Utility
 
             private static bool useSystemLibrary2 = true;
 
-            public static IntPtr dlopen(string path, bool lazy = true)
-            {
-                try
-                {
+            public static IntPtr dlopen(string path, bool lazy = true) {
+                try {
                     return dlopen2(path, lazy ? RTLD_LAZY : RTLD_NOW);
                 }
-                catch (DllNotFoundException)
-                {
+                catch (DllNotFoundException) {
                     useSystemLibrary2 = false;
                     return dlopen1(path, lazy ? RTLD_LAZY : RTLD_NOW);
                 }
             }
 
-            public static IntPtr dlsym(IntPtr handle, string symbol)
-            {
+            public static IntPtr dlsym(IntPtr handle, string symbol) {
                 return useSystemLibrary2 ? dlsym2(handle, symbol) : dlsym1(handle, symbol);
             }
 
-            public static void dlclose(IntPtr handle)
-            {
-                if (useSystemLibrary2)
-                {
+            public static void dlclose(IntPtr handle) {
+                if (useSystemLibrary2) {
                     dlclose2(handle);
                 }
-                else
-                {
+                else {
                     dlclose1(handle);
                 }
             }
@@ -235,8 +219,7 @@ namespace BovineLabs.Core.Utility
             private static extern void dlclose2(IntPtr handle);
         }
 
-        private static class Win32
-        {
+        private static class Win32 {
             private const string SystemLibrary = "Kernel32.dll";
 
             [DllImport(SystemLibrary, SetLastError = true, CharSet = CharSet.Ansi)]
@@ -251,8 +234,7 @@ namespace BovineLabs.Core.Utility
 
         [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Conditional")]
         [SuppressMessage("ReSharper", "UnusedMethodReturnValue.Local", Justification = "Conditional")]
-        private static class Android
-        {
+        private static class Android {
             public static IntPtr dlopen(string path) => dlopen(path, 1);
 
 #if UNITY_ANDROID
@@ -265,28 +247,18 @@ namespace BovineLabs.Core.Utility
             [DllImport("__Internal")]
             public static extern int dlclose(IntPtr handle);
 #else
-            public static IntPtr dlopen(string filename, int flags)
-            {
-                return default;
-            }
+            public static IntPtr dlopen(string filename, int flags) { return default; }
 
-            public static IntPtr dlsym(IntPtr handle, string symbol)
-            {
-                return default;
-            }
+            public static IntPtr dlsym(IntPtr handle, string symbol) { return default; }
 
-            public static int dlclose(IntPtr handle)
-            {
-                return 0;
-            }
+            public static int dlclose(IntPtr handle) { return 0; }
 
 #endif
         }
 
         [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Conditional")]
         [SuppressMessage("ReSharper", "UnusedMethodReturnValue.Local", Justification = "Conditional")]
-        private static class iOS
-        {
+        private static class iOS {
             public static IntPtr dlopen(string path) => dlopen(path, 1);
 
 #if UNITY_IOS
@@ -302,22 +274,12 @@ namespace BovineLabs.Core.Utility
             [DllImport("__Internal")]
             public static extern int dlclose(IntPtr handle);
 #else
-            public static IntPtr dlopen(string filename, int flags)
-            {
-                return default;
-            }
+            public static IntPtr dlopen(string filename, int flags) { return default; }
 
-            public static IntPtr dlsym(IntPtr handle, string symbol)
-            {
-                return default;
-            }
+            public static IntPtr dlsym(IntPtr handle, string symbol) { return default; }
 
-            public static int dlclose(IntPtr handle)
-            {
-                return 0;
-            }
+            public static int dlclose(IntPtr handle) { return 0; }
 #endif
         }
     }
-
 }

@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Settings
-{
+namespace BovineLabs.Core.Editor.Settings {
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -16,8 +15,7 @@ namespace BovineLabs.Core.Editor.Settings
     /// <summary> The base settings window that can be used to implement custom drawers. </summary>
     /// <typeparam name="T"> The settings window type. </typeparam>
     public abstract class SettingsBaseWindow<T> : EditorWindow
-        where T : SettingsBaseWindow<T>
-    {
+        where T : SettingsBaseWindow<T> {
         private const string DarkSkinKey = "settings-title-darkmode";
         private const string RootUIPath = "Packages/com.bovinelabs.core/Editor Default Resources/SettingsWindow/";
         private readonly UITemplate settingsWindowTemplate = new(RootUIPath + "SettingsWindow");
@@ -37,8 +35,7 @@ namespace BovineLabs.Core.Editor.Settings
 
         private float splitterFlex = 0.2f;
 
-        private interface IPanelOrGroup
-        {
+        private interface IPanelOrGroup {
             public string Name { get; }
 
             ISettingsPanel? Panel { get; }
@@ -55,8 +52,7 @@ namespace BovineLabs.Core.Editor.Settings
 
         /// <summary> Call this to create and/or open a new settings window. </summary>
         /// <returns> The window instance. </returns>
-        public static T Open()
-        {
+        public static T Open() {
             var window = FindWindowByScope() ?? Create();
             window.Show();
             window.Focus();
@@ -64,8 +60,7 @@ namespace BovineLabs.Core.Editor.Settings
             return window;
         }
 
-        internal void OnEnable()
-        {
+        internal void OnEnable() {
             this.titleContent.text = this.TitleText;
             this.titleContent.image = this.GetTitleTexture();
 
@@ -77,8 +72,7 @@ namespace BovineLabs.Core.Editor.Settings
             EditorApplication.playModeStateChanged += this.EditorApplicationOnplayModeStateChanged;
         }
 
-        internal void OnDisable()
-        {
+        internal void OnDisable() {
             this.BeforeDisabled();
 
             this.settingPanels.Clear();
@@ -94,14 +88,10 @@ namespace BovineLabs.Core.Editor.Settings
         }
 
         /// <summary> Called after the window is setup. Use this instead of Unity's OnEnabled. </summary>
-        protected virtual void AfterEnabled()
-        {
-        }
+        protected virtual void AfterEnabled() { }
 
         /// <summary> Called before the window is disposed. Use this instead of Unity's OnDisabled. </summary>
-        protected virtual void BeforeDisabled()
-        {
-        }
+        protected virtual void BeforeDisabled() { }
 
         /// <summary> Gets the panels for the window. </summary>
         /// <param name="settingPanels"> The panel list to write to. </param>
@@ -109,29 +99,17 @@ namespace BovineLabs.Core.Editor.Settings
 
         /// <summary> Gets the title texture that'll appear in the Unity window tab. </summary>
         /// <returns> The texture icon. </returns>
-        protected virtual Texture GetTitleTexture()
-        {
-            return EditorGUIUtility.IconContent("Settings").image;
-        }
+        protected virtual Texture GetTitleTexture() { return EditorGUIUtility.IconContent("Settings").image; }
 
         /// <summary> Implement this to add custom elements to the toolbar. </summary>
         /// <param name="rootElement"> The toolbar root element. </param>
-        protected virtual void InitializeToolbar(VisualElement rootElement)
-        {
-        }
+        protected virtual void InitializeToolbar(VisualElement rootElement) { }
 
-        private static T? FindWindowByScope()
-        {
-            return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault();
-        }
+        private static T? FindWindowByScope() { return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(); }
 
-        private static T Create()
-        {
-            return CreateInstance<T>();
-        }
+        private static T Create() { return CreateInstance<T>(); }
 
-        private void Init()
-        {
+        private void Init() {
             this.splitterFlex = EditorPrefs.GetFloat(this.SplitterKey, this.splitterFlex);
 
             this.settingPanels.Clear();
@@ -141,10 +119,8 @@ namespace BovineLabs.Core.Editor.Settings
 
             var map = new Dictionary<string, List<ISettingsPanel>>();
 
-            foreach (var p in this.settingPanels)
-            {
-                if (!map.TryGetValue(p.GroupName, out var panelList))
-                {
+            foreach (var p in this.settingPanels) {
+                if (!map.TryGetValue(p.GroupName, out var panelList)) {
                     panelList = map[p.GroupName] = new List<ISettingsPanel>();
                 }
 
@@ -153,19 +129,19 @@ namespace BovineLabs.Core.Editor.Settings
 
             var id = 0;
 
-            foreach (var (groupName, panelList) in map)
-            {
-                if (panelList.Count == 1)
-                {
-                    this.settingPanelGroups.Add(new TreeViewItemData<IPanelOrGroup>(id++, new PanelElement(panelList[0])));
+            foreach (var (groupName, panelList) in map) {
+                if (panelList.Count == 1) {
+                    this.settingPanelGroups.Add(
+                        new TreeViewItemData<IPanelOrGroup>(id++, new PanelElement(panelList[0])));
                 }
-                else
-                {
+                else {
                     var treeGroup = new List<TreeViewItemData<IPanelOrGroup>>(panelList.Count);
-                    treeGroup.AddRange(panelList.Select(panel => new TreeViewItemData<IPanelOrGroup>(id++, new PanelElement(panel))));
+                    treeGroup.AddRange(panelList.Select(panel =>
+                        new TreeViewItemData<IPanelOrGroup>(id++, new PanelElement(panel))));
                     treeGroup.Sort(default(SortAlphabetical));
 
-                    this.settingPanelGroups.Add(new TreeViewItemData<IPanelOrGroup>(id++, new GroupElement(groupName, panelList), treeGroup));
+                    this.settingPanelGroups.Add(new TreeViewItemData<IPanelOrGroup>(id++,
+                        new GroupElement(groupName, panelList), treeGroup));
                 }
             }
 
@@ -175,8 +151,7 @@ namespace BovineLabs.Core.Editor.Settings
             this.ApplyFilter(string.Empty, false);
         }
 
-        private void SetupUI()
-        {
+        private void SetupUI() {
             // Reference to the root of the window.
             var root = this.rootVisualElement;
 
@@ -189,8 +164,7 @@ namespace BovineLabs.Core.Editor.Settings
             this.splitter = root.Q<VisualElement>("splitter");
 
             this.toggleShowEmpty = root.Q<ToolbarToggle>("empty");
-            if (this.HideToggleShowEmpty)
-            {
+            if (this.HideToggleShowEmpty) {
                 this.toggleShowEmpty.value = true;
                 this.toggleShowEmpty.RemoveFromHierarchy();
             }
@@ -200,7 +174,8 @@ namespace BovineLabs.Core.Editor.Settings
             this.tree = root.Q<TreeView>("list");
             this.tree.SetRootItems(this.filteredSettingsPanel);
             this.tree.makeItem = () => new Label();
-            this.tree.bindItem = (element, index) => ((Label)element).text = this.tree.GetItemDataForIndex<IPanelOrGroup>(index).Name;
+            this.tree.bindItem = (element, index) =>
+                ((Label)element).text = this.tree.GetItemDataForIndex<IPanelOrGroup>(index).Name;
             this.tree.selectionChanged += this.SelectionChanged;
             this.tree.fixedItemHeight = 16;
 
@@ -210,12 +185,10 @@ namespace BovineLabs.Core.Editor.Settings
 
             this.contentTitle = contentsView.Q<Label>("title");
 
-            if (EditorGUIUtility.isProSkin)
-            {
+            if (EditorGUIUtility.isProSkin) {
                 this.contentTitle.AddToClassList(DarkSkinKey);
             }
-            else
-            {
+            else {
                 this.contentTitle.RemoveFromClassList(DarkSkinKey);
             }
 
@@ -225,13 +198,9 @@ namespace BovineLabs.Core.Editor.Settings
             this.InitializeToolbar(this.toolbar);
         }
 
-        private void SelectionChanged(IEnumerable<object> obj)
-        {
-            this.SelectionChanged();
-        }
+        private void SelectionChanged(IEnumerable<object> obj) { this.SelectionChanged(); }
 
-        private void SelectionChanged()
-        {
+        private void SelectionChanged() {
             this.currentSelection?.Panel?.OnDeactivate();
             this.contents!.Clear();
 
@@ -240,28 +209,24 @@ namespace BovineLabs.Core.Editor.Settings
             this.contentTitle!.text = this.currentSelection?.Name ?? string.Empty;
         }
 
-        private void CleanupUI()
-        {
+        private void CleanupUI() {
             this.searchField.UnregisterValueChangedCallback(this.SearchFiltering);
             this.toggleShowEmpty.UnregisterValueChangedCallback(this.ShowEmptyToggle);
             this.tree!.selectionChanged -= this.SelectionChanged;
             this.toolbar?.Clear();
         }
 
-        private void SearchFiltering(ChangeEvent<string> evt)
-        {
+        private void SearchFiltering(ChangeEvent<string> evt) {
             var showEmpty = this.toggleShowEmpty!.value;
             this.FilterChanged(evt.newValue, showEmpty);
         }
 
-        private void ShowEmptyToggle(ChangeEvent<bool> evt)
-        {
+        private void ShowEmptyToggle(ChangeEvent<bool> evt) {
             var filter = this.searchField!.value;
             this.FilterChanged(filter, evt.newValue);
         }
 
-        private void FilterChanged(string filter, bool showEmpty)
-        {
+        private void FilterChanged(string filter, bool showEmpty) {
             var selectedID = this.tree!.GetIdForIndex(this.tree!.selectedIndex);
 
             this.ApplyFilter(filter, showEmpty);
@@ -274,19 +239,16 @@ namespace BovineLabs.Core.Editor.Settings
             this.tree.SetSelectionById(selectedID);
         }
 
-        private void ApplyFilter(string filter, bool showEmpty)
-        {
+        private void ApplyFilter(string filter, bool showEmpty) {
             // this.filteredSettingsPanel.Clear(); // doesn't work, only way i can get it to rebuild is set new reference
             this.filteredSettingsPanel = new List<TreeViewItemData<IPanelOrGroup>>();
 
             var filtered = this.settingPanelGroups.FindAll(p => p.data.MatchesFilter(filter, showEmpty));
 
-            for (var f = filtered.Count - 1; f >= 0; f--)
-            {
+            for (var f = filtered.Count - 1; f >= 0; f--) {
                 var data = filtered[f];
 
-                if (data.data is not GroupElement group)
-                {
+                if (data.data is not GroupElement group) {
                     continue;
                 }
 
@@ -294,25 +256,22 @@ namespace BovineLabs.Core.Editor.Settings
                 var treeGroup = new List<TreeViewItemData<IPanelOrGroup>>(group.Panels.Count);
                 var filteredGroup = new List<ISettingsPanel>(group.Panels.Count);
 
-                foreach (var c in data.children)
-                {
-                    if (c.data.MatchesFilter(filter, showEmpty))
-                    {
+                foreach (var c in data.children) {
+                    if (c.data.MatchesFilter(filter, showEmpty)) {
                         treeGroup.Add(c);
                         filteredGroup.Add(c.data.Panel!);
                     }
                 }
 
-                filtered[f] = new TreeViewItemData<IPanelOrGroup>(data.id, new GroupElement(data.data.Name, filteredGroup), treeGroup);
+                filtered[f] = new TreeViewItemData<IPanelOrGroup>(data.id,
+                    new GroupElement(data.data.Name, filteredGroup), treeGroup);
             }
 
             this.filteredSettingsPanel.AddRange(filtered);
         }
 
-        private void EditorApplicationOnplayModeStateChanged(PlayModeStateChange state)
-        {
-            switch (state)
-            {
+        private void EditorApplicationOnplayModeStateChanged(PlayModeStateChange state) {
+            switch (state) {
                 case PlayModeStateChange.EnteredEditMode:
                 case PlayModeStateChange.EnteredPlayMode:
                     this.SelectionChanged();
@@ -320,35 +279,26 @@ namespace BovineLabs.Core.Editor.Settings
             }
         }
 
-        private struct SortAlphabetical : IComparer<TreeViewItemData<IPanelOrGroup>>
-        {
-            public int Compare(TreeViewItemData<IPanelOrGroup> x, TreeViewItemData<IPanelOrGroup> y)
-            {
+        private struct SortAlphabetical : IComparer<TreeViewItemData<IPanelOrGroup>> {
+            public int Compare(TreeViewItemData<IPanelOrGroup> x, TreeViewItemData<IPanelOrGroup> y) {
                 return string.Compare(x.data.Name, y.data.Name, StringComparison.Ordinal);
             }
         }
 
-        private class PanelElement : IPanelOrGroup
-        {
-            public PanelElement(ISettingsPanel panel)
-            {
-                this.Panel = panel;
-            }
+        private class PanelElement : IPanelOrGroup {
+            public PanelElement(ISettingsPanel panel) { this.Panel = panel; }
 
             public string Name => this.Panel.DisplayName;
 
             public ISettingsPanel Panel { get; }
 
-            public bool MatchesFilter(string searchContext, bool showEmpty)
-            {
+            public bool MatchesFilter(string searchContext, bool showEmpty) {
                 return this.Panel.MatchesFilter(searchContext, showEmpty);
             }
         }
 
-        private class GroupElement : IPanelOrGroup
-        {
-            public GroupElement(string name, IEnumerable<ISettingsPanel> panelList)
-            {
+        private class GroupElement : IPanelOrGroup {
+            public GroupElement(string name, IEnumerable<ISettingsPanel> panelList) {
                 this.Name = name;
                 this.Panels = panelList.ToArray();
             }
@@ -359,8 +309,7 @@ namespace BovineLabs.Core.Editor.Settings
 
             public IReadOnlyList<ISettingsPanel> Panels { get; }
 
-            public bool MatchesFilter(string searchContext, bool showEmpty)
-            {
+            public bool MatchesFilter(string searchContext, bool showEmpty) {
                 return this.Panels.Any(p => p.MatchesFilter(searchContext, showEmpty));
             }
         }

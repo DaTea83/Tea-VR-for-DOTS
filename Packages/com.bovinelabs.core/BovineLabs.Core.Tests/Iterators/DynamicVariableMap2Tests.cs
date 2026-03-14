@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Iterators
-{
+namespace BovineLabs.Core.Tests.Iterators {
     using System;
     using System.Collections.Generic;
     using BovineLabs.Core.Iterators;
@@ -12,11 +11,9 @@ namespace BovineLabs.Core.Tests.Iterators
     using JetBrains.Annotations;
     using NUnit.Framework;
 
-    public class DynamicVariableMap2Tests : ECSTestsFixture
-    {
+    public class DynamicVariableMap2Tests : ECSTestsFixture {
         [Test]
-        public void WhenAddingItems_ShouldBeRetrievableByKey()
-        {
+        public void WhenAddingItems_ShouldBeRetrievableByKey() {
             var map = this.CreateMap();
 
             map.Add(1, 0.5f, 5, 10);
@@ -41,8 +38,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void WhenRemovingItems_ShouldUpdateCollectionCorrectly()
-        {
+        public void WhenRemovingItems_ShouldUpdateCollectionCorrectly() {
             var map = this.CreateMap();
             map.Add(1, 0.5f, 5, 10);
             map.Add(2, -1.5f, 7, 20);
@@ -73,23 +69,21 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void WhenAddingManyItems_ShouldHandleResizingCorrectly()
-        {
+        public void WhenAddingManyItems_ShouldHandleResizingCorrectly() {
             var map = this.CreateMap();
             const int itemCount = 1024;
 
             // Add enough items to force multiple internal resizes
-            for (var i = 0; i < itemCount; i++)
-            {
+            for (var i = 0; i < itemCount; i++) {
                 map.Add(i, i / 0.37f, (short)(i % 13), (byte)(i % 7));
             }
 
             Assert.AreEqual(itemCount, map.Count, "Should contain all added items");
 
             // Sample check to verify data integrity after resizes
-            for (var i = 0; i < itemCount; i += 100)
-            {
-                Assert.IsTrue(map.TryGetValue(i, out var value, out var column1, out var column2), $"Should find key {i}");
+            for (var i = 0; i < itemCount; i += 100) {
+                Assert.IsTrue(map.TryGetValue(i, out var value, out var column1, out var column2),
+                    $"Should find key {i}");
                 Assert.AreEqual(i / 0.37f, value, 0.0001f, $"Value for key {i} should be correct");
                 Assert.AreEqual((short)(i % 13), column1, $"Column1 for key {i} should be correct");
                 Assert.AreEqual((byte)(i % 7), column2, $"Column2 for key {i} should be correct");
@@ -97,8 +91,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void WhenChangingCapacity_ShouldPreserveAllData()
-        {
+        public void WhenChangingCapacity_ShouldPreserveAllData() {
             var map = this.CreateMap();
             map.Add(1, 0.5f, 5, 10);
             map.Add(2, -1.5f, 7, 20);
@@ -144,8 +137,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void WhenMapIsEmpty_PropertiesShouldBeCorrect()
-        {
+        public void WhenMapIsEmpty_PropertiesShouldBeCorrect() {
             var map = this.CreateMap();
 
             Assert.AreEqual(0, map.Count, "Count should be 0 for empty map");
@@ -154,17 +146,16 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void WhenMapIsEmpty_OperationsShouldBehaveAppropriately()
-        {
+        public void WhenMapIsEmpty_OperationsShouldBehaveAppropriately() {
             var map = this.CreateMap();
 
             Assert.IsFalse(map.ContainsKey(123), "ContainsKey should return false for non-existent key");
-            Assert.IsFalse(map.TryGetValue(123, out _, out _, out _), "TryGetValue should return false for non-existent key");
+            Assert.IsFalse(map.TryGetValue(123, out _, out _, out _),
+                "TryGetValue should return false for non-existent key");
             Assert.IsFalse(map.Remove(789), "Remove should return false for non-existent key");
 
             var itemCount = 0;
-            foreach (var _ in map)
-            {
+            foreach (var _ in map) {
                 itemCount++;
             }
 
@@ -172,8 +163,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void WhenMapIsCleared_ItShouldBeReusable()
-        {
+        public void WhenMapIsCleared_ItShouldBeReusable() {
             var map = this.CreateMap();
 
             // Add some items then clear them
@@ -193,8 +183,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void TryAddVsAdd_ShouldBehaveDifferently_WithDuplicateKeys()
-        {
+        public void TryAddVsAdd_ShouldBehaveDifferently_WithDuplicateKeys() {
             var map = this.CreateMap();
             map.Add(42, 42.5f, 100, 25);
 
@@ -212,34 +201,29 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void Enumeration_ShouldYieldAllKeyValueColumnTriplets()
-        {
+        public void Enumeration_ShouldYieldAllKeyValueColumnTriplets() {
             var map = this.CreateMap();
 
             // Create a test set for verification
-            var expectedItems = new Dictionary<int, (float, short, byte)>
-            {
+            var expectedItems = new Dictionary<int, (float, short, byte)> {
                 { 10, (30.5f, 20, 5) },
                 { 11, (31.5f, 21, 6) },
                 { 12, (32.5f, 22, 7) },
             };
 
-            foreach (var kvp in expectedItems)
-            {
+            foreach (var kvp in expectedItems) {
                 map.Add(kvp.Key, kvp.Value.Item1, kvp.Value.Item2, kvp.Value.Item3);
             }
 
             // Collect all items through enumeration
             var actualItems = new Dictionary<int, (float, short, byte)>();
-            foreach (var item in map)
-            {
+            foreach (var item in map) {
                 actualItems[item.Key] = (item.Value, item.Column1, item.Column2);
             }
 
             Assert.AreEqual(expectedItems.Count, actualItems.Count, "Enumeration should yield all items");
 
-            foreach (var kvp in expectedItems)
-            {
+            foreach (var kvp in expectedItems) {
                 Assert.IsTrue(actualItems.ContainsKey(kvp.Key), $"Key {kvp.Key} should be present in enumeration");
                 Assert.AreEqual(kvp.Value.Item1, actualItems[kvp.Key].Item1, "Value should match after enumeration");
                 Assert.AreEqual(kvp.Value.Item2, actualItems[kvp.Key].Item2, "Column1 should match after enumeration");
@@ -248,22 +232,19 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void WithLargeNumberOfItems_MapShouldFunctionCorrectly()
-        {
+        public void WithLargeNumberOfItems_MapShouldFunctionCorrectly() {
             var map = this.CreateMap();
             const int itemCount = 5000;
 
             // Add a large number of items to test performance and capacity handling
-            for (var i = 0; i < itemCount; i++)
-            {
+            for (var i = 0; i < itemCount; i++) {
                 map.Add(i, i * 1.5f, (short)(i % 50), (byte)(i % 30));
             }
 
             Assert.AreEqual(itemCount, map.Count, "Should contain all added items");
 
             // Check a sampling of items to verify integrity
-            for (var i = 0; i < itemCount; i += 123)
-            {
+            for (var i = 0; i < itemCount; i += 123) {
                 Assert.IsTrue(map.ContainsKey(i), $"Key {i} should exist");
                 Assert.IsTrue(map.TryGetValue(i, out var value, out var column1, out var column2));
                 Assert.AreEqual(i * 1.5f, value, 0.0001f, $"Value for key {i} should match");
@@ -272,24 +253,21 @@ namespace BovineLabs.Core.Tests.Iterators
             }
 
             // Remove half the items to test removal in a large collection
-            for (var i = 0; i < itemCount; i += 2)
-            {
+            for (var i = 0; i < itemCount; i += 2) {
                 Assert.IsTrue(map.Remove(i), $"Should be able to remove key {i}");
             }
 
             Assert.AreEqual(itemCount / 2, map.Count, "Count should be half after removing every other item");
 
             // Verify the expected items remain and the removed ones are gone
-            for (var i = 0; i < itemCount; i++)
-            {
+            for (var i = 0; i < itemCount; i++) {
                 var shouldExist = i % 2 == 1;
                 Assert.AreEqual(shouldExist, map.ContainsKey(i), $"Key {i} existence should be {shouldExist}");
             }
         }
 
         [Test]
-        public void ReusingRemovedKeys_ShouldWork()
-        {
+        public void ReusingRemovedKeys_ShouldWork() {
             var map = this.CreateMap();
             map.Add(111, 333.5f, 222, 111);
 
@@ -304,25 +282,22 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void AutoGrowthBehavior_ShouldPreserveAllData()
-        {
+        public void AutoGrowthBehavior_ShouldPreserveAllData() {
             // Use small growth factor to ensure resize happens sooner
             var map = this.CreateMap(4);
             var initialCapacity = map.Capacity;
 
             // Add items until we detect a capacity change
-            for (var i = 0; i < 32; i++)
-            {
+            for (var i = 0; i < 32; i++) {
                 map.Add(i, i * 10.5f, (short)(100 + i), (byte)(50 + i));
 
-                if (map.Capacity > initialCapacity)
-                {
+                if (map.Capacity > initialCapacity) {
                     // Verify all previously added data is intact after resize
-                    for (var j = 0; j <= i; j++)
-                    {
+                    for (var j = 0; j <= i; j++) {
                         Assert.IsTrue(map.ContainsKey(j), $"Key {j} should exist after resize");
                         Assert.IsTrue(map.TryGetValue(j, out var val, out var col1, out var col2));
-                        Assert.AreEqual((short)(100 + j), col1, $"Column1 for key {j} should be preserved after resize");
+                        Assert.AreEqual((short)(100 + j), col1,
+                            $"Column1 for key {j} should be preserved after resize");
                         Assert.AreEqual((byte)(50 + j), col2, $"Column2 for key {j} should be preserved after resize");
                         Assert.AreEqual(j * 10.5f, val, 0.0001f, $"Value for key {j} should be preserved after resize");
                     }
@@ -335,8 +310,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void GetValueAtIndex_ShouldReturnCorrectData()
-        {
+        public void GetValueAtIndex_ShouldReturnCorrectData() {
             var map = this.CreateMap();
 
             map.Add(100, 100.5f, 10, 20);
@@ -347,24 +321,24 @@ namespace BovineLabs.Core.Tests.Iterators
             // We'll use enumeration to find the indices
             var foundEntries = new Dictionary<int, int>(); // key -> storage index
 
-            foreach (var item in map)
-            {
+            foreach (var item in map) {
                 // The KVC struct exposes the storage index
                 foundEntries[item.Key] = item.Index;
             }
 
             // Test GetValueAtIndex with the actual storage indices
-            foreach (var kvp in foundEntries)
-            {
+            foreach (var kvp in foundEntries) {
                 var expectedKey = kvp.Key;
                 var storageIndex = kvp.Value;
 
-                map.GetAtIndex(storageIndex, out var actualKey, out var actualValue, out var actualColumn1, out var actualColumn2);
+                map.GetAtIndex(storageIndex, out var actualKey, out var actualValue, out var actualColumn1,
+                    out var actualColumn2);
 
                 Assert.AreEqual(expectedKey, actualKey, $"Key should match for storage index {storageIndex}");
 
                 // Verify the value and columns match what we expect
-                Assert.IsTrue(map.TryGetValue(expectedKey, out var expectedValue, out var expectedColumn1, out var expectedColumn2));
+                Assert.IsTrue(map.TryGetValue(expectedKey, out var expectedValue, out var expectedColumn1,
+                    out var expectedColumn2));
                 Assert.AreEqual(expectedValue, actualValue, $"Value should match for key {expectedKey}");
                 Assert.AreEqual(expectedColumn1, actualColumn1, $"Column1 should match for key {expectedKey}");
                 Assert.AreEqual(expectedColumn2, actualColumn2, $"Column2 should match for key {expectedKey}");
@@ -372,8 +346,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void Replace_WithExistingKey_ShouldUpdateColumnValues()
-        {
+        public void Replace_WithExistingKey_ShouldUpdateColumnValues() {
             var map = this.CreateMap();
             map.Add(100, 100.5f, 50, 25);
             map.Add(200, 200.5f, 60, 35);
@@ -382,7 +355,8 @@ namespace BovineLabs.Core.Tests.Iterators
             ref var value = ref map.Replace(100, 75, 40);
 
             // Verify the column values were updated
-            Assert.IsTrue(map.TryGetValue(100, out var retrievedValue, out var retrievedColumn1, out var retrievedColumn2));
+            Assert.IsTrue(map.TryGetValue(100, out var retrievedValue, out var retrievedColumn1,
+                out var retrievedColumn2));
             Assert.AreEqual(100.5f, retrievedValue, "Value should remain unchanged initially");
             Assert.AreEqual(75, retrievedColumn1, "Column1 should be updated to new value");
             Assert.AreEqual(40, retrievedColumn2, "Column2 should be updated to new value");
@@ -394,17 +368,16 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void Replace_WithNonExistentKey_ShouldThrow()
-        {
+        public void Replace_WithNonExistentKey_ShouldThrow() {
             var map = this.CreateMap();
             map.Add(100, 100.5f, 50, 25);
 
-            Assert.Throws<ArgumentException>(() => map.Replace(999, 75, 40), "Replace should throw ArgumentException for non-existent key");
+            Assert.Throws<ArgumentException>(() => map.Replace(999, 75, 40),
+                "Replace should throw ArgumentException for non-existent key");
         }
 
         [Test]
-        public void Replace_WithSameColumnValues_ShouldStillUpdateReference()
-        {
+        public void Replace_WithSameColumnValues_ShouldStillUpdateReference() {
             var map = this.CreateMap();
             map.Add(100, 100.5f, 50, 25);
 
@@ -413,15 +386,15 @@ namespace BovineLabs.Core.Tests.Iterators
 
             // Verify we can still modify through reference
             value = 777.5f;
-            Assert.IsTrue(map.TryGetValue(100, out var retrievedValue, out var retrievedColumn1, out var retrievedColumn2));
+            Assert.IsTrue(map.TryGetValue(100, out var retrievedValue, out var retrievedColumn1,
+                out var retrievedColumn2));
             Assert.AreEqual(777.5f, retrievedValue, "Value should be updated through reference");
             Assert.AreEqual(50, retrievedColumn1, "Column1 should remain the same");
             Assert.AreEqual(25, retrievedColumn2, "Column2 should remain the same");
         }
 
         [Test]
-        public void Replace_AfterResize_ShouldWorkCorrectly()
-        {
+        public void Replace_AfterResize_ShouldWorkCorrectly() {
             var map = this.CreateMap();
             map.Add(100, 100.5f, 50, 25);
             map.Add(200, 200.5f, 60, 35);
@@ -433,34 +406,31 @@ namespace BovineLabs.Core.Tests.Iterators
             ref var value = ref map.Replace(100, 75, 40);
             value = 888.5f;
 
-            Assert.IsTrue(map.TryGetValue(100, out var retrievedValue, out var retrievedColumn1, out var retrievedColumn2));
+            Assert.IsTrue(map.TryGetValue(100, out var retrievedValue, out var retrievedColumn1,
+                out var retrievedColumn2));
             Assert.AreEqual(888.5f, retrievedValue, "Value should be updated after resize");
             Assert.AreEqual(75, retrievedColumn1, "Column1 should be updated after resize");
             Assert.AreEqual(40, retrievedColumn2, "Column2 should be updated after resize");
         }
 
         [Test]
-        public void Replace_WithManyItems_ShouldHandleCorrectly()
-        {
+        public void Replace_WithManyItems_ShouldHandleCorrectly() {
             var map = this.CreateMap();
             const int itemCount = 100;
 
             // Add many items
-            for (var i = 0; i < itemCount; i++)
-            {
+            for (var i = 0; i < itemCount; i++) {
                 map.Add(i, i * 10.5f, (short)(i % 10), (byte)(i % 5));
             }
 
             // Replace every 10th item's column values
-            for (var i = 0; i < itemCount; i += 10)
-            {
+            for (var i = 0; i < itemCount; i += 10) {
                 ref var value = ref map.Replace(i, 99, 88);
                 value *= 2; // Also modify the value
             }
 
             // Verify the replacements worked
-            for (var i = 0; i < itemCount; i += 10)
-            {
+            for (var i = 0; i < itemCount; i += 10) {
                 Assert.IsTrue(map.TryGetValue(i, out var value, out var column1, out var column2));
                 Assert.AreEqual(i * 10.5f * 2, value, 0.0001f, $"Value for key {i} should be doubled");
                 Assert.AreEqual(99, column1, $"Column1 for key {i} should be updated to 99");
@@ -475,8 +445,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void Replace_MultipleReplacementsOnSameKey_ShouldWork()
-        {
+        public void Replace_MultipleReplacementsOnSameKey_ShouldWork() {
             var map = this.CreateMap();
             map.Add(100, 100.5f, 50, 25);
 
@@ -497,16 +466,14 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void Replace_OnEmptyMap_ShouldThrow()
-        {
+        public void Replace_OnEmptyMap_ShouldThrow() {
             var map = this.CreateMap();
 
             Assert.Throws<ArgumentException>(() => map.Replace(100, 50, 25), "Replace should throw on empty map");
         }
 
         [Test]
-        public void Replace_AfterClearAndReAdd_ShouldWork()
-        {
+        public void Replace_AfterClearAndReAdd_ShouldWork() {
             var map = this.CreateMap();
             map.Add(100, 100.5f, 50, 25);
 
@@ -518,15 +485,15 @@ namespace BovineLabs.Core.Tests.Iterators
             ref var value = ref map.Replace(100, 70, 40);
             value = 300.5f;
 
-            Assert.IsTrue(map.TryGetValue(100, out var retrievedValue, out var retrievedColumn1, out var retrievedColumn2));
+            Assert.IsTrue(map.TryGetValue(100, out var retrievedValue, out var retrievedColumn1,
+                out var retrievedColumn2));
             Assert.AreEqual(300.5f, retrievedValue, "Value should be updated after clear/re-add/replace");
             Assert.AreEqual(70, retrievedColumn1, "Column1 should be updated after clear/re-add/replace");
             Assert.AreEqual(40, retrievedColumn2, "Column2 should be updated after clear/re-add/replace");
         }
 
         [Test]
-        public void DifferentColumnCombinations_ShouldWorkIndependently()
-        {
+        public void DifferentColumnCombinations_ShouldWorkIndependently() {
             var map = this.CreateMap();
 
             // Add items with various column combinations
@@ -537,32 +504,44 @@ namespace BovineLabs.Core.Tests.Iterators
 
             // Verify all combinations are stored and retrievable correctly
             Assert.IsTrue(map.TryGetValue(1, out var v1, out var c1_1, out var c2_1));
-            Assert.AreEqual(1.0f, v1); Assert.AreEqual(10, c1_1); Assert.AreEqual(100, c2_1);
+            Assert.AreEqual(1.0f, v1);
+            Assert.AreEqual(10, c1_1);
+            Assert.AreEqual(100, c2_1);
 
             Assert.IsTrue(map.TryGetValue(2, out var v2, out var c1_2, out var c2_2));
-            Assert.AreEqual(2.0f, v2); Assert.AreEqual(20, c1_2); Assert.AreEqual(100, c2_2);
+            Assert.AreEqual(2.0f, v2);
+            Assert.AreEqual(20, c1_2);
+            Assert.AreEqual(100, c2_2);
 
             Assert.IsTrue(map.TryGetValue(3, out var v3, out var c1_3, out var c2_3));
-            Assert.AreEqual(3.0f, v3); Assert.AreEqual(10, c1_3); Assert.AreEqual(200, c2_3);
+            Assert.AreEqual(3.0f, v3);
+            Assert.AreEqual(10, c1_3);
+            Assert.AreEqual(200, c2_3);
 
             Assert.IsTrue(map.TryGetValue(4, out var v4, out var c1_4, out var c2_4));
-            Assert.AreEqual(4.0f, v4); Assert.AreEqual(30, c1_4); Assert.AreEqual(240, c2_4);
+            Assert.AreEqual(4.0f, v4);
+            Assert.AreEqual(30, c1_4);
+            Assert.AreEqual(240, c2_4);
         }
 
-        private DynamicVariableMap<int, float, short, MultiHashColumn<short>, byte, MultiHashColumn<byte>> CreateMap(int growth = 64)
-        {
+        private DynamicVariableMap<int, float, short, MultiHashColumn<short>, byte, MultiHashColumn<byte>> CreateMap(
+            int growth = 64) {
             var entity = this.Manager.CreateEntity(typeof(TestTwoColumnMap));
             return this
                 .Manager
                 .GetBuffer<TestTwoColumnMap>(entity)
-                .InitializeVariableMap<TestTwoColumnMap, int, float, short, MultiHashColumn<short>, byte, MultiHashColumn<byte>>(0, growth)
-                .AsVariableMap<TestTwoColumnMap, int, float, short, MultiHashColumn<short>, byte, MultiHashColumn<byte>>();
+                .InitializeVariableMap<TestTwoColumnMap, int, float, short, MultiHashColumn<short>, byte,
+                    MultiHashColumn<byte>>(0, growth)
+                .AsVariableMap<TestTwoColumnMap, int, float, short, MultiHashColumn<short>, byte,
+                    MultiHashColumn<byte>>();
         }
 
-        private struct TestTwoColumnMap : IDynamicVariableMap<int, float, short, MultiHashColumn<short>, byte, MultiHashColumn<byte>>
-        {
+        private struct TestTwoColumnMap : IDynamicVariableMap<int, float, short, MultiHashColumn<short>, byte,
+            MultiHashColumn<byte>> {
             [UsedImplicitly]
-            byte IDynamicVariableMap<int, float, short, MultiHashColumn<short>, byte, MultiHashColumn<byte>>.Value { get; }
+            byte IDynamicVariableMap<int, float, short, MultiHashColumn<short>, byte, MultiHashColumn<byte>>.Value {
+                get;
+            }
         }
     }
 }

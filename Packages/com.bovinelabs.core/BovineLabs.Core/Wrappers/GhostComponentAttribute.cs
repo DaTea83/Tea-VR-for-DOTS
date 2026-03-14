@@ -3,8 +3,7 @@
 // </copyright>
 
 #if !UNITY_NETCODE
-namespace Unity.NetCode
-{
+namespace Unity.NetCode {
     using System;
 
     /// <summary>
@@ -13,20 +12,25 @@ namespace Unity.NetCode
     /// If you cannot change the ComponentType, use the `GhostAuthoringInspectionComponent` to manually override on a specific Ghost prefab.
     /// </summary>
     [Flags]
-    public enum GhostPrefabType
-    {
+    public enum GhostPrefabType {
         /// <summary>Component will not be added to any Ghost prefab type.</summary>
         None = 0,
+
         /// <summary>Component will only be added to the <see cref="GhostMode.Interpolated"/> Client version.</summary>
         InterpolatedClient = 1,
+
         /// <summary>Component will only be added to the <see cref="GhostMode.Predicted"/> Client version.</summary>
         PredictedClient = 2,
+
         /// <summary>Component will only be added to Client versions.</summary>
         Client = 3,
+
         /// <summary>Component will only be added to the Server version.</summary>
         Server = 4,
+
         /// <summary>Component will only be added to the Server and PredictedClient versions.</summary>
         AllPredicted = 6,
+
         /// <summary>Component will be to all versions.</summary>
         All = 7
     }
@@ -55,15 +59,17 @@ namespace Unity.NetCode
     /// Thus, use GhostSendType.Predicted on the Velocity component.
     /// </example>
     [Flags]
-    public enum GhostSendType
-    {
+    public enum GhostSendType {
         /// <summary>The server will never replicate this component to any clients.
         /// Works similarly to <see cref="DontSerializeVariant"/> (and thus, redundant, if the DontSerializeVariant is in use).</summary>
         DontSend = 0,
+
         /// <summary>The server will only replicate this component to clients which are interpolating this Ghost. <see cref="GhostMode.Interpolated"/>).</summary>
         OnlyInterpolatedClients = 1,
+
         /// <summary>The server will only replicate this component to clients which are predicted this Ghost. <see cref="GhostMode.Predicted"/>).</summary>
         OnlyPredictedClients = 2,
+
         /// <summary>The server will always replicate this component. Default.</summary>
         AllClients = 3
     }
@@ -75,15 +81,17 @@ namespace Unity.NetCode
     /// <para>See the documentation for ICommandData:<see cref="ICommandData"/></para>
     /// </summary>
     [Flags]
-    public enum SendToOwnerType
-    {
+    public enum SendToOwnerType {
         /// <summary>Informs the server not not replicate this <see cref="ICommandData"/> back down to any clients.</summary>
         None = 0,
+
         /// <summary>Informs the server to replicate this <see cref="ICommandData"/> back to the owner, exclusively.</summary>
         SendToOwner = 1,
+
         /// <summary>Informs the server to replicate this <see cref="ICommandData"/> to all clients except the input "author"
         /// (i.e. the player who owns the ghost).</summary>
         SendToNonOwner = 2,
+
         /// <summary>Informs the server to replicate this <see cref="ICommandData"/> to all clients, including back to ourselves.</summary>
         All = 3,
     }
@@ -94,13 +102,13 @@ namespace Unity.NetCode
     /// <remarks>
     /// GhostComponent is not enough to make your component replicated. Make sure to use <see cref="GhostFieldAttribute"/> on each replicated field.
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Class|AttributeTargets.Struct)]
-    public class GhostComponentAttribute : Attribute
-    {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    public class GhostComponentAttribute : Attribute {
         /// <summary>
         /// Gets or sets the type of prefab where this component should be included on the main entity of the prefab.
         /// </summary>
         public GhostPrefabType PrefabType { get; set; } = GhostPrefabType.All;
+
         /// <summary>
         /// Gets or sets the type of ghost this component should be sent to if the ghost is owner predicted.
         /// Formerly: "OwnerPredictedSendType".

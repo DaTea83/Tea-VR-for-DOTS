@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.States
-{
+namespace BovineLabs.Core.Tests.States {
     using BovineLabs.Core.Collections;
     using BovineLabs.Core.States;
     using BovineLabs.Testing;
@@ -11,16 +10,15 @@ namespace BovineLabs.Core.Tests.States
     using Unity.Burst;
     using Unity.Entities;
 
-    internal class StateFlagModelWithHistoryTests : ECSTestsFixture
-    {
+    internal class StateFlagModelWithHistoryTests : ECSTestsFixture {
         [Test]
-        public void Flags()
-        {
+        public void Flags() {
             this.World.CreateSystem<StateFlagModelWithHistoryInstanceTestSystem1>();
             this.World.CreateSystem<StateFlagModelWithHistoryInstanceTestSystem2>();
             var system = this.World.GetOrCreateSystem<StateFlagModelWithHistoryTestSystem>();
 
-            var entity = this.Manager.CreateEntity(typeof(TestState), typeof(TestStatePrevious), typeof(TestStateBack), typeof(TestStateForward));
+            var entity = this.Manager.CreateEntity(typeof(TestState), typeof(TestStatePrevious), typeof(TestStateBack),
+                typeof(TestStateForward));
 
             var states = new BitArray16 { [5] = true };
             this.Manager.SetComponentData(entity, new TestState { Value = states });
@@ -42,13 +40,13 @@ namespace BovineLabs.Core.Tests.States
         }
 
         [Test]
-        public void History()
-        {
+        public void History() {
             this.World.CreateSystem<StateFlagModelWithHistoryInstanceTestSystem1>();
             this.World.CreateSystem<StateFlagModelWithHistoryInstanceTestSystem2>();
             var system = this.World.GetOrCreateSystem<StateFlagModelWithHistoryTestSystem>();
 
-            var entity = this.Manager.CreateEntity(typeof(TestState), typeof(TestStatePrevious), typeof(TestStateBack), typeof(TestStateForward));
+            var entity = this.Manager.CreateEntity(typeof(TestState), typeof(TestStatePrevious), typeof(TestStateBack),
+                typeof(TestStateForward));
 
             this.Manager.SetComponentData(entity, new TestState { Value = new BitArray16 { [1] = true } });
             system.Update(this.World.Unmanaged);
@@ -121,52 +119,43 @@ namespace BovineLabs.Core.Tests.States
         }
     }
 
-    internal struct TestState : IComponentData
-    {
+    internal struct TestState : IComponentData {
         public BitArray16 Value;
     }
 
-    internal struct TestStatePrevious : IComponentData
-    {
+    internal struct TestStatePrevious : IComponentData {
         public BitArray16 Value;
     }
 
-    internal struct TestStateBack : IBufferElementData
-    {
+    internal struct TestStateBack : IBufferElementData {
         public BitArray16 Value;
 
         public bool WasPopup;
     }
 
-    internal struct TestStateForward : IBufferElementData
-    {
+    internal struct TestStateForward : IBufferElementData {
         public BitArray16 Value;
 
         public bool WasPopup;
     }
 
-    internal partial struct StateFlagModelWithHistoryTestSystem : ISystem, ISystemStartStop
-    {
+    internal partial struct StateFlagModelWithHistoryTestSystem : ISystem, ISystemStartStop {
         private StateFlagModelWithHistory impl;
 
         /// <inheritdoc />
         [BurstCompile]
-        public void OnStartRunning(ref SystemState state)
-        {
-            this.impl = new StateFlagModelWithHistory(ref state, ComponentType.ReadWrite<TestState>(), ComponentType.ReadWrite<TestStatePrevious>(),
+        public void OnStartRunning(ref SystemState state) {
+            this.impl = new StateFlagModelWithHistory(ref state, ComponentType.ReadWrite<TestState>(),
+                ComponentType.ReadWrite<TestStatePrevious>(),
                 ComponentType.ReadWrite<TestStateBack>(), ComponentType.ReadWrite<TestStateForward>(), 4);
         }
 
         /// <inheritdoc />
-        public void OnStopRunning(ref SystemState state)
-        {
-            this.impl.Dispose(ref state);
-        }
+        public void OnStopRunning(ref SystemState state) { this.impl.Dispose(ref state); }
 
         /// <inheritdoc />
         [BurstCompile]
-        public void OnUpdate(ref SystemState state)
-        {
+        public void OnUpdate(ref SystemState state) {
             var commandBuffer = new EntityCommandBuffer(state.WorldUpdateAllocator);
             this.impl.UpdateParallel(ref state, commandBuffer.AsParallelWriter());
             state.Dependency.Complete();
@@ -175,41 +164,29 @@ namespace BovineLabs.Core.Tests.States
         }
     }
 
-    internal partial struct StateFlagModelWithHistoryInstanceTestSystem1 : ISystem
-    {
-        public void OnCreate(ref SystemState state)
-        {
-            state.EntityManager.AddComponentData(state.SystemHandle, new StateInstance
-            {
+    internal partial struct StateFlagModelWithHistoryInstanceTestSystem1 : ISystem {
+        public void OnCreate(ref SystemState state) {
+            state.EntityManager.AddComponentData(state.SystemHandle, new StateInstance {
                 State = TypeManager.GetTypeIndex<TestState>(),
                 StateKey = 5,
                 StateInstanceComponent = TypeManager.GetTypeIndex<State>(),
             });
         }
 
-        public struct State : IComponentData
-        {
-        }
+        public struct State : IComponentData { }
     }
 
-    internal partial class StateFlagModelWithHistoryInstanceTestSystem2 : SystemBase
-    {
-        protected override void OnCreate()
-        {
-            this.EntityManager.AddComponentData(this.SystemHandle, new StateInstance
-            {
+    internal partial class StateFlagModelWithHistoryInstanceTestSystem2 : SystemBase {
+        protected override void OnCreate() {
+            this.EntityManager.AddComponentData(this.SystemHandle, new StateInstance {
                 State = TypeManager.GetTypeIndex<TestState>(),
                 StateKey = 13,
                 StateInstanceComponent = TypeManager.GetTypeIndex<State>(),
             });
         }
 
-        protected override void OnUpdate()
-        {
-        }
+        protected override void OnUpdate() { }
 
-        public struct State : IComponentData
-        {
-        }
+        public struct State : IComponentData { }
     }
 }

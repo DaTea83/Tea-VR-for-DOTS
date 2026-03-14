@@ -1,20 +1,15 @@
 using System;
 using UnityEngine.XR.Interaction.Toolkit.Utilities.Tweenables.Primitives;
 
-namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
-{
+namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands {
     /// <summary>
     /// Class used to sync the transform of a target game object with this one.
     /// </summary>
-    public class TransformSync : MonoBehaviour
-    {
-        [SerializeField]
-        [Tooltip("Transform to apply this transform's data to.")]
+    public class TransformSync : MonoBehaviour {
+        [SerializeField] [Tooltip("Transform to apply this transform's data to.")]
         Transform m_TargetTransform;
 
-        [SerializeField]
-        [Range(0f, 30f)]
-        [Tooltip("Set to 0 for no smoothing. Higher values indicate more smoothing.")]
+        [SerializeField] [Range(0f, 30f)] [Tooltip("Set to 0 for no smoothing. Higher values indicate more smoothing.")]
         float m_SmoothFollowSpeed = 8f;
 
         Rigidbody m_Rigidbody;
@@ -32,10 +27,8 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void OnValidate()
-        {
-            if (m_TargetTransform != null)
-            {
+        void OnValidate() {
+            if (m_TargetTransform != null) {
                 transform.localPosition = transform.parent == null
                     ? m_TargetTransform.position
                     : transform.parent.InverseTransformPoint(m_TargetTransform.position);
@@ -45,25 +38,20 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void Awake()
-        {
-            m_ThisTransform = transform;
-        }
+        void Awake() { m_ThisTransform = transform; }
 
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void OnEnable()
-        {
-            if (m_TargetTransform == null)
-            {
+        void OnEnable() {
+            if (m_TargetTransform == null) {
                 enabled = false;
                 return;
             }
+
             m_HasTransform = true;
 
-            if (m_TargetTransform.TryGetComponent(out Rigidbody rigidBodyComponent))
-            {
+            if (m_TargetTransform.TryGetComponent(out Rigidbody rigidBodyComponent)) {
                 m_Rigidbody = rigidBodyComponent;
                 m_HasRigidbody = true;
             }
@@ -75,8 +63,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void Update()
-        {
+        void Update() {
             m_PositionTweenable.target = m_ThisTransform.position;
             m_RotationTweenable.target = m_ThisTransform.rotation;
 
@@ -91,8 +78,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void FixedUpdate()
-        {
+        void FixedUpdate() {
             if (!m_HasRigidbody)
                 return;
 

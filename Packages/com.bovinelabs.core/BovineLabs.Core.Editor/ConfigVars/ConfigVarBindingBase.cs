@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.ConfigVars
-{
+namespace BovineLabs.Core.Editor.ConfigVars {
     using System;
     using BovineLabs.Core.ConfigVars;
     using Unity.Burst;
@@ -12,8 +11,7 @@ namespace BovineLabs.Core.Editor.ConfigVars
     using UnityEngine.UIElements;
 
     internal abstract class ConfigVarBindingBase<T> : IConfigVarBinding<T>
-        where T : unmanaged, IEquatable<T>
-    {
+        where T : unmanaged, IEquatable<T> {
         private readonly BaseField<T> baseField;
         private readonly ConfigVarAttribute attribute;
         private readonly IConfigVarContainer<T> container;
@@ -21,8 +19,9 @@ namespace BovineLabs.Core.Editor.ConfigVars
 
         private bool hasFocus;
 
-        protected ConfigVarBindingBase(BaseField<T> baseField, ConfigVarAttribute attribute, IConfigVarContainer<T> container)
-        {
+        protected ConfigVarBindingBase(BaseField<T> baseField,
+            ConfigVarAttribute attribute,
+            IConfigVarContainer<T> container) {
             this.baseField = baseField;
             this.attribute = attribute;
             this.container = container;
@@ -32,60 +31,41 @@ namespace BovineLabs.Core.Editor.ConfigVars
             this.baseField.RegisterCallback<FocusOutEvent>(this.LoseFocus);
             this.baseField.AddManipulator(this.contextMenuManipulator);
 
-            this.baseField.RegisterValueChangedCallback(evt =>
-            {
+            this.baseField.RegisterValueChangedCallback(evt => {
                 this.Value = evt.newValue;
                 EditorPrefs.SetString(attribute.Name, evt.newValue.ToString());
             });
         }
 
         /// <inheritdoc/>
-        public void PreUpdate()
-        {
-        }
+        public void PreUpdate() { }
 
         /// <inheritdoc/>
-        public void Update()
-        {
-            if (!this.hasFocus)
-            {
+        public void Update() {
+            if (!this.hasFocus) {
                 var v = this.Value;
-                if (!this.baseField.value.Equals(v))
-                {
+                if (!this.baseField.value.Equals(v)) {
                     this.baseField.SetValueWithoutNotify(v);
                 }
             }
         }
 
         /// <inheritdoc/>
-        public T Value
-        {
-            get => this.container.Value;
-            set => this.container.Value = value;
-        }
+        public T Value { get => this.container.Value; set => this.container.Value = value; }
 
         /// <inheritdoc/>
-        public void Release()
-        {
+        public void Release() {
             this.baseField.UnregisterCallback<FocusInEvent>(this.GainFocus);
             this.baseField.UnregisterCallback<FocusOutEvent>(this.LoseFocus);
             this.baseField.RemoveManipulator(this.contextMenuManipulator);
         }
 
-        private void GainFocus(FocusInEvent focus)
-        {
-            this.hasFocus = true;
-        }
+        private void GainFocus(FocusInEvent focus) { this.hasFocus = true; }
 
-        private void LoseFocus(FocusOutEvent focus)
-        {
-            this.hasFocus = false;
-        }
+        private void LoseFocus(FocusOutEvent focus) { this.hasFocus = false; }
 
-        private static IConfigVarContainer<T> CreateContainer(SharedStatic<T> sharedStatic)
-        {
-            if (typeof(T) == typeof(Color))
-            {
+        private static IConfigVarContainer<T> CreateContainer(SharedStatic<T> sharedStatic) {
+            if (typeof(T) == typeof(Color)) {
                 var container = new ConfigVarSharedStaticColorContainer((SharedStatic<Color>)(object)sharedStatic);
                 return (IConfigVarContainer<T>)container;
             }
@@ -93,8 +73,7 @@ namespace BovineLabs.Core.Editor.ConfigVars
             return new ConfigVarSharedStaticContainer<T>(sharedStatic);
         }
 
-        private void OnContextMenu(ContextualMenuPopulateEvent evt)
-        {
+        private void OnContextMenu(ContextualMenuPopulateEvent evt) {
             evt.menu.AppendAction("Copy Name", _ => GUIUtility.systemCopyBuffer = this.attribute.Name);
             evt.menu.AppendAction("Copy Value", _ => GUIUtility.systemCopyBuffer = this.Value.ToString());
             evt.menu.AppendSeparator();
@@ -104,8 +83,7 @@ namespace BovineLabs.Core.Editor.ConfigVars
                 _ => this.attribute.IsReadOnly ? DropdownMenuAction.Status.Disabled : DropdownMenuAction.Status.Normal);
         }
 
-        private void ResetToDefault()
-        {
+        private void ResetToDefault() {
             EditorPrefs.DeleteKey(this.attribute.Name);
             this.container.StringValue = this.attribute.DefaultValue;
             this.baseField.SetValueWithoutNotify(this.Value);

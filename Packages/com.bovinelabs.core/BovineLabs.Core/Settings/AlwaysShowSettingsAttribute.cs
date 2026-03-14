@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Settings
-{
+namespace BovineLabs.Core.Settings {
     using System;
 
     /// <summary>
@@ -11,7 +10,5 @@ namespace BovineLabs.Core.Settings
     /// Use this for when you have a custom editor showing properties that are hidden.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class AlwaysShowSettingsAttribute : Attribute
-    {
-    }
+    public class AlwaysShowSettingsAttribute : Attribute { }
 }

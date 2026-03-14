@@ -38,7 +38,8 @@ namespace BovineLabs.Core.Utility
 #if UNITY_EDITOR
                 // this is required because bakers don't like resource loading
                 // TODO configurable
-                r = AssetDatabase.LoadAssetAtPath<TypeManagerOverrideSettings>("Assets/Settings/Resources/TypeManagerOverrideSettings.asset");
+                r =
+ AssetDatabase.LoadAssetAtPath<TypeManagerOverrideSettings>("Assets/Settings/Resources/TypeManagerOverrideSettings.asset");
                 if (r == null)
 #endif
                 {

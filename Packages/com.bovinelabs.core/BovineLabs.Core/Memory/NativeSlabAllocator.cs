@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Memory
-{
+namespace BovineLabs.Core.Memory {
     using System;
     using Unity.Burst;
     using Unity.Collections;
@@ -12,19 +11,18 @@ namespace BovineLabs.Core.Memory
 
     [NativeContainer]
     public unsafe struct NativeSlabAllocator<T> : IDisposable
-        where T : unmanaged
-    {
+        where T : unmanaged {
         private UnsafeSlabAllocator<T> slabAllocator;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 #pragma warning disable SA1308
         private AtomicSafetyHandle m_Safety;
-        private static readonly SharedStatic<int> s_staticSafetyId = SharedStatic<int>.GetOrCreate<NativeSlabAllocator<T>>();
+        private static readonly SharedStatic<int> s_staticSafetyId =
+            SharedStatic<int>.GetOrCreate<NativeSlabAllocator<T>>();
 #pragma warning restore SA1308
 #endif
 
-        public NativeSlabAllocator(int countPerSlab, AllocatorManager.AllocatorHandle allocator)
-        {
+        public NativeSlabAllocator(int countPerSlab, AllocatorManager.AllocatorHandle allocator) {
             Debug.Assert(countPerSlab > 0);
 
             this.slabAllocator = new UnsafeSlabAllocator<T>(countPerSlab, allocator);
@@ -40,10 +38,8 @@ namespace BovineLabs.Core.Memory
 #endif
         }
 
-        public int AllocationCount
-        {
-            get
-            {
+        public int AllocationCount {
+            get {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 AtomicSafetyHandle.CheckReadAndThrow(this.m_Safety);
 #endif
@@ -55,16 +51,14 @@ namespace BovineLabs.Core.Memory
 
         /// <summary> Returns a pointer. This memory is not cleared. </summary>
         /// <returns> The pointer. </returns>
-        public T* Alloc()
-        {
+        public T* Alloc() {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckWriteAndThrow(this.m_Safety);
 #endif
             return this.slabAllocator.Alloc();
         }
 
-        public void Clear()
-        {
+        public void Clear() {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckWriteAndThrow(this.m_Safety);
 #endif
@@ -72,8 +66,7 @@ namespace BovineLabs.Core.Memory
         }
 
         /// <inheritdoc />
-        public void Dispose()
-        {
+        public void Dispose() {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CollectionHelper.DisposeSafetyHandle(ref this.m_Safety);
 #endif

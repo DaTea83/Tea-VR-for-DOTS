@@ -3,8 +3,7 @@
 // </copyright>
 
 #if UNITY_VFX_GRAPH
-namespace BovineLabs.Core.Editor.VFXGraphTemplateWindow
-{
+namespace BovineLabs.Core.Editor.VFXGraphTemplateWindow {
     using BovineLabs.Core.Editor.UI;
     using UnityEditor;
     using UnityEditor.VFX;
@@ -12,9 +11,10 @@ namespace BovineLabs.Core.Editor.VFXGraphTemplateWindow
     using UnityEngine.UIElements;
     using UnityEngine.VFX;
 
-    public class VFXGraphTemplateWindow : EditorWindow
-    {
-        private const string RootUIPath = "Packages/com.bovinelabs.core/Editor Default Resources/VFXGraphTemplateWindow/";
+    public class VFXGraphTemplateWindow : EditorWindow {
+        private const string RootUIPath =
+            "Packages/com.bovinelabs.core/Editor Default Resources/VFXGraphTemplateWindow/";
+
         private static readonly UITemplate Window = new(RootUIPath + "VFXGraphTemplateWindow");
 
         private TextField? nameField;
@@ -22,16 +22,14 @@ namespace BovineLabs.Core.Editor.VFXGraphTemplateWindow
         private TextField? descriptionField;
 
         [MenuItem(EditorMenus.RootMenuTools + "Create VFX Template", priority = -15)]
-        private static void ShowWindow()
-        {
+        private static void ShowWindow() {
             // Get existing open window or if none, make a new one:
             var window = GetWindow<VFXGraphTemplateWindow>();
             window.titleContent = new GUIContent("BovineLabs");
             window.Show();
         }
 
-        private void OnEnable()
-        {
+        private void OnEnable() {
             var root = this.rootVisualElement;
 
             Window.Clone(root);
@@ -42,33 +40,27 @@ namespace BovineLabs.Core.Editor.VFXGraphTemplateWindow
             this.descriptionField = this.rootVisualElement.Q<TextField>("Description");
         }
 
-        private void CreateTemplate()
-        {
-            if (!TryGetPath(out var path))
-            {
+        private void CreateTemplate() {
+            if (!TryGetPath(out var path)) {
                 BLGlobalLogger.LogErrorString("No VisualEffectAsset selected");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(this.nameField!.value))
-            {
+            if (string.IsNullOrWhiteSpace(this.nameField!.value)) {
                 BLGlobalLogger.LogErrorString("No name set");
                 return;
             }
 
-            VFXTemplateHelper.TrySetTemplate(path, new VFXTemplateDescriptor
-            {
+            VFXTemplateHelper.TrySetTemplate(path, new VFXTemplateDescriptor {
                 name = this.nameField.value,
                 category = this.categoryField!.value,
                 description = this.descriptionField!.value,
             });
         }
 
-        private static bool TryGetPath(out string? path)
-        {
+        private static bool TryGetPath(out string? path) {
             var asset = Selection.activeObject as VisualEffectAsset;
-            if (!asset)
-            {
+            if (!asset) {
                 path = null;
                 return false;
             }

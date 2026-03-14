@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.ConfigVars
-{
+namespace BovineLabs.Core.Editor.ConfigVars {
     using System;
     using System.Collections.Generic;
     using BovineLabs.Core.ConfigVars;
@@ -13,8 +12,7 @@ namespace BovineLabs.Core.Editor.ConfigVars
     using UnityEngine.UIElements;
 
     /// <summary> Window for config vars. </summary>
-    public class ConfigVarsWindow : SettingsBaseWindow<ConfigVarsWindow>
-    {
+    public class ConfigVarsWindow : SettingsBaseWindow<ConfigVarsWindow> {
         private readonly Dictionary<string, ConfigVarPanel> panels = new();
 
         /// <inheritdoc />
@@ -24,18 +22,13 @@ namespace BovineLabs.Core.Editor.ConfigVars
         protected override bool HideToggleShowEmpty => true;
 
         [MenuItem(EditorMenus.RootMenu + "ConfigVars", priority = -31)]
-        internal static void OpenSettings()
-        {
-            Open();
-        }
+        internal static void OpenSettings() { Open(); }
 
         /// <inheritdoc />
-        protected override void GetPanels(List<ISettingsPanel> settingPanels)
-        {
+        protected override void GetPanels(List<ISettingsPanel> settingPanels) {
             ConfigVarManager.Init();
 
-            foreach (var p in this.panels)
-            {
+            foreach (var p in this.panels) {
                 p.Value.OnDeactivate();
             }
 
@@ -43,18 +36,15 @@ namespace BovineLabs.Core.Editor.ConfigVars
 
             var configVars = ConfigVarManager.FindAllConfigVars();
 
-            foreach (var (configVar, field) in configVars)
-            {
-                if (configVar.IsHidden)
-                {
+            foreach (var (configVar, field) in configVars) {
+                if (configVar.IsHidden) {
                     continue;
                 }
 
                 var key = configVar.Name.Split('.');
                 var menu = key.Length < 2 ? "[null]" : key[0];
 
-                if (!this.panels.TryGetValue(menu, out var panel))
-                {
+                if (!this.panels.TryGetValue(menu, out var panel)) {
                     panel = this.panels[menu] = new ConfigVarPanel(menu);
                     settingPanels.Add(panel);
                 }
@@ -62,27 +52,23 @@ namespace BovineLabs.Core.Editor.ConfigVars
                 panel.ConfigVars.Add((configVar, field));
             }
 
-            foreach (var p in this.panels)
-            {
-                p.Value.ConfigVars.Sort((p1, p2) => string.Compare(p1.ConfigVar.Name, p2.ConfigVar.Name, StringComparison.Ordinal));
+            foreach (var p in this.panels) {
+                p.Value.ConfigVars.Sort((p1, p2) =>
+                    string.Compare(p1.ConfigVar.Name, p2.ConfigVar.Name, StringComparison.Ordinal));
             }
         }
 
         /// <inheritdoc />
-        protected override void InitializeToolbar(VisualElement rootElement)
-        {
+        protected override void InitializeToolbar(VisualElement rootElement) {
             var resetButton = new ToolbarButton(this.ResetToDefault) { text = "Reset To Default" };
             rootElement.Add(resetButton);
         }
 
-        private void ResetToDefault()
-        {
-            if (EditorUtility.DisplayDialog("Confirm Reset To Default", "Reset all config vars to default values?", "Reset", "Cancel"))
-            {
-                foreach (var panel in this.panels)
-                {
-                    foreach (var configVar in panel.Value.ConfigVars)
-                    {
+        private void ResetToDefault() {
+            if (EditorUtility.DisplayDialog("Confirm Reset To Default", "Reset all config vars to default values?",
+                    "Reset", "Cancel")) {
+                foreach (var panel in this.panels) {
+                    foreach (var configVar in panel.Value.ConfigVars) {
                         EditorPrefs.DeleteKey(configVar.ConfigVar.Name);
                     }
                 }

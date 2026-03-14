@@ -2,33 +2,30 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Memory
-{
+namespace BovineLabs.Core.Memory {
     using System;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using UnityEngine;
 
     public unsafe struct UnsafeSlabAllocator<T> : IDisposable
-        where T : unmanaged
-    {
+        where T : unmanaged {
         private readonly int countPerSlab;
         private readonly AllocatorManager.AllocatorHandle allocator;
 
         private UnsafeList<Ptr>* slabs;
 
-        [NativeDisableUnsafePtrRestriction]
-        private int* count;
+        [NativeDisableUnsafePtrRestriction] private int* count;
 
-        public UnsafeSlabAllocator(int countPerSlab, AllocatorManager.AllocatorHandle allocator)
-        {
+        public UnsafeSlabAllocator(int countPerSlab, AllocatorManager.AllocatorHandle allocator) {
             Debug.Assert(countPerSlab > 0);
 
             this.slabs = UnsafeList<Ptr>.Create(0, allocator);
             this.allocator = allocator;
             this.countPerSlab = countPerSlab;
 
-            this.count = (int*)Memory.Unmanaged.Allocate(UnsafeUtility.SizeOf<int>(), UnsafeUtility.AlignOf<int>(), allocator);
+            this.count =
+                (int*)Memory.Unmanaged.Allocate(UnsafeUtility.SizeOf<int>(), UnsafeUtility.AlignOf<int>(), allocator);
             *this.count = countPerSlab;
         }
 
@@ -38,12 +35,11 @@ namespace BovineLabs.Core.Memory
 
         /// <summary> Returns a pointer. This memory is not cleared. </summary>
         /// <returns> The pointer. </returns>
-        public T* Alloc()
-        {
-            if (*this.count == this.countPerSlab)
-            {
+        public T* Alloc() {
+            if (*this.count == this.countPerSlab) {
                 *this.count = 0;
-                var ptr = (Ptr)Memory.Unmanaged.Allocate(this.countPerSlab * UnsafeUtility.SizeOf<T>(), UnsafeUtility.AlignOf<T>(), this.allocator);
+                var ptr = (Ptr)Memory.Unmanaged.Allocate(this.countPerSlab * UnsafeUtility.SizeOf<T>(),
+                    UnsafeUtility.AlignOf<T>(), this.allocator);
                 this.slabs->Add(ptr);
             }
 
@@ -51,10 +47,8 @@ namespace BovineLabs.Core.Memory
             return lastSlab + (*this.count)++;
         }
 
-        public void Clear()
-        {
-            for (var i = 0; i < this.slabs->Length; i++)
-            {
+        public void Clear() {
+            for (var i = 0; i < this.slabs->Length; i++) {
                 Memory.Unmanaged.Free((*this.slabs)[i], this.allocator);
             }
 
@@ -63,8 +57,7 @@ namespace BovineLabs.Core.Memory
         }
 
         /// <inheritdoc />
-        public void Dispose()
-        {
+        public void Dispose() {
             this.Clear();
             UnsafeList<Ptr>.Destroy(this.slabs);
 
@@ -74,9 +67,6 @@ namespace BovineLabs.Core.Memory
             this.slabs = default;
         }
 
-        public int Allocated()
-        {
-            return this.slabs->Length * this.countPerSlab * UnsafeUtility.SizeOf<T>();
-        }
+        public int Allocated() { return this.slabs->Length * this.countPerSlab * UnsafeUtility.SizeOf<T>(); }
     }
 }

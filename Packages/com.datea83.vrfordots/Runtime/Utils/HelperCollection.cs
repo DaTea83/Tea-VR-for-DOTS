@@ -1,7 +1,3 @@
-﻿namespace VRForDOTS.Utils
-{
-    public static partial class HelperCollection
-    {
-        
-    }
+﻿namespace VRForDOTS.Utils {
+    public static partial class HelperCollection { }
 }

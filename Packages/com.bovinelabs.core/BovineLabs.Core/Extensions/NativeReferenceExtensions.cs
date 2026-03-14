@@ -2,16 +2,13 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Extensions
-{
+namespace BovineLabs.Core.Extensions {
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
 
-    public static unsafe class NativeReferenceExtensions
-    {
+    public static unsafe class NativeReferenceExtensions {
         public static ref T ValueRef<T>(this NativeReference<T> reference)
-            where T : unmanaged
-        {
+            where T : unmanaged {
             return ref UnsafeUtility.AsRef<T>(reference.GetUnsafePtr());
         }
     }

@@ -24,8 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace BovineLabs.Core.Utility
-{
+namespace BovineLabs.Core.Utility {
     using System;
     using System.Runtime.CompilerServices;
     using BovineLabs.Core.Assertions;
@@ -34,8 +33,7 @@ namespace BovineLabs.Core.Utility
     using Unity.Mathematics;
 
     [BurstCompile]
-    public static class ConvexHullBuilder
-    {
+    public static class ConvexHullBuilder {
         /// <summary>
         /// Constant representing a point that has yet to be assigned to a
         /// face. It's only used immediately after constructing the seed hull.
@@ -51,10 +49,10 @@ namespace BovineLabs.Core.Utility
         private const int Inside = -1;
 
         [BurstCompile]
-        public static void Generate(ref NativeArray<float3> points, ref NativeList<float3> outVerts, ref NativeList<int> outTris)
-        {
-            switch (points.Length)
-            {
+        public static void Generate(ref NativeArray<float3> points,
+            ref NativeList<float3> outVerts,
+            ref NativeList<int> outTris) {
+            switch (points.Length) {
                 case < 3:
                     return;
                 case 3:
@@ -68,8 +66,7 @@ namespace BovineLabs.Core.Utility
             var data = new Data(Allocator.Temp);
             GenerateInitialHull(ref data, points);
 
-            while (data.OpenSetTail >= 0)
-            {
+            while (data.OpenSetTail >= 0) {
                 GrowHull(ref data, points);
             }
 
@@ -79,8 +76,7 @@ namespace BovineLabs.Core.Utility
         /// <summary>
         /// Create initial seed hull.
         /// </summary>
-        private static void GenerateInitialHull(ref Data data, NativeArray<float3> points)
-        {
+        private static void GenerateInitialHull(ref Data data, NativeArray<float3> points) {
             // Find points suitable for use as the seed hull. Some varieties of
             // this algorithm pick extreme points here, but I'm not convinced
             // you gain all that much from that. Currently what it does is just
@@ -111,29 +107,33 @@ namespace BovineLabs.Core.Utility
             // case). The faces are added with the proper references to the
             // faces opposite each vertex
             data.FaceCount = 0;
-            if (above)
-            {
-                data.Faces[data.FaceCount++] = new Face(b0, b2, b1, 3, 1, 2, Normal(points[b0], points[b2], points[b1]));
-                data.Faces[data.FaceCount++] = new Face(b0, b1, b3, 3, 2, 0, Normal(points[b0], points[b1], points[b3]));
-                data.Faces[data.FaceCount++] = new Face(b0, b3, b2, 3, 0, 1, Normal(points[b0], points[b3], points[b2]));
-                data.Faces[data.FaceCount++] = new Face(b1, b2, b3, 2, 1, 0, Normal(points[b1], points[b2], points[b3]));
+            if (above) {
+                data.Faces[data.FaceCount++] =
+                    new Face(b0, b2, b1, 3, 1, 2, Normal(points[b0], points[b2], points[b1]));
+                data.Faces[data.FaceCount++] =
+                    new Face(b0, b1, b3, 3, 2, 0, Normal(points[b0], points[b1], points[b3]));
+                data.Faces[data.FaceCount++] =
+                    new Face(b0, b3, b2, 3, 0, 1, Normal(points[b0], points[b3], points[b2]));
+                data.Faces[data.FaceCount++] =
+                    new Face(b1, b2, b3, 2, 1, 0, Normal(points[b1], points[b2], points[b3]));
             }
-            else
-            {
-                data.Faces[data.FaceCount++] = new Face(b0, b1, b2, 3, 2, 1, Normal(points[b0], points[b1], points[b2]));
-                data.Faces[data.FaceCount++] = new Face(b0, b3, b1, 3, 0, 2, Normal(points[b0], points[b3], points[b1]));
-                data.Faces[data.FaceCount++] = new Face(b0, b2, b3, 3, 1, 0, Normal(points[b0], points[b2], points[b3]));
-                data.Faces[data.FaceCount++] = new Face(b1, b3, b2, 2, 0, 1, Normal(points[b1], points[b3], points[b2]));
+            else {
+                data.Faces[data.FaceCount++] =
+                    new Face(b0, b1, b2, 3, 2, 1, Normal(points[b0], points[b1], points[b2]));
+                data.Faces[data.FaceCount++] =
+                    new Face(b0, b3, b1, 3, 0, 2, Normal(points[b0], points[b3], points[b1]));
+                data.Faces[data.FaceCount++] =
+                    new Face(b0, b2, b3, 3, 1, 0, Normal(points[b0], points[b2], points[b3]));
+                data.Faces[data.FaceCount++] =
+                    new Face(b1, b3, b2, 2, 0, 1, Normal(points[b1], points[b3], points[b2]));
             }
 
             // VerifyFaces(points);
 
             // Create the openSet. Add all points except the points of the seed
             // hull.
-            for (var i = 0; i < points.Length; i++)
-            {
-                if (i == b0 || i == b1 || i == b2 || i == b3)
-                {
+            for (var i = 0; i < points.Length; i++) {
+                if (i == b0 || i == b1 || i == b2 || i == b3) {
                     continue;
                 }
 
@@ -156,8 +156,7 @@ namespace BovineLabs.Core.Utility
 
             // Assign all points of the open set. This does basically the same
             // thing as ReassignPoints()
-            for (var i = 0; i <= data.OpenSetTail; i++)
-            {
+            for (var i = 0; i <= data.OpenSetTail; i++) {
                 Check.Assume(data.OpenSet[i].Face == Unassigned);
                 Check.Assume(data.OpenSet[data.OpenSetTail].Face == Unassigned);
                 Check.Assume(data.OpenSet[data.OpenSetTail + 1].Face == Inside);
@@ -167,16 +166,14 @@ namespace BovineLabs.Core.Utility
 
                 Check.Assume(data.Faces.Count == 4);
                 Check.Assume(data.Faces.Count == data.FaceCount);
-                for (var j = 0; j < 4; j++)
-                {
+                for (var j = 0; j < 4; j++) {
                     Check.Assume(data.Faces.ContainsKey(j));
 
                     var face = data.Faces[j];
 
                     var dist = PointFaceDistance(points[fp.Point], points[face.Vertex0], face.Normal);
 
-                    if (dist > 0)
-                    {
+                    if (dist > 0) {
                         fp.Face = j;
                         fp.Distance = dist;
                         data.OpenSet[i] = fp;
@@ -187,8 +184,7 @@ namespace BovineLabs.Core.Utility
                     }
                 }
 
-                if (!assigned)
-                {
+                if (!assigned) {
                     // Point is inside
                     fp.Face = Inside;
                     fp.Distance = float.NaN;
@@ -207,37 +203,33 @@ namespace BovineLabs.Core.Utility
         }
 
         /// <summary> Find four points in the point cloud that are not coplanar for the seed hull. </summary>
-        private static void FindInitialHullIndices(NativeArray<float3> points, out int b0, out int b1, out int b2, out int b3)
-        {
+        private static void FindInitialHullIndices(NativeArray<float3> points,
+            out int b0,
+            out int b1,
+            out int b2,
+            out int b3) {
             var count = points.Length;
 
-            for (var i0 = 0; i0 < count - 3; i0++)
-            {
-                for (var i1 = i0 + 1; i1 < count - 2; i1++)
-                {
+            for (var i0 = 0; i0 < count - 3; i0++) {
+                for (var i1 = i0 + 1; i1 < count - 2; i1++) {
                     var p0 = points[i0];
                     var p1 = points[i1];
 
-                    if (AreCoincident(p0, p1))
-                    {
+                    if (AreCoincident(p0, p1)) {
                         continue;
                     }
 
-                    for (var i2 = i1 + 1; i2 < count - 1; i2++)
-                    {
+                    for (var i2 = i1 + 1; i2 < count - 1; i2++) {
                         var p2 = points[i2];
 
-                        if (AreCollinear(p0, p1, p2))
-                        {
+                        if (AreCollinear(p0, p1, p2)) {
                             continue;
                         }
 
-                        for (var i3 = i2 + 1; i3 < count - 0; i3++)
-                        {
+                        for (var i3 = i2 + 1; i3 < count - 0; i3++) {
                             var p3 = points[i3];
 
-                            if (AreCoplanar(p0, p1, p2, p3))
-                            {
+                            if (AreCoplanar(p0, p1, p2, p3)) {
                                 continue;
                             }
 
@@ -267,8 +259,7 @@ namespace BovineLabs.Core.Utility
         /// to encompass the point in openSet with the point furthest away
         /// from its face.
         /// </summary>
-        private static void GrowHull(ref Data data, NativeArray<float3> points)
-        {
+        private static void GrowHull(ref Data data, NativeArray<float3> points) {
             Check.Assume(data.OpenSetTail >= 0);
             Check.Assume(data.OpenSet[0].Face != Inside);
 
@@ -276,10 +267,8 @@ namespace BovineLabs.Core.Utility
             var farthestPoint = 0;
             var dist = data.OpenSet[0].Distance;
 
-            for (var i = 1; i <= data.OpenSetTail; i++)
-            {
-                if (data.OpenSet[i].Distance > dist)
-                {
+            for (var i = 1; i <= data.OpenSetTail; i++) {
+                if (data.OpenSet[i].Distance > dist) {
                     farthestPoint = i;
                     dist = data.OpenSet[i].Distance;
                 }
@@ -315,8 +304,7 @@ namespace BovineLabs.Core.Utility
         /// only has to visit two (because one of them has already been
         /// visited, the one you came from).
         /// </summary>
-        private static void FindHorizon(ref Data data, NativeArray<float3> points, float3 point, int fi, Face face)
-        {
+        private static void FindHorizon(ref Data data, NativeArray<float3> points, float3 point, int fi, Face face) {
             // TODO should I use epsilon in the PointFaceDistance comparisons?
 
             data.LitFaces.Clear();
@@ -336,59 +324,48 @@ namespace BovineLabs.Core.Utility
 
                 var dist = PointFaceDistance(point, points[oppositeFace.Vertex0], oppositeFace.Normal);
 
-                if (dist <= 0.0f)
-                {
-                    data.Horizon.Add(new HorizonEdge
-                    {
+                if (dist <= 0.0f) {
+                    data.Horizon.Add(new HorizonEdge {
                         Face = face.Opposite0,
                         Edge0 = face.Vertex1,
                         Edge1 = face.Vertex2,
                     });
                 }
-                else
-                {
+                else {
                     SearchHorizon(ref data, points, point, fi, face.Opposite0, oppositeFace);
                 }
             }
 
-            if (!data.LitFaces.Contains(face.Opposite1))
-            {
+            if (!data.LitFaces.Contains(face.Opposite1)) {
                 var oppositeFace = data.Faces[face.Opposite1];
 
                 var dist = PointFaceDistance(point, points[oppositeFace.Vertex0], oppositeFace.Normal);
 
-                if (dist <= 0.0f)
-                {
-                    data.Horizon.Add(new HorizonEdge
-                    {
+                if (dist <= 0.0f) {
+                    data.Horizon.Add(new HorizonEdge {
                         Face = face.Opposite1,
                         Edge0 = face.Vertex2,
                         Edge1 = face.Vertex0,
                     });
                 }
-                else
-                {
+                else {
                     SearchHorizon(ref data, points, point, fi, face.Opposite1, oppositeFace);
                 }
             }
 
-            if (!data.LitFaces.Contains(face.Opposite2))
-            {
+            if (!data.LitFaces.Contains(face.Opposite2)) {
                 var oppositeFace = data.Faces[face.Opposite2];
 
                 var dist = PointFaceDistance(point, points[oppositeFace.Vertex0], oppositeFace.Normal);
 
-                if (dist <= 0.0f)
-                {
-                    data.Horizon.Add(new HorizonEdge
-                    {
+                if (dist <= 0.0f) {
+                    data.Horizon.Add(new HorizonEdge {
                         Face = face.Opposite2,
                         Edge0 = face.Vertex0,
                         Edge1 = face.Vertex1,
                     });
                 }
-                else
-                {
+                else {
                     SearchHorizon(ref data, points, point, fi, face.Opposite2, oppositeFace);
                 }
             }
@@ -397,8 +374,12 @@ namespace BovineLabs.Core.Utility
         /// <summary>
         /// Recursively search to find the horizon or lit set.
         /// </summary>
-        private static void SearchHorizon(ref Data data, NativeArray<float3> points, float3 point, int prevFaceIndex, int faceCount, Face face)
-        {
+        private static void SearchHorizon(ref Data data,
+            NativeArray<float3> points,
+            float3 point,
+            int prevFaceIndex,
+            int faceCount,
+            Face face) {
             Check.Assume(prevFaceIndex >= 0);
             Check.Assume(data.LitFaces.Contains(prevFaceIndex));
             Check.Assume(!data.LitFaces.Contains(faceCount));
@@ -416,8 +397,7 @@ namespace BovineLabs.Core.Utility
             int edge1;
             int edge2;
 
-            if (prevFaceIndex == face.Opposite0)
-            {
+            if (prevFaceIndex == face.Opposite0) {
                 nextFaceIndex0 = face.Opposite1;
                 nextFaceIndex1 = face.Opposite2;
 
@@ -425,8 +405,7 @@ namespace BovineLabs.Core.Utility
                 edge1 = face.Vertex0;
                 edge2 = face.Vertex1;
             }
-            else if (prevFaceIndex == face.Opposite1)
-            {
+            else if (prevFaceIndex == face.Opposite1) {
                 nextFaceIndex0 = face.Opposite2;
                 nextFaceIndex1 = face.Opposite0;
 
@@ -434,8 +413,7 @@ namespace BovineLabs.Core.Utility
                 edge1 = face.Vertex1;
                 edge2 = face.Vertex2;
             }
-            else
-            {
+            else {
                 Check.Assume(prevFaceIndex == face.Opposite2);
 
                 nextFaceIndex0 = face.Opposite0;
@@ -446,44 +424,36 @@ namespace BovineLabs.Core.Utility
                 edge2 = face.Vertex0;
             }
 
-            if (!data.LitFaces.Contains(nextFaceIndex0))
-            {
+            if (!data.LitFaces.Contains(nextFaceIndex0)) {
                 var oppositeFace = data.Faces[nextFaceIndex0];
 
                 var dist = PointFaceDistance(point, points[oppositeFace.Vertex0], oppositeFace.Normal);
 
-                if (dist <= 0.0f)
-                {
-                    data.Horizon.Add(new HorizonEdge
-                    {
+                if (dist <= 0.0f) {
+                    data.Horizon.Add(new HorizonEdge {
                         Face = nextFaceIndex0,
                         Edge0 = edge0,
                         Edge1 = edge1,
                     });
                 }
-                else
-                {
+                else {
                     SearchHorizon(ref data, points, point, faceCount, nextFaceIndex0, oppositeFace);
                 }
             }
 
-            if (!data.LitFaces.Contains(nextFaceIndex1))
-            {
+            if (!data.LitFaces.Contains(nextFaceIndex1)) {
                 var oppositeFace = data.Faces[nextFaceIndex1];
 
                 var dist = PointFaceDistance(point, points[oppositeFace.Vertex0], oppositeFace.Normal);
 
-                if (dist <= 0.0f)
-                {
-                    data.Horizon.Add(new HorizonEdge
-                    {
+                if (dist <= 0.0f) {
+                    data.Horizon.Add(new HorizonEdge {
                         Face = nextFaceIndex1,
                         Edge0 = edge1,
                         Edge1 = edge2,
                     });
                 }
-                else
-                {
+                else {
                     SearchHorizon(ref data, points, point, faceCount, nextFaceIndex1, oppositeFace);
                 }
             }
@@ -500,18 +470,15 @@ namespace BovineLabs.Core.Utility
         /// on the other side of the horizon to reflect it's new neighbor from
         /// the cone.
         /// </summary>
-        private static void ConstructCone(ref Data data, NativeArray<float3> points, int farthestPoint)
-        {
-            foreach (var fi in data.LitFaces)
-            {
+        private static void ConstructCone(ref Data data, NativeArray<float3> points, int farthestPoint) {
+            foreach (var fi in data.LitFaces) {
                 Check.Assume(data.Faces.ContainsKey(fi));
                 data.Faces.Remove(fi);
             }
 
             var firstNewFace = data.FaceCount;
 
-            for (var i = 0; i < data.Horizon.Length; i++)
-            {
+            for (var i = 0; i < data.Horizon.Length; i++) {
                 // Vertices of the new face, the farthest point as well as the
                 // edge on the horizon. Horizon edge is CCW, so the triangle
                 // should be as well.
@@ -531,18 +498,15 @@ namespace BovineLabs.Core.Utility
 
                 var horizonFace = data.Faces[data.Horizon[i].Face];
 
-                if (horizonFace.Vertex0 == v1)
-                {
+                if (horizonFace.Vertex0 == v1) {
                     Check.Assume(v2 == horizonFace.Vertex2);
                     horizonFace.Opposite1 = fi;
                 }
-                else if (horizonFace.Vertex1 == v1)
-                {
+                else if (horizonFace.Vertex1 == v1) {
                     Check.Assume(v2 == horizonFace.Vertex0);
                     horizonFace.Opposite2 = fi;
                 }
-                else
-                {
+                else {
                     Check.Assume(v1 == horizonFace.Vertex2);
                     Check.Assume(v2 == horizonFace.Vertex1);
                     horizonFace.Opposite0 = fi;
@@ -566,26 +530,21 @@ namespace BovineLabs.Core.Utility
         /// doing that to make this loop shorter, a straight for-loop through
         /// a list is pretty darn fast. Still, it might be worth trying.
         /// </summary>
-        private static void ReassignPoints(ref Data data, NativeArray<float3> points)
-        {
-            for (var i = 0; i <= data.OpenSetTail; i++)
-            {
+        private static void ReassignPoints(ref Data data, NativeArray<float3> points) {
+            for (var i = 0; i <= data.OpenSetTail; i++) {
                 var fp = data.OpenSet[i];
 
-                if (data.LitFaces.Contains(fp.Face))
-                {
+                if (data.LitFaces.Contains(fp.Face)) {
                     var assigned = false;
                     var point = points[fp.Point];
 
-                    foreach (var kvp in data.Faces)
-                    {
+                    foreach (var kvp in data.Faces) {
                         var fi = kvp.Key;
                         var face = kvp.Value;
 
                         var dist = PointFaceDistance(point, points[face.Vertex0], face.Normal);
 
-                        if (dist > math.EPSILON)
-                        {
+                        if (dist > math.EPSILON) {
                             assigned = true;
 
                             fp.Face = fi;
@@ -597,8 +556,7 @@ namespace BovineLabs.Core.Utility
                         }
                     }
 
-                    if (!assigned)
-                    {
+                    if (!assigned) {
                         // If point hasn't been assigned, then it's inside the
                         // convex hull. Swap it with openSetTail, and decrement
                         // openSetTail. We also have to decrement i, because
@@ -618,34 +576,32 @@ namespace BovineLabs.Core.Utility
         }
 
         /// <summary> Final step in algorithm, export the faces of the convex hull in a mesh-friendly format. </summary>
-        private static void ExportMesh(ref Data data, NativeArray<float3> points, NativeList<float3> verts, NativeList<int> tris)
-        {
+        private static void ExportMesh(ref Data data,
+            NativeArray<float3> points,
+            NativeList<float3> verts,
+            NativeList<int> tris) {
             verts.Clear();
             tris.Clear();
 
             using var e = data.Faces.GetEnumerator();
-            while (e.MoveNext())
-            {
+            while (e.MoveNext()) {
                 var face = e.Current.Value;
 
                 int vi0, vi1, vi2;
 
-                if (!data.HullVerts.TryGetValue(face.Vertex0, out vi0))
-                {
+                if (!data.HullVerts.TryGetValue(face.Vertex0, out vi0)) {
                     vi0 = verts.Length;
                     data.HullVerts[face.Vertex0] = vi0;
                     verts.Add(points[face.Vertex0]);
                 }
 
-                if (!data.HullVerts.TryGetValue(face.Vertex1, out vi1))
-                {
+                if (!data.HullVerts.TryGetValue(face.Vertex1, out vi1)) {
                     vi1 = verts.Length;
                     data.HullVerts[face.Vertex1] = vi1;
                     verts.Add(points[face.Vertex1]);
                 }
 
-                if (!data.HullVerts.TryGetValue(face.Vertex2, out vi2))
-                {
+                if (!data.HullVerts.TryGetValue(face.Vertex2, out vi2)) {
                     vi2 = verts.Length;
                     data.HullVerts[face.Vertex2] = vi2;
                     verts.Add(points[face.Vertex2]);
@@ -658,46 +614,39 @@ namespace BovineLabs.Core.Utility
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static float3 Normal(float3 v0, float3 v1, float3 v2)
-        {
+        private static float3 Normal(float3 v0, float3 v1, float3 v2) {
             return math.normalize(math.cross(v1 - v0, v2 - v0));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static float PointFaceDistance(float3 point, float3 pointOnFace, float3 normal)
-        {
+        private static float PointFaceDistance(float3 point, float3 pointOnFace, float3 normal) {
             return math.dot(normal, point - pointOnFace);
         }
 
         /// <summary> Check if two points are coincident. </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool AreCoincident(float3 a, float3 b)
-        {
-            return math.distance(a, b) <= math.EPSILON;
-        }
+        private static bool AreCoincident(float3 a, float3 b) { return math.distance(a, b) <= math.EPSILON; }
 
         /// <summary> Check if three points are collinear. </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool AreCollinear(float3 a, float3 b, float3 c)
-        {
+        private static bool AreCollinear(float3 a, float3 b, float3 c) {
             return math.length(math.cross(c - a, c - b)) <= math.EPSILON;
         }
 
         /// <summary> Check if four points are coplanar. </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool AreCoplanar(float3 a, float3 b, float3 c, float3 d)
-        {
+        private static bool AreCoplanar(float3 a, float3 b, float3 c, float3 d) {
             var n1 = math.cross(c - a, c - b);
             var n2 = math.cross(d - a, d - b);
 
             var m1 = math.length(n1);
             var m2 = math.length(n2);
 
-            return m1 <= math.EPSILON || m2 <= math.EPSILON || AreCollinear(float3.zero, (1.0f / m1) * n1, (1.0f / m2) * n2);
+            return m1 <= math.EPSILON || m2 <= math.EPSILON ||
+                   AreCollinear(float3.zero, (1.0f / m1) * n1, (1.0f / m2) * n2);
         }
 
-        private struct Data
-        {
+        private struct Data {
             public NativeHashMap<int, Face> Faces;
 
             /// <summary>
@@ -758,8 +707,7 @@ namespace BovineLabs.Core.Utility
             /// </summary>
             public int FaceCount;
 
-            public Data(Allocator allocator)
-            {
+            public Data(Allocator allocator) {
                 this.Faces = new NativeHashMap<int, Face>(0, allocator);
                 this.OpenSet = new NativeList<PointFace>(0, allocator);
                 this.LitFaces = new NativeHashSet<int>(0, allocator);
@@ -781,8 +729,7 @@ namespace BovineLabs.Core.Utility
         /// Vertex0 (so it has an edge with Vertex2 and Vertex1), etc.
         /// Normal is (unsurprisingly) the normal of the triangle.
         /// </summary>
-        private struct Face
-        {
+        private struct Face {
             public readonly int Vertex0;
             public readonly int Vertex1;
             public readonly int Vertex2;
@@ -793,8 +740,7 @@ namespace BovineLabs.Core.Utility
 
             public float3 Normal;
 
-            public Face(int v0, int v1, int v2, int o0, int o1, int o2, float3 normal)
-            {
+            public Face(int v0, int v1, int v2, int o0, int o1, int o2, float3 normal) {
                 this.Vertex0 = v0;
                 this.Vertex1 = v1;
                 this.Vertex2 = v2;
@@ -804,15 +750,14 @@ namespace BovineLabs.Core.Utility
                 this.Normal = normal;
             }
 
-            public bool Equals(Face other)
-            {
+            public bool Equals(Face other) {
                 return this.Vertex0 == other.Vertex0 &&
-                    this.Vertex1 == other.Vertex1 &&
-                    this.Vertex2 == other.Vertex2 &&
-                    this.Opposite0 == other.Opposite0 &&
-                    this.Opposite1 == other.Opposite1 &&
-                    this.Opposite2 == other.Opposite2 &&
-                    this.Normal.Equals(other.Normal);
+                       this.Vertex1 == other.Vertex1 &&
+                       this.Vertex2 == other.Vertex2 &&
+                       this.Opposite0 == other.Opposite0 &&
+                       this.Opposite1 == other.Opposite1 &&
+                       this.Opposite2 == other.Opposite2 &&
+                       this.Normal.Equals(other.Normal);
             }
         }
 
@@ -823,14 +768,12 @@ namespace BovineLabs.Core.Utility
         /// key of the face in the Key dictionary, Distance is the distance
         /// from the face to the point.
         /// </summary>
-        private struct PointFace
-        {
+        private struct PointFace {
             public readonly int Point;
             public int Face;
             public float Distance;
 
-            public PointFace(int p, int f, float d)
-            {
+            public PointFace(int p, int f, float d) {
                 this.Point = p;
                 this.Face = f;
                 this.Distance = d;
@@ -844,8 +787,7 @@ namespace BovineLabs.Core.Utility
         /// TODO Edge1 isn't actually needed, you can just index the next item
         /// in the horizon array.
         /// </summary>
-        private struct HorizonEdge
-        {
+        private struct HorizonEdge {
             public int Face;
             public int Edge0;
             public int Edge1;

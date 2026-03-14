@@ -7,5 +7,7 @@ using Unity.Entities;
 [assembly: DisableAutoTypeRegistration]
 
 #if UNITY_PHYSICS
-[assembly: RegisterUnityEngineComponentType(typeof(BovineLabs.Core.Authoring.Entities.RemovePhysicsVelocityAuthoring.RemovePhysicsVelocityBaking))]
+[assembly:
+    RegisterUnityEngineComponentType(
+        typeof(BovineLabs.Core.Authoring.Entities.RemovePhysicsVelocityAuthoring.RemovePhysicsVelocityBaking))]
 #endif

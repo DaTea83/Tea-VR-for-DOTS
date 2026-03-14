@@ -2,10 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Pause
-{
+namespace BovineLabs.Core.Pause {
     /// <summary> Disables a root system from updating while paused. </summary>
-    public interface IDisableWhilePaused
-    {
-    }
+    public interface IDisableWhilePaused { }
 }

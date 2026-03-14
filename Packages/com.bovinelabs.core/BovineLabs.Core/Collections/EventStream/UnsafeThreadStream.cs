@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System;
     using Unity.Burst;
     using Unity.Collections;
@@ -15,19 +14,16 @@ namespace BovineLabs.Core.Collections
     /// A data streaming supporting parallel reading and parallel writings, without any thread safety check features.
     /// Allows you to write different types or arrays into a single stream.
     /// </summary>
-    public unsafe partial struct UnsafeThreadStream : INativeDisposable, IEquatable<UnsafeThreadStream>
-    {
+    public unsafe partial struct UnsafeThreadStream : INativeDisposable, IEquatable<UnsafeThreadStream> {
         private static readonly int MaxLargeSize = UnsafeThreadStreamBlockData.AllocationSize - sizeof(void*);
 
-        [NativeDisableUnsafePtrRestriction]
-        private UnsafeThreadStreamBlockData* blockData;
+        [NativeDisableUnsafePtrRestriction] private UnsafeThreadStreamBlockData* blockData;
 
         private AllocatorManager.AllocatorHandle allocator;
 
         /// <summary> Initializes a new instance of the <see cref="UnsafeThreadStream" /> struct. </summary>
         /// <param name="allocator"> The specified type of memory allocation. </param>
-        public UnsafeThreadStream(Allocator allocator)
-        {
+        public UnsafeThreadStream(Allocator allocator) {
             AllocateBlock(out this, allocator);
             this.AllocateForEach();
         }
@@ -47,17 +43,13 @@ namespace BovineLabs.Core.Collections
 
         /// <summary> Reports whether container is empty. </summary>
         /// <returns> True if this container empty. </returns>
-        public bool IsEmpty()
-        {
-            if (!this.IsCreated)
-            {
+        public bool IsEmpty() {
+            if (!this.IsCreated) {
                 return true;
             }
 
-            for (var i = 0; i != ForEachCount; i++)
-            {
-                if (this.blockData->Ranges[i].ElementCount > 0)
-                {
+            for (var i = 0; i != ForEachCount; i++) {
+                if (this.blockData->Ranges[i].ElementCount > 0) {
                     return false;
                 }
             }
@@ -67,28 +59,20 @@ namespace BovineLabs.Core.Collections
 
         /// <summary> Returns reader instance. </summary>
         /// <returns> Reader instance. </returns>
-        public Reader AsReader()
-        {
-            return new Reader(ref this);
-        }
+        public Reader AsReader() { return new Reader(ref this); }
 
         /// <summary> Returns a writer instance. </summary>
         /// <returns> Writer instance. </returns>
-        public Writer AsWriter()
-        {
-            return new Writer(ref this);
-        }
+        public Writer AsWriter() { return new Writer(ref this); }
 
         /// <summary>
         /// The current number of items in the container.
         /// </summary>
         /// <returns> The item count. </returns>
-        public int Count()
-        {
+        public int Count() {
             var itemCount = 0;
 
-            for (var i = 0; i != ForEachCount; i++)
-            {
+            for (var i = 0; i != ForEachCount; i++) {
                 itemCount += this.blockData->Ranges[i].ElementCount;
             }
 
@@ -103,18 +87,15 @@ namespace BovineLabs.Core.Collections
         ///     <para> The array is a copy of stream data. </para>
         /// </remarks>
         public NativeArray<T> ToNativeArray<T>(Allocator arrayAllocator)
-            where T : unmanaged
-        {
+            where T : unmanaged {
             var array = new NativeArray<T>(this.Count(), arrayAllocator, NativeArrayOptions.UninitializedMemory);
             var reader = this.AsReader();
 
             var offset = 0;
-            for (var i = 0; i != reader.ForEachCount; i++)
-            {
+            for (var i = 0; i != reader.ForEachCount; i++) {
                 reader.BeginForEachIndex(i);
                 var rangeItemCount = reader.RemainingItemCount;
-                for (var j = 0; j < rangeItemCount; ++j)
-                {
+                for (var j = 0; j < rangeItemCount; ++j) {
                     array[offset] = reader.Read<T>();
                     offset++;
                 }
@@ -126,16 +107,10 @@ namespace BovineLabs.Core.Collections
         }
 
         /// <summary> Disposes of this stream and deallocates its memory immediately. </summary>
-        public void Dispose()
-        {
-            this.Deallocate();
-        }
+        public void Dispose() { this.Deallocate(); }
 
         /// <inheritdoc />
-        public bool Equals(UnsafeThreadStream other)
-        {
-            return this.blockData == other.blockData;
-        }
+        public bool Equals(UnsafeThreadStream other) { return this.blockData == other.blockData; }
 
         /// <summary> Safely disposes of this container and deallocates its memory when the jobs that use it have completed. </summary>
         /// <remarks>
@@ -150,16 +125,15 @@ namespace BovineLabs.Core.Collections
         /// A new job handle containing the prior handles as well as the handle for the job that deletes
         /// the container.
         /// </returns>
-        public JobHandle Dispose(JobHandle inputDeps)
-        {
+        public JobHandle Dispose(JobHandle inputDeps) {
             var jobHandle = new DisposeJob { Container = this }.Schedule(inputDeps);
             this.blockData = null;
             return jobHandle;
         }
 
-        internal static void AllocateBlock(out UnsafeThreadStream stream, AllocatorManager.AllocatorHandle allocator)
-        {
-            var allocationSize = sizeof(UnsafeThreadStreamBlockData) + (sizeof(UnsafeThreadStreamBlock*) * ForEachCount);
+        internal static void AllocateBlock(out UnsafeThreadStream stream, AllocatorManager.AllocatorHandle allocator) {
+            var allocationSize =
+                sizeof(UnsafeThreadStreamBlockData) + (sizeof(UnsafeThreadStreamBlock*) * ForEachCount);
             var buffer = (byte*)Memory.Unmanaged.Allocate(allocationSize, 16, allocator);
             UnsafeUtility.MemClear(buffer, allocationSize);
 
@@ -174,25 +148,21 @@ namespace BovineLabs.Core.Collections
             block->Ranges = null;
         }
 
-        internal void AllocateForEach()
-        {
+        internal void AllocateForEach() {
             long allocationSize = sizeof(UnsafeThreadStreamRange) * ForEachCount;
-            this.blockData->Ranges = (UnsafeThreadStreamRange*)Memory.Unmanaged.Allocate(allocationSize, 16, this.allocator);
+            this.blockData->Ranges =
+                (UnsafeThreadStreamRange*)Memory.Unmanaged.Allocate(allocationSize, 16, this.allocator);
             UnsafeUtility.MemClear(this.blockData->Ranges, allocationSize);
         }
 
-        private void Deallocate()
-        {
-            if (this.blockData == null)
-            {
+        private void Deallocate() {
+            if (this.blockData == null) {
                 return;
             }
 
-            for (var i = 0; i != ForEachCount; i++)
-            {
+            for (var i = 0; i != ForEachCount; i++) {
                 var block = this.blockData->Blocks[i];
-                while (block != null)
-                {
+                while (block != null) {
                     var next = block->Next;
                     Memory.Unmanaged.Free(block, this.allocator);
                     block = next;
@@ -206,14 +176,10 @@ namespace BovineLabs.Core.Collections
         }
 
         [BurstCompile]
-        private struct DisposeJob : IJob
-        {
+        private struct DisposeJob : IJob {
             public UnsafeThreadStream Container;
 
-            public void Execute()
-            {
-                this.Container.Deallocate();
-            }
+            public void Execute() { this.Container.Deallocate(); }
         }
     }
 }

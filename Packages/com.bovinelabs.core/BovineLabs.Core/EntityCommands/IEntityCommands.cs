@@ -2,13 +2,11 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.EntityCommands
-{
+namespace BovineLabs.Core.EntityCommands {
     using Unity.Collections;
     using Unity.Entities;
 
-    public interface IEntityCommands
-    {
+    public interface IEntityCommands {
         Entity Entity { get; set; }
 
         /// <summary> Creates a new entity and replaces any internal stored one so other commands will now affect this. </summary>

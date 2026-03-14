@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Iterators
-{
+namespace BovineLabs.Core.Tests.Iterators {
     using System;
     using BovineLabs.Core.Iterators;
     using BovineLabs.Testing;
@@ -11,11 +10,9 @@ namespace BovineLabs.Core.Tests.Iterators
     using Unity.Collections;
     using Unity.Entities;
 
-    public class DynamicPerfectHashMapTests : ECSTestsFixture
-    {
+    public class DynamicPerfectHashMapTests : ECSTestsFixture {
         [Test]
-        public void Initialize()
-        {
+        public void Initialize() {
             var input = new NativeHashMap<int, short>(5, Allocator.Temp);
             input.Add(1, 0);
             input.Add(98658, 1);
@@ -26,7 +23,8 @@ namespace BovineLabs.Core.Tests.Iterators
             var entity = this.Manager.CreateEntity(typeof(TestBuffer));
             var buffer = this.Manager.GetBuffer<TestBuffer>(entity);
 
-            var hashMap = buffer.InitializePerfectHashMap<TestBuffer, int, short>(input, -1).AsPerfectHashMap<TestBuffer, int, short>();
+            var hashMap = buffer.InitializePerfectHashMap<TestBuffer, int, short>(input, -1)
+                .AsPerfectHashMap<TestBuffer, int, short>();
             Assert.AreEqual((short)0, hashMap[1]);
             Assert.AreEqual((short)1, hashMap[98658]);
             Assert.AreEqual((short)2, hashMap[0]);
@@ -35,8 +33,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void ThrowsOnCollision()
-        {
+        public void ThrowsOnCollision() {
             var keys = new NativeArray<int>(5, Allocator.Temp);
             keys[0] = 0;
             keys[1] = 1;
@@ -54,12 +51,12 @@ namespace BovineLabs.Core.Tests.Iterators
             var entity = this.Manager.CreateEntity(typeof(TestBuffer));
             var buffer = this.Manager.GetBuffer<TestBuffer>(entity);
 
-            Assert.Throws<ArgumentException>(() => buffer.InitializePerfectHashMap<TestBuffer, int, short>(keys, values, -1));
+            Assert.Throws<ArgumentException>(() =>
+                buffer.InitializePerfectHashMap<TestBuffer, int, short>(keys, values, -1));
         }
 
         [InternalBufferCapacity(0)]
-        private struct TestBuffer : IDynamicPerfectHashMap<int, short>
-        {
+        private struct TestBuffer : IDynamicPerfectHashMap<int, short> {
             byte IDynamicPerfectHashMap<int, short>.Value { get; }
         }
     }

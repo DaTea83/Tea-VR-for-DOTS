@@ -2,47 +2,40 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine.XR.Hands.Gestures;
 
-namespace UnityEngine.XR.Hands.Samples.GestureSample
-{
+namespace UnityEngine.XR.Hands.Samples.GestureSample {
     /// <summary>
     /// A gesture that detects when a hand is held in a static shape and orientation for a minimum amount of time.
     /// </summary>
-    public class StaticHandGesture : MonoBehaviour
-    {
+    public class StaticHandGesture : MonoBehaviour {
         [SerializeField]
-        [Tooltip("The hand tracking events component to subscribe to receive updated joint data to be used for gesture detection.")]
+        [Tooltip(
+            "The hand tracking events component to subscribe to receive updated joint data to be used for gesture detection.")]
         XRHandTrackingEvents m_HandTrackingEvents;
 
-        [SerializeField]
-        [Tooltip("The hand shape or pose that must be detected for the gesture to be performed.")]
+        [SerializeField] [Tooltip("The hand shape or pose that must be detected for the gesture to be performed.")]
         ScriptableObject m_HandShapeOrPose;
 
-        [SerializeField]
-        [Tooltip("The target Transform to user for target conditions in the hand shape or pose.")]
+        [SerializeField] [Tooltip("The target Transform to user for target conditions in the hand shape or pose.")]
         Transform m_TargetTransform;
 
-        [SerializeField]
-        [Tooltip("The image component that draws the background for gesture icons.")]
+        [SerializeField] [Tooltip("The image component that draws the background for gesture icons.")]
         Image m_Background;
 
-        [SerializeField]
-        [Tooltip("The event fired when the gesture is performed.")]
+        [SerializeField] [Tooltip("The event fired when the gesture is performed.")]
         UnityEvent m_GesturePerformed;
 
-        [SerializeField]
-        [Tooltip("The event fired when the gesture is ended.")]
+        [SerializeField] [Tooltip("The event fired when the gesture is ended.")]
         UnityEvent m_GestureEnded;
 
         [SerializeField]
-        [Tooltip("The minimum amount of time the hand must be held in the required shape and orientation for the gesture to be performed.")]
+        [Tooltip(
+            "The minimum amount of time the hand must be held in the required shape and orientation for the gesture to be performed.")]
         float m_MinimumHoldTime = 0.2f;
 
-        [SerializeField]
-        [Tooltip("The interval at which the gesture detection is performed.")]
+        [SerializeField] [Tooltip("The interval at which the gesture detection is performed.")]
         float m_GestureDetectionInterval = 0.1f;
 
-        [SerializeField]
-        [Tooltip("The static gestures associated with this gestures handedness.")]
+        [SerializeField] [Tooltip("The static gestures associated with this gestures handedness.")]
         StaticHandGesture[] m_StaticGestures;
 
         XRHandShape m_HandShape;
@@ -57,8 +50,7 @@ namespace UnityEngine.XR.Hands.Samples.GestureSample
         /// <summary>
         /// The hand tracking events component to subscribe to receive updated joint data to be used for gesture detection.
         /// </summary>
-        public XRHandTrackingEvents handTrackingEvents
-        {
+        public XRHandTrackingEvents handTrackingEvents {
             get => m_HandTrackingEvents;
             set => m_HandTrackingEvents = value;
         }
@@ -66,73 +58,44 @@ namespace UnityEngine.XR.Hands.Samples.GestureSample
         /// <summary>
         /// The hand shape or pose that must be detected for the gesture to be performed.
         /// </summary>
-        public ScriptableObject handShapeOrPose
-        {
-            get => m_HandShapeOrPose;
-            set => m_HandShapeOrPose = value;
-        }
+        public ScriptableObject handShapeOrPose { get => m_HandShapeOrPose; set => m_HandShapeOrPose = value; }
 
         /// <summary>
         /// The target Transform to user for target conditions in the hand shape or pose.
         /// </summary>
-        public Transform targetTransform
-        {
-            get => m_TargetTransform;
-            set => m_TargetTransform = value;
-        }
+        public Transform targetTransform { get => m_TargetTransform; set => m_TargetTransform = value; }
 
         /// <summary>
         /// The image component that draws the background for gesture icons.
         /// </summary>
-        public Image background
-        {
-            get => m_Background;
-            set => m_Background = value;
-        }
+        public Image background { get => m_Background; set => m_Background = value; }
 
         /// <summary>
         /// The event fired when the gesture is performed.
         /// </summary>
-        public UnityEvent gesturePerformed
-        {
-            get => m_GesturePerformed;
-            set => m_GesturePerformed = value;
-        }
+        public UnityEvent gesturePerformed { get => m_GesturePerformed; set => m_GesturePerformed = value; }
 
         /// <summary>
         /// The event fired when the gesture is ended.
         /// </summary>
-        public UnityEvent gestureEnded
-        {
-            get => m_GestureEnded;
-            set => m_GestureEnded = value;
-        }
+        public UnityEvent gestureEnded { get => m_GestureEnded; set => m_GestureEnded = value; }
 
         /// <summary>
         /// The minimum amount of time the hand must be held in the required shape and orientation for the gesture to be performed.
         /// </summary>
-        public float minimumHoldTime
-        {
-            get => m_MinimumHoldTime;
-            set => m_MinimumHoldTime = value;
-        }
+        public float minimumHoldTime { get => m_MinimumHoldTime; set => m_MinimumHoldTime = value; }
 
         /// <summary>
         /// The interval at which the gesture detection is performed.
         /// </summary>
-        public float gestureDetectionInterval
-        {
+        public float gestureDetectionInterval {
             get => m_GestureDetectionInterval;
             set => m_GestureDetectionInterval = value;
         }
 
-        void Awake()
-        {
-            m_BackgroundDefaultColor = m_Background.color;
-        }
+        void Awake() { m_BackgroundDefaultColor = m_Background.color; }
 
-        void OnEnable()
-        {
+        void OnEnable() {
             m_HandTrackingEvents.jointsUpdated.AddListener(OnJointsUpdated);
 
             m_HandShape = m_HandShapeOrPose as XRHandShape;
@@ -143,9 +106,9 @@ namespace UnityEngine.XR.Hands.Samples.GestureSample
 
         void OnDisable() => m_HandTrackingEvents.jointsUpdated.RemoveListener(OnJointsUpdated);
 
-        void OnJointsUpdated(XRHandJointsUpdatedEventArgs eventArgs)
-        {
-            if (!isActiveAndEnabled || Time.timeSinceLevelLoad < m_TimeOfLastConditionCheck + m_GestureDetectionInterval)
+        void OnJointsUpdated(XRHandJointsUpdatedEventArgs eventArgs) {
+            if (!isActiveAndEnabled ||
+                Time.timeSinceLevelLoad < m_TimeOfLastConditionCheck + m_GestureDetectionInterval)
                 return;
 
             var detected =
@@ -153,12 +116,10 @@ namespace UnityEngine.XR.Hands.Samples.GestureSample
                 m_HandShape != null && m_HandShape.CheckConditions(eventArgs) ||
                 m_HandPose != null && m_HandPose.CheckConditions(eventArgs);
 
-            if (!m_WasDetected && detected)
-            {
+            if (!m_WasDetected && detected) {
                 m_HoldStartTime = Time.timeSinceLevelLoad;
             }
-            else if (m_WasDetected && !detected)
-            {
+            else if (m_WasDetected && !detected) {
                 m_PerformedTriggered = false;
                 m_GestureEnded?.Invoke();
                 m_Background.color = m_BackgroundDefaultColor;
@@ -166,11 +127,9 @@ namespace UnityEngine.XR.Hands.Samples.GestureSample
 
             m_WasDetected = detected;
 
-            if (!m_PerformedTriggered && detected)
-            {
+            if (!m_PerformedTriggered && detected) {
                 var holdTimer = Time.timeSinceLevelLoad - m_HoldStartTime;
-                if (holdTimer > m_MinimumHoldTime)
-                {
+                if (holdTimer > m_MinimumHoldTime) {
                     m_GesturePerformed?.Invoke();
                     m_PerformedTriggered = true;
                     m_Background.color = m_BackgroundHiglightColor;

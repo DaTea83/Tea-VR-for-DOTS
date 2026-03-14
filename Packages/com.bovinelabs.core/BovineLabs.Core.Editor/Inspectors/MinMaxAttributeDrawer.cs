@@ -2,28 +2,23 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using BovineLabs.Core.PropertyDrawers;
     using UnityEditor;
     using UnityEngine;
     using UnityEngine.UIElements;
 
     [CustomPropertyDrawer(typeof(MinMaxAttribute))]
-    public class MinMaxAttributeDrawer : PropertyDrawer
-    {
+    public class MinMaxAttributeDrawer : PropertyDrawer {
         /// <inheritdoc />
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var attr = (MinMaxAttribute)this.attribute;
 
-            if (property.type == "Vector2")
-            {
+            if (property.type == "Vector2") {
                 var px = property.FindPropertyRelative("x");
                 var py = property.FindPropertyRelative("y");
 
-                var ve = new Foldout
-                {
+                var ve = new Foldout {
                     text = property.displayName,
                     value = true,
                 };
@@ -37,8 +32,7 @@ namespace BovineLabs.Core.Editor.Inspectors
                 var maxField = new FloatField("Max") { value = py.floatValue };
                 maxField.AddToClassList(FloatField.alignedFieldUssClassName);
 
-                minMaxField.RegisterValueChangedCallback(evt =>
-                {
+                minMaxField.RegisterValueChangedCallback(evt => {
                     var v = evt.newValue;
                     px.floatValue = v.x;
                     py.floatValue = v.y;
@@ -48,15 +42,13 @@ namespace BovineLabs.Core.Editor.Inspectors
                     maxField.SetValueWithoutNotify(v.y);
                 });
 
-                minField.RegisterValueChangedCallback(evt =>
-                {
+                minField.RegisterValueChangedCallback(evt => {
                     var v = Mathf.Max(evt.newValue, attr.Min);
                     minField.SetValueWithoutNotify(v);
                     minMaxField.minValue = v;
                 });
 
-                maxField.RegisterValueChangedCallback(evt =>
-                {
+                maxField.RegisterValueChangedCallback(evt => {
                     var v = Mathf.Min(evt.newValue, attr.Max);
                     maxField.SetValueWithoutNotify(v);
                     minMaxField.maxValue = v;
@@ -68,8 +60,7 @@ namespace BovineLabs.Core.Editor.Inspectors
                 return ve;
             }
 
-            if (property.type == "Vector2Int")
-            {
+            if (property.type == "Vector2Int") {
                 var px = property.FindPropertyRelative("x");
                 var py = property.FindPropertyRelative("y");
 
@@ -79,8 +70,7 @@ namespace BovineLabs.Core.Editor.Inspectors
                 var min = attr.Min <= int.MinValue ? int.MinValue : Mathf.CeilToInt(attr.Min);
                 var max = attr.Max >= int.MaxValue ? int.MaxValue : Mathf.FloorToInt(attr.Max);
 
-                var ve = new Foldout
-                {
+                var ve = new Foldout {
                     text = property.displayName,
                     value = true,
                 };
@@ -94,8 +84,7 @@ namespace BovineLabs.Core.Editor.Inspectors
                 var maxField = new IntegerField("Max") { value = py.intValue };
                 maxField.AddToClassList(MinMaxSlider.alignedFieldUssClassName);
 
-                minMaxField.RegisterValueChangedCallback(evt =>
-                {
+                minMaxField.RegisterValueChangedCallback(evt => {
                     var v = evt.newValue;
 
                     px.intValue = v.x <= int.MinValue ? int.MinValue : Mathf.CeilToInt(v.x);
@@ -106,15 +95,13 @@ namespace BovineLabs.Core.Editor.Inspectors
                     maxField.SetValueWithoutNotify(py.intValue);
                 });
 
-                minField.RegisterValueChangedCallback(evt =>
-                {
+                minField.RegisterValueChangedCallback(evt => {
                     var v = Mathf.CeilToInt(Mathf.Max(evt.newValue, min));
                     minField.SetValueWithoutNotify(v);
                     minMaxField.minValue = v;
                 });
 
-                maxField.RegisterValueChangedCallback(evt =>
-                {
+                maxField.RegisterValueChangedCallback(evt => {
                     var v = Mathf.FloorToInt(Mathf.Min(evt.newValue, max));
                     maxField.SetValueWithoutNotify(v);
                     minMaxField.maxValue = v;

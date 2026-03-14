@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Extensions
-{
+namespace BovineLabs.Core.Extensions {
     using System.Runtime.InteropServices;
     using Unity.Assertions;
     using Unity.Burst.CompilerServices;
@@ -14,8 +13,7 @@ namespace BovineLabs.Core.Extensions
     [NativeContainer]
     [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct BufferLookupInternal<T>
-        where T : unmanaged, IBufferElementData
-    {
+        where T : unmanaged, IBufferElementData {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
         internal AtomicSafetyHandle m_Safety0;
         internal AtomicSafetyHandle m_ArrayInvalidationSafety;
@@ -23,8 +21,7 @@ namespace BovineLabs.Core.Extensions
         private int m_SafetyReadWriteCount;
 
 #endif
-        [NativeDisableUnsafePtrRestriction]
-        internal readonly EntityDataAccess* m_Access;
+        [NativeDisableUnsafePtrRestriction] internal readonly EntityDataAccess* m_Access;
 
         internal LookupCache m_Cache;
         internal readonly TypeIndex m_TypeIndex;
@@ -34,11 +31,9 @@ namespace BovineLabs.Core.Extensions
         internal readonly byte m_IsReadOnly;
     }
 
-    public static class BufferLookupExtensions
-    {
+    public static class BufferLookupExtensions {
         public static unsafe DynamicBuffer<T> GetRO<T>(ref this BufferLookup<T> lookup, Entity entity)
-            where T : unmanaged, IBufferElementData
-        {
+            where T : unmanaged, IBufferElementData {
             ref var lookupInternal = ref UnsafeUtility.As<BufferLookup<T>, BufferLookupInternal<T>>(ref lookup);
 
             var ecs = lookupInternal.m_Access->EntityComponentStore;
@@ -51,19 +46,22 @@ namespace BovineLabs.Core.Extensions
             ecs->AssertEntityHasComponent(entity, lookupInternal.m_TypeIndex, ref lookupInternal.m_Cache);
 #endif
 
-            var header = (BufferHeader*)ecs->GetComponentDataWithTypeRO(entity, lookupInternal.m_TypeIndex, ref lookupInternal.m_Cache);
+            var header =
+                (BufferHeader*)ecs->GetComponentDataWithTypeRO(entity, lookupInternal.m_TypeIndex,
+                    ref lookupInternal.m_Cache);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            return new DynamicBuffer<T>(header, lookup.m_Safety0, lookup.m_ArrayInvalidationSafety, lookupInternal.m_IsReadOnly != 0, false, 0,
+            return new DynamicBuffer<T>(header, lookup.m_Safety0, lookup.m_ArrayInvalidationSafety,
+                lookupInternal.m_IsReadOnly != 0, false, 0,
                 lookupInternal.m_InternalCapacity);
 #else
             return new DynamicBuffer<T>(header, lookupInternal.m_InternalCapacity);
 #endif
         }
 
-        public static unsafe (DynamicBuffer<T> Buffer, int ChunkIndex) GetROAndChunk<T>(ref this BufferLookup<T> lookup, Entity entity)
-            where T : unmanaged, IBufferElementData
-        {
+        public static unsafe (DynamicBuffer<T> Buffer, int ChunkIndex) GetROAndChunk<T>(ref this BufferLookup<T> lookup,
+            Entity entity)
+            where T : unmanaged, IBufferElementData {
             ref var lookupInternal = ref UnsafeUtility.As<BufferLookup<T>, BufferLookupInternal<T>>(ref lookup);
 
             var ecs = lookupInternal.m_Access->EntityComponentStore;
@@ -78,11 +76,13 @@ namespace BovineLabs.Core.Extensions
 
             var entityInChunk = ecs->GetEntityInChunk(entity);
 
-            var header = (BufferHeader*)ChunkDataUtility.GetComponentDataWithTypeRO(entityInChunk.Chunk, ecs->GetArchetype(entityInChunk.Chunk),
+            var header = (BufferHeader*)ChunkDataUtility.GetComponentDataWithTypeRO(entityInChunk.Chunk,
+                ecs->GetArchetype(entityInChunk.Chunk),
                 entityInChunk.IndexInChunk, lookupInternal.m_TypeIndex, ref lookupInternal.m_Cache);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            var buffer = new DynamicBuffer<T>(header, lookup.m_Safety0, lookup.m_ArrayInvalidationSafety, lookupInternal.m_IsReadOnly != 0, false, 0,
+            var buffer = new DynamicBuffer<T>(header, lookup.m_Safety0, lookup.m_ArrayInvalidationSafety,
+                lookupInternal.m_IsReadOnly != 0, false, 0,
                 lookupInternal.m_InternalCapacity);
 #else
             var buffer = new DynamicBuffer<T>(header, lookupInternal.m_InternalCapacity);
@@ -91,9 +91,10 @@ namespace BovineLabs.Core.Extensions
             return (buffer, entityInChunk.Chunk);
         }
 
-        public static unsafe bool TryGetBuffer<T>(ref this BufferLookup<T> lookup, ref EntityCache cache, out DynamicBuffer<T> bufferData)
-            where T : unmanaged, IBufferElementData
-        {
+        public static unsafe bool TryGetBuffer<T>(ref this BufferLookup<T> lookup,
+            ref EntityCache cache,
+            out DynamicBuffer<T> bufferData)
+            where T : unmanaged, IBufferElementData {
             ref var lookupInternal = ref UnsafeUtility.As<BufferLookup<T>, BufferLookupInternal<T>>(ref lookup);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -101,21 +102,22 @@ namespace BovineLabs.Core.Extensions
             // The native array performs the actual read only / write only checks
             AtomicSafetyHandle.CheckReadAndThrow(lookup.m_Safety0);
 #endif
-            if (Hint.Unlikely(!cache.Exists))
-            {
+            if (Hint.Unlikely(!cache.Exists)) {
                 bufferData = default;
                 return false;
             }
 
             var header = lookupInternal.m_IsReadOnly != 0
-                ? (BufferHeader*)cache.GetOptionalComponentDataWithTypeRO(lookupInternal.m_TypeIndex, ref lookupInternal.m_Cache)
-                : (BufferHeader*)cache.GetOptionalComponentDataWithTypeRW(lookupInternal.m_TypeIndex, lookupInternal.m_GlobalSystemVersion,
+                ? (BufferHeader*)cache.GetOptionalComponentDataWithTypeRO(lookupInternal.m_TypeIndex,
+                    ref lookupInternal.m_Cache)
+                : (BufferHeader*)cache.GetOptionalComponentDataWithTypeRW(lookupInternal.m_TypeIndex,
+                    lookupInternal.m_GlobalSystemVersion,
                     ref lookupInternal.m_Cache);
 
-            if (header != null)
-            {
+            if (header != null) {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-                bufferData = new DynamicBuffer<T>(header, lookupInternal.m_Safety0, lookupInternal.m_ArrayInvalidationSafety, lookupInternal.m_IsReadOnly != 0,
+                bufferData = new DynamicBuffer<T>(header, lookupInternal.m_Safety0,
+                    lookupInternal.m_ArrayInvalidationSafety, lookupInternal.m_IsReadOnly != 0,
                     false, 0, lookupInternal.m_InternalCapacity);
 #else
                 bufferData = new DynamicBuffer<T>(header, lookupInternal.m_InternalCapacity);
@@ -127,9 +129,9 @@ namespace BovineLabs.Core.Extensions
             return false;
         }
 
-        public static unsafe DynamicBuffer<T> GetBufferRequired<T>(ref this BufferLookup<T> lookup, ref EntityCache cache)
-            where T : unmanaged, IBufferElementData
-        {
+        public static unsafe DynamicBuffer<T> GetBufferRequired<T>(ref this BufferLookup<T> lookup,
+            ref EntityCache cache)
+            where T : unmanaged, IBufferElementData {
             ref var lookupInternal = ref UnsafeUtility.As<BufferLookup<T>, BufferLookupInternal<T>>(ref lookup);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -144,11 +146,14 @@ namespace BovineLabs.Core.Extensions
 #endif
 
             var header = lookupInternal.m_IsReadOnly != 0
-                ? (BufferHeader*)cache.GetComponentDataWithTypeRO(lookupInternal.m_TypeIndex, ref lookupInternal.m_Cache)
-                : (BufferHeader*)cache.GetComponentDataWithTypeRW(lookupInternal.m_TypeIndex, lookupInternal.m_GlobalSystemVersion, ref lookupInternal.m_Cache);
+                ? (BufferHeader*)cache.GetComponentDataWithTypeRO(lookupInternal.m_TypeIndex,
+                    ref lookupInternal.m_Cache)
+                : (BufferHeader*)cache.GetComponentDataWithTypeRW(lookupInternal.m_TypeIndex,
+                    lookupInternal.m_GlobalSystemVersion, ref lookupInternal.m_Cache);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            return new DynamicBuffer<T>(header, lookupInternal.m_Safety0, lookupInternal.m_ArrayInvalidationSafety, lookupInternal.m_IsReadOnly != 0, false, 0,
+            return new DynamicBuffer<T>(header, lookupInternal.m_Safety0, lookupInternal.m_ArrayInvalidationSafety,
+                lookupInternal.m_IsReadOnly != 0, false, 0,
                 lookupInternal.m_InternalCapacity);
 #else
             return new DynamicBuffer<T>(header, lookupInternal.m_InternalCapacity);

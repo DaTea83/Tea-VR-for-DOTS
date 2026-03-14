@@ -2,12 +2,10 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.States
-{
+namespace BovineLabs.Core.States {
     using Unity.Entities;
 
-    public struct StateInstance : IComponentData
-    {
+    public struct StateInstance : IComponentData {
         public TypeIndex State;
 
         /// <summary> Gets the state key. </summary>

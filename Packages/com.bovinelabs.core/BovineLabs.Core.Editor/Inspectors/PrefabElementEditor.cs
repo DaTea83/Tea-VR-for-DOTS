@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using BovineLabs.Core.Extensions;
     using UnityEditor;
     using UnityEngine;
@@ -11,8 +10,7 @@ namespace BovineLabs.Core.Editor.Inspectors
     using UnityEngine.UIElements;
 
     /// <summary> A custom editor that will cause you to edit the source prefab instead of instances. </summary>
-    public abstract class PrefabElementEditor : ElementEditor
-    {
+    public abstract class PrefabElementEditor : ElementEditor {
         private SerializedObject? prefabObject;
 
         protected virtual bool AllowChangesIfNoPrefab => true;
@@ -20,22 +18,18 @@ namespace BovineLabs.Core.Editor.Inspectors
         private bool IsPrefab => ((Component)this.target).IsPrefab();
 
         /// <inheritdoc/>
-        protected override bool PreElementCreation(VisualElement root)
-        {
-            if (this.IsPrefab)
-            {
+        protected override bool PreElementCreation(VisualElement root) {
+            if (this.IsPrefab) {
                 return true;
             }
 
             var prefabPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(this.target);
-            if (string.IsNullOrEmpty(prefabPath))
-            {
+            if (string.IsNullOrEmpty(prefabPath)) {
                 return this.AllowChangesIfNoPrefab;
             }
 
             var prefab = AssetDatabase.LoadAssetAtPath(prefabPath, this.target.GetType());
-            if (prefab == null)
-            {
+            if (prefab == null) {
                 return this.AllowChangesIfNoPrefab;
             }
 
@@ -49,10 +43,8 @@ namespace BovineLabs.Core.Editor.Inspectors
         }
 
         /// <inheritdoc />
-        protected override VisualElement CreateElement(SerializedProperty property)
-        {
-            if (this.IsPrefab || this.prefabObject == null)
-            {
+        protected override VisualElement CreateElement(SerializedProperty property) {
+            if (this.IsPrefab || this.prefabObject == null) {
                 return CreatePropertyField(property);
             }
 
@@ -63,10 +55,8 @@ namespace BovineLabs.Core.Editor.Inspectors
         }
 
         /// <inheritdoc />
-        protected override void PostElementCreation(VisualElement root, bool createdElements)
-        {
-            if (createdElements)
-            {
+        protected override void PostElementCreation(VisualElement root, bool createdElements) {
+            if (createdElements) {
                 return;
             }
 

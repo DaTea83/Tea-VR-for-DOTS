@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.ObjectManagement
-{
+namespace BovineLabs.Core.Editor.ObjectManagement {
     using System.Reflection;
     using BovineLabs.Core.Editor.Settings;
     using BovineLabs.Core.ObjectManagement;
@@ -13,18 +12,12 @@ namespace BovineLabs.Core.Editor.ObjectManagement
     using EditorSettings = BovineLabs.Core.Editor.Settings.EditorSettings;
 
     [InitializeOnLoad]
-    public static class CreateAssetCreatorDefault
-    {
-        static CreateAssetCreatorDefault()
-        {
-            EditorApplication.delayCall += DelayCall;
-        }
+    public static class CreateAssetCreatorDefault {
+        static CreateAssetCreatorDefault() { EditorApplication.delayCall += DelayCall; }
 
-        private static void DelayCall()
-        {
+        private static void DelayCall() {
             // Stop auto creating settings
-            if (!EditorSettingsUtility.TryGetSettings<EditorSettings>(out _))
-            {
+            if (!EditorSettingsUtility.TryGetSettings<EditorSettings>(out _)) {
                 return;
             }
 
@@ -32,25 +25,19 @@ namespace BovineLabs.Core.Editor.ObjectManagement
             CreateDefaults();
         }
 
-        private static void CreateDefaults()
-        {
-            using (TimeProfiler.Start("CreateAssetCreatorDefault"))
-            {
-                foreach (var type in TypeCache.GetTypesWithAttribute<AutoRefAttribute>())
-                {
-                    if (!typeof(ScriptableObject).IsAssignableFrom(type))
-                    {
+        private static void CreateDefaults() {
+            using (TimeProfiler.Start("CreateAssetCreatorDefault")) {
+                foreach (var type in TypeCache.GetTypesWithAttribute<AutoRefAttribute>()) {
+                    if (!typeof(ScriptableObject).IsAssignableFrom(type)) {
                         continue;
                     }
 
                     var attr = type.GetCustomAttribute<AutoRefAttribute>();
-                    if (!attr.CreateNull)
-                    {
+                    if (!attr.CreateNull) {
                         continue;
                     }
 
-                    if (AssetDatabase.FindAssets($"t:{type.Name}").Length > 0)
-                    {
+                    if (AssetDatabase.FindAssets($"t:{type.Name}").Length > 0) {
                         continue;
                     }
 

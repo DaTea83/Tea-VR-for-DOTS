@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
@@ -17,8 +16,7 @@ namespace BovineLabs.Core.Collections
     /// Allows you to write different types or arrays into a single stream.
     /// </summary>
     [NativeContainer]
-    public partial struct NativeThreadStream : IDisposable, IEquatable<NativeThreadStream>
-    {
+    public partial struct NativeThreadStream : IDisposable, IEquatable<NativeThreadStream> {
         private static readonly unsafe int MaxLargeSize = UnsafeThreadStreamBlockData.AllocationSize - sizeof(void*);
 
         /// <summary> Gets the number of streams the list can use. </summary>
@@ -29,15 +27,15 @@ namespace BovineLabs.Core.Collections
         private AtomicSafetyHandle m_Safety;
 
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Required by safety injection.")]
-        private static readonly SharedStatic<int> s_staticSafetyId = SharedStatic<int>.GetOrCreate<NativeThreadStream>();
+        private static readonly SharedStatic<int>
+            s_staticSafetyId = SharedStatic<int>.GetOrCreate<NativeThreadStream>();
 #endif
 
         private UnsafeThreadStream stream;
 
         /// <summary> Initializes a new instance of the <see cref="NativeThreadStream" /> struct. </summary>
         /// <param name="allocator"> The specified type of memory allocation. </param>
-        public NativeThreadStream(AllocatorManager.AllocatorHandle allocator)
-        {
+        public NativeThreadStream(AllocatorManager.AllocatorHandle allocator) {
             Allocate(out this, allocator);
             this.stream.AllocateForEach();
         }
@@ -52,31 +50,21 @@ namespace BovineLabs.Core.Collections
         /// </remarks>
         public bool IsCreated => this.stream.IsCreated;
 
-        public bool IsEmpty()
-        {
-            return this.stream.IsEmpty();
-        }
+        public bool IsEmpty() { return this.stream.IsEmpty(); }
 
         /// <summary> Returns reader instance. </summary>
         /// <returns> The reader instance. </returns>
-        public Reader AsReader()
-        {
-            return new Reader(ref this);
-        }
+        public Reader AsReader() { return new Reader(ref this); }
 
         /// <summary> Returns writer instance. </summary>
         /// <returns> The writer instance. </returns>
-        public Writer AsWriter()
-        {
-            return new Writer(ref this);
-        }
+        public Writer AsWriter() { return new Writer(ref this); }
 
         /// <summary> Returns strictly typed writer instance. </summary>
         /// <typeparam name="T"> The type allowed for writing. </typeparam>
         /// <returns> The writer instance. </returns>
         public Writer<T> AsWriter<T>()
-            where T : unmanaged
-        {
+            where T : unmanaged {
             return new Writer<T>(ref this);
         }
 
@@ -84,8 +72,7 @@ namespace BovineLabs.Core.Collections
         /// The current number of items in the container.
         /// </summary>
         /// <returns> The item count. </returns>
-        public int Count()
-        {
+        public int Count() {
             this.CheckReadAccess();
             return this.stream.Count();
         }
@@ -102,8 +89,7 @@ namespace BovineLabs.Core.Collections
         /// <remarks> The array is a copy of stream data. </remarks>
         /// <returns> The native array. </returns>
         public NativeArray<T> ToNativeArray<T>(Allocator allocator)
-            where T : unmanaged
-        {
+            where T : unmanaged {
             this.CheckReadAccess();
             return this.stream.ToNativeArray<T>(allocator);
         }
@@ -111,8 +97,7 @@ namespace BovineLabs.Core.Collections
         /// <summary>
         /// Disposes of this stream and deallocates its memory immediately.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.Release(this.m_Safety);
 #endif
@@ -134,8 +119,7 @@ namespace BovineLabs.Core.Collections
         /// A new job handle containing the prior handles as well as the handle for the job that deletes
         /// the container.
         /// </returns>
-        public JobHandle Dispose(JobHandle dependency)
-        {
+        public JobHandle Dispose(JobHandle dependency) {
             var jobHandle = this.stream.Dispose(dependency);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -145,45 +129,36 @@ namespace BovineLabs.Core.Collections
         }
 
         /// <inheritdoc />
-        public bool Equals(NativeThreadStream other)
-        {
-            return this.stream.Equals(other.stream);
-        }
+        public bool Equals(NativeThreadStream other) { return this.stream.Equals(other.stream); }
 
         /// <inheritdoc />
         [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "Only changes in dispose.")]
-        public override int GetHashCode()
-        {
-            return this.stream.GetHashCode();
-        }
+        public override int GetHashCode() { return this.stream.GetHashCode(); }
 
-        private static void Allocate(out NativeThreadStream stream, AllocatorManager.AllocatorHandle allocator)
-        {
+        private static void Allocate(out NativeThreadStream stream, AllocatorManager.AllocatorHandle allocator) {
             CollectionHelper.CheckAllocator(allocator);
 
             UnsafeThreadStream.AllocateBlock(out stream.stream, allocator);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             stream.m_Safety = CollectionHelper.CreateSafetyHandle(allocator);
-            CollectionHelper.SetStaticSafetyId(ref stream.m_Safety, ref s_staticSafetyId.Data, "BovineLabs.Core.Collections.NativeThreadStream");
+            CollectionHelper.SetStaticSafetyId(ref stream.m_Safety, ref s_staticSafetyId.Data,
+                "BovineLabs.Core.Collections.NativeThreadStream");
 #endif
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Point of method")]
-        private static void ValidateAllocator(Allocator allocator)
-        {
+        private static void ValidateAllocator(Allocator allocator) {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            if (allocator <= Allocator.None)
-            {
+            if (allocator <= Allocator.None) {
                 throw new ArgumentException("Allocator must be Temp, TempJob or Persistent", nameof(allocator));
             }
 #endif
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        private void CheckReadAccess()
-        {
+        private void CheckReadAccess() {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckReadAndThrow(this.m_Safety);
 #endif

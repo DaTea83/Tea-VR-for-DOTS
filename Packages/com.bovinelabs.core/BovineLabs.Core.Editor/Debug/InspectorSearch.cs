@@ -3,8 +3,7 @@
 // </copyright>
 
 #if !BL_DISABLE_INSPECTOR_SEARCH
-namespace BovineLabs.Core.Editor
-{
+namespace BovineLabs.Core.Editor {
     using System;
     using System.Reflection;
     using BovineLabs.Core.Editor.Inspectors;
@@ -16,83 +15,68 @@ namespace BovineLabs.Core.Editor
     using Resources = UnityEngine.Resources;
 
     [InitializeOnLoad]
-    public static class InspectorSearch
-    {
+    public static class InspectorSearch {
         private const string SearchClass = "bl-gameobject-inspector__search-field";
         private static readonly Type InspectorWindowType;
 
-        static InspectorSearch()
-        {
+        static InspectorSearch() {
             InspectorWindowType = typeof(EditorWindow).Assembly.GetType("UnityEditor.InspectorWindow");
 
             // Selection.selectionChanged is nicer here, but it fails on domain reload to set itself up
-            if (Selection.activeObject)
-            {
+            if (Selection.activeObject) {
                 EditorApplication.update += Initialize;
             }
-            else
-            {
+            else {
                 Selection.selectionChanged += SelectionChanged;
             }
         }
 
-        private static void Initialize()
-        {
+        private static void Initialize() {
             var windows = Resources.FindObjectsOfTypeAll(InspectorWindowType);
 
             // If no windows skip and just wait for selection changes
             var any = windows.Length == 0;
-            foreach (var w in windows)
-            {
+            foreach (var w in windows) {
                 any |= Setup((EditorWindow)w);
             }
 
-            if (any)
-            {
+            if (any) {
                 EditorApplication.update -= Initialize;
                 Selection.selectionChanged += SelectionChanged;
             }
         }
 
-        private static void SelectionChanged()
-        {
-            foreach (var w in Resources.FindObjectsOfTypeAll(InspectorWindowType))
-            {
+        private static void SelectionChanged() {
+            foreach (var w in Resources.FindObjectsOfTypeAll(InspectorWindowType)) {
                 Setup((EditorWindow)w);
             }
         }
 
-        private static bool Setup(EditorWindow w)
-        {
-            if (w.rootVisualElement == null)
-            {
+        private static bool Setup(EditorWindow w) {
+            if (w.rootVisualElement == null) {
                 return false;
             }
 
             var goInspector = w.rootVisualElement.Q<VisualElement>(className: "game-object-inspector");
             var inspector = goInspector?.Q<InspectorElement>();
-            if (inspector == null)
-            {
+            if (inspector == null) {
                 return false;
             }
 
-            var editor = inspector.GetType().GetField("m_Editor", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(inspector);
-            if (editor.GetType().Name != "GameObjectInspector")
-            {
+            var editor = inspector.GetType().GetField("m_Editor", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .GetValue(inspector);
+            if (editor.GetType().Name != "GameObjectInspector") {
                 return true;
             }
 
             var se = inspector.Q<SearchElement>(className: SearchClass);
-            if (se != null)
-            {
+            if (se != null) {
                 return true;
             }
 
             // Matching entities view style
-            var sfp = new VisualElement
-            {
-                style =
-                {
+            var sfp = new VisualElement {
+                style = {
                     paddingBottom = 3,
                     paddingTop = 3,
                     paddingLeft = 3,
@@ -102,21 +86,19 @@ namespace BovineLabs.Core.Editor
 
             se = new SearchElement { SearchDelay = 0 };
             se.GetType().GetProperty("MaxFrameTime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(se, 5);
-            se.GetType().GetProperty("HandlerType", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(se, "async");
-            se.GetType().GetProperty("SearchData", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(se, "Path");
+            se.GetType().GetProperty("HandlerType", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(se,
+                "async");
+            se.GetType().GetProperty("SearchData", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(se, "Path");
             se.AddToClassList(SearchClass);
-            se.RegisterSearchQueryHandler<VisualElement>(query =>
-            {
+            se.RegisterSearchQueryHandler<VisualElement>(query => {
                 var s = query.SearchString.Trim().ToLower();
                 var root = w.rootVisualElement.Q<VisualElement>(className: "unity-inspector-editors-list");
-                foreach (var c in root.Children())
-                {
+                foreach (var c in root.Children()) {
                     var nameSplit = c.name.Split("_");
 
-                    if (nameSplit.Length != 3)
-                    {
-                        if (nameSplit.Length == 1 && nameSplit[0] == "RemainingPrefabComponentElement")
-                        {
+                    if (nameSplit.Length != 3) {
+                        if (nameSplit.Length == 1 && nameSplit[0] == "RemainingPrefabComponentElement") {
                             ElementUtility.SetVisible(c, false);
                             continue;
                         }
@@ -127,12 +109,12 @@ namespace BovineLabs.Core.Editor
 
                     var n = nameSplit[1];
 
-                    if (n is "GameObject" or "PrefabImporter")
-                    {
+                    if (n is "GameObject" or "PrefabImporter") {
                         continue;
                     }
 
-                    var visible = string.IsNullOrEmpty(s) || n.ToLower().Contains(s) || n.ToSentence().ToLower().Contains(s);
+                    var visible = string.IsNullOrEmpty(s) || n.ToLower().Contains(s) ||
+                                  n.ToSentence().ToLower().Contains(s);
                     ElementUtility.SetVisible(c, visible);
                 }
             });

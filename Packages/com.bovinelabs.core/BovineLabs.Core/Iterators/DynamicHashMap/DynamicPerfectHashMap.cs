@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Iterators
-{
+namespace BovineLabs.Core.Iterators {
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -18,12 +17,10 @@ namespace BovineLabs.Core.Iterators
     [DebuggerTypeProxy(typeof(DynamicPerfectHashMapDebuggerTypeProxy<,>))]
     public readonly unsafe struct DynamicPerfectHashMap<TKey, TValue> : IEnumerable<KVPair<TKey, TValue>>
         where TKey : unmanaged, IEquatable<TKey>
-        where TValue : unmanaged, IEquatable<TValue>
-    {
+        where TValue : unmanaged, IEquatable<TValue> {
         private readonly DynamicBuffer<byte> buffer;
 
-        internal DynamicPerfectHashMap(DynamicBuffer<byte> buffer)
-        {
+        internal DynamicPerfectHashMap(DynamicBuffer<byte> buffer) {
             CheckSize(buffer);
             this.buffer = buffer;
             this.Helper = buffer.AsHelper<TKey, TValue>(); // TODO enable
@@ -37,25 +34,19 @@ namespace BovineLabs.Core.Iterators
         /// <param name="key"> The key to look up. </param>
         /// <value> The value associated with the key. </value>
         /// <exception cref="ArgumentException"> For getting, thrown if the key was not present. </exception>
-        public TValue this[TKey key]
-        {
-            get
-            {
+        public TValue this[TKey key] {
+            get {
                 this.buffer.CheckReadAccess();
-                if (Hint.Unlikely(!this.TryGetValue(key, out var value)))
-                {
+                if (Hint.Unlikely(!this.TryGetValue(key, out var value))) {
                     this.ThrowKeyNotPresent(key);
                     return default;
                 }
 
                 return value;
             }
-
-            set
-            {
+            set {
                 this.buffer.CheckWriteAccess();
-                if (Hint.Unlikely(!this.TryGetIndex(key, out var index)))
-                {
+                if (Hint.Unlikely(!this.TryGetIndex(key, out var index))) {
                     this.ThrowKeyNotPresent(key);
                 }
 
@@ -67,11 +58,9 @@ namespace BovineLabs.Core.Iterators
         /// <param name="key"> The key to look up. </param>
         /// <param name="item"> Outputs the value associated with the key. Outputs default if the key was not present. </param>
         /// <returns> True if the key was present. </returns>
-        public bool TryGetValue(TKey key, out TValue item)
-        {
+        public bool TryGetValue(TKey key, out TValue item) {
             this.buffer.CheckReadAccess();
-            if (!this.TryGetIndex(key, out var index))
-            {
+            if (!this.TryGetIndex(key, out var index)) {
                 item = default;
                 return false;
             }
@@ -80,11 +69,9 @@ namespace BovineLabs.Core.Iterators
             return !value.Equals(this.Helper->NullValue);
         }
 
-        public bool ContainsKey(TKey key)
-        {
+        public bool ContainsKey(TKey key) {
             this.buffer.CheckReadAccess();
-            if (!this.TryGetIndex(key, out var index))
-            {
+            if (!this.TryGetIndex(key, out var index)) {
                 return false;
             }
 
@@ -92,11 +79,9 @@ namespace BovineLabs.Core.Iterators
             return !value.Equals(this.Helper->NullValue);
         }
 
-        public TValue GetNoCheck(TKey key)
-        {
+        public TValue GetNoCheck(TKey key) {
             this.buffer.CheckReadAccess();
-            if (!this.TryGetIndex(key, out var index))
-            {
+            if (!this.TryGetIndex(key, out var index)) {
                 this.ThrowKeyNotPresent(key);
                 return default;
             }
@@ -109,76 +94,55 @@ namespace BovineLabs.Core.Iterators
         /// </summary>
         /// <returns> Throws NotImplementedException. </returns>
         /// <exception cref="NotImplementedException"> Method is not implemented. </exception>
-        public IEnumerator<KVPair<TKey, TValue>> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        public IEnumerator<KVPair<TKey, TValue>> GetEnumerator() { throw new NotImplementedException(); }
 
         /// <summary>
         /// This method is not implemented. Use <see cref="GetEnumerator" /> instead.
         /// </summary>
         /// <returns> Throws NotImplementedException. </returns>
         /// <exception cref="NotImplementedException"> Method is not implemented. </exception>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator IEnumerable.GetEnumerator() { throw new NotImplementedException(); }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryGetIndex(TKey key, out int index)
-        {
+        private bool TryGetIndex(TKey key, out int index) {
             index = this.IndexFor(key);
             return index >= 0 && index < this.Helper->Size;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int IndexFor(TKey key)
-        {
-            return key.GetHashCode() & (this.Helper->Size - 1);
-        }
+        private int IndexFor(TKey key) { return key.GetHashCode() & (this.Helper->Size - 1); }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [Conditional("UNITY_DOTS_DEBUG")]
-        private static void CheckSize(DynamicBuffer<byte> buffer)
-        {
-            if (buffer.Length == 0)
-            {
+        private static void CheckSize(DynamicBuffer<byte> buffer) {
+            if (buffer.Length == 0) {
                 throw new InvalidOperationException("Buffer not initialized");
             }
 
-            if (buffer.Length < UnsafeUtility.SizeOf<DynamicPerfectHashMapHelper<TKey, TValue>>())
-            {
+            if (buffer.Length < UnsafeUtility.SizeOf<DynamicPerfectHashMapHelper<TKey, TValue>>()) {
                 throw new InvalidOperationException("Buffer has data but is too small to be a header.");
             }
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [Conditional("UNITY_DOTS_DEBUG")]
-        private void ThrowKeyNotPresent(TKey key)
-        {
-            throw new ArgumentException($"Key: {key} is not present.");
-        }
+        private void ThrowKeyNotPresent(TKey key) { throw new ArgumentException($"Key: {key} is not present."); }
     }
 
     internal sealed unsafe class DynamicPerfectHashMapDebuggerTypeProxy<TKey, TValue>
         where TKey : unmanaged, IEquatable<TKey>
-        where TValue : unmanaged, IEquatable<TValue>
-    {
+        where TValue : unmanaged, IEquatable<TValue> {
         private readonly DynamicPerfectHashMapHelper<TKey, TValue>* helper;
 
-        public DynamicPerfectHashMapDebuggerTypeProxy(DynamicPerfectHashMap<TKey, TValue> target)
-        {
+        public DynamicPerfectHashMapDebuggerTypeProxy(DynamicPerfectHashMap<TKey, TValue> target) {
             this.helper = target.Helper;
         }
 
-        public List<Pair<TKey, TValue>> Items
-        {
-            get
-            {
+        public List<Pair<TKey, TValue>> Items {
+            get {
                 var result = new List<Pair<TKey, TValue>>();
 
-                if (this.helper == null)
-                {
+                if (this.helper == null) {
                     return result;
                 }
 
@@ -186,12 +150,10 @@ namespace BovineLabs.Core.Iterators
                 var values = this.helper->Values;
                 var size = this.helper->Size;
 
-                for (var i = 0; i < size; ++i)
-                {
+                for (var i = 0; i < size; ++i) {
                     var value = values[i];
 
-                    if (UnsafeUtility.MemCmp(&value, &this.helper->NullValue, sizeof(TValue)) != 0)
-                    {
+                    if (UnsafeUtility.MemCmp(&value, &this.helper->NullValue, sizeof(TValue)) != 0) {
                         result.Add(new Pair<TKey, TValue>(keys[i], value));
                     }
                 }

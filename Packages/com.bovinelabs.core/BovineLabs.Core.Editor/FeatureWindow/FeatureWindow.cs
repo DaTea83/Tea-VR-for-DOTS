@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.FeatureWindow
-{
+namespace BovineLabs.Core.Editor.FeatureWindow {
     using System.Collections.Generic;
     using System.Linq;
     using BovineLabs.Core.Editor.Settings;
@@ -13,8 +12,7 @@ namespace BovineLabs.Core.Editor.FeatureWindow
     using UnityEngine.UIElements;
     using EditorSettings = BovineLabs.Core.Editor.Settings.EditorSettings;
 
-    public class FeatureWindow : EditorWindow
-    {
+    public class FeatureWindow : EditorWindow {
         private const string ExtensionsEnableKey = "BL_CORE_EXTENSIONS";
         private const string ExtensionsDisabledStyle = "enable-extensions-disabled";
         private const string ExtensionsEnabledStyle = "enable-extensions-enabled";
@@ -29,16 +27,14 @@ namespace BovineLabs.Core.Editor.FeatureWindow
         private UQueryBuilder<VisualElement> features;
 
         [MenuItem(EditorMenus.RootMenu + "Features", priority = -500)]
-        private static void ShowWindow()
-        {
+        private static void ShowWindow() {
             // Get existing open window or if none, make a new one:
             var window = GetWindow<FeatureWindow>();
             window.titleContent = new GUIContent("BovineLabs");
             window.Show();
         }
 
-        private void OnEnable()
-        {
+        private void OnEnable() {
             this.defines.Clear();
             this.defines.AddRange(EditorSettingsUtility.GetSettings<EditorSettings>().ScriptingDefineSymbols);
 
@@ -53,21 +49,17 @@ namespace BovineLabs.Core.Editor.FeatureWindow
             this.features.ForEach(this.SetupFeature);
         }
 
-        private void SetupEnableExtensionsButton()
-        {
+        private void SetupEnableExtensionsButton() {
             var enableExtensions = this.rootVisualElement.Q<Button>("EnableExtensions");
 
             this.SetEnabledExtensionState(enableExtensions, this.defines.Contains(ExtensionsEnableKey));
 
-            enableExtensions.clicked += () =>
-            {
+            enableExtensions.clicked += () => {
                 var enable = !this.defines.Contains(ExtensionsEnableKey);
-                if (enable)
-                {
+                if (enable) {
                     this.defines.Add(ExtensionsEnableKey);
                 }
-                else
-                {
+                else {
                     this.defines.Remove(ExtensionsEnableKey);
                 }
 
@@ -75,27 +67,22 @@ namespace BovineLabs.Core.Editor.FeatureWindow
             };
         }
 
-        private void SetupApplyButton()
-        {
+        private void SetupApplyButton() {
             this.rootVisualElement.Q<Button>("ApplyChanges").clicked += this.UpdateScriptingDefines;
         }
 
-        private void SetupFeature(VisualElement e)
-        {
+        private void SetupFeature(VisualElement e) {
             var extensionDisabledKey = e.Q<Label>().name;
             var button = e.Q<Button>();
 
             SetEnabledFeatureState(button, !this.defines.Contains(extensionDisabledKey));
 
-            e.Q<Button>().clicked += () =>
-            {
+            e.Q<Button>().clicked += () => {
                 var enable = this.defines.Contains(extensionDisabledKey);
-                if (enable)
-                {
+                if (enable) {
                     this.defines.Remove(extensionDisabledKey);
                 }
-                else
-                {
+                else {
                     this.defines.Add(extensionDisabledKey);
                 }
 
@@ -103,28 +90,24 @@ namespace BovineLabs.Core.Editor.FeatureWindow
             };
         }
 
-        private void SetEnabledExtensionState(Button button, bool enabled)
-        {
+        private void SetEnabledExtensionState(Button button, bool enabled) {
             SetState(button, enabled, ExtensionsEnabledStyle, ExtensionsDisabledStyle);
             button.text = enabled ? "Extensions Enabled" : "Extensions Disabled";
 
             this.features.ForEach(e => e.SetEnabled(enabled));
         }
 
-        private static void SetEnabledFeatureState(Button button, bool enabled)
-        {
+        private static void SetEnabledFeatureState(Button button, bool enabled) {
             SetState(button, enabled, FeatureEnabledStyle, FeatureDisabledStyle);
             button.text = enabled ? "Enabled" : "Disabled";
         }
 
-        private static void SetState(VisualElement button, bool isEnabled, string enabledStyle, string disabledStyle)
-        {
+        private static void SetState(VisualElement button, bool isEnabled, string enabledStyle, string disabledStyle) {
             button.RemoveFromClassList(isEnabled ? disabledStyle : enabledStyle);
             button.AddToClassList(isEnabled ? enabledStyle : disabledStyle);
         }
 
-        private void UpdateScriptingDefines()
-        {
+        private void UpdateScriptingDefines() {
             var settings = EditorSettingsUtility.GetSettings<EditorSettings>();
 
             var existingDefines = settings.ScriptingDefineSymbols;
@@ -132,18 +115,14 @@ namespace BovineLabs.Core.Editor.FeatureWindow
             var add = new List<string>();
             var remove = new List<string>();
 
-            foreach (var c in existingDefines)
-            {
-                if (!this.defines.Contains(c))
-                {
+            foreach (var c in existingDefines) {
+                if (!this.defines.Contains(c)) {
                     remove.Add(c);
                 }
             }
 
-            foreach (var c in this.defines)
-            {
-                if (!existingDefines.Contains(c))
-                {
+            foreach (var c in this.defines) {
+                if (!existingDefines.Contains(c)) {
                     add.Add(c);
                 }
             }
@@ -151,13 +130,11 @@ namespace BovineLabs.Core.Editor.FeatureWindow
             var so = new SerializedObject(settings);
             var property = so.FindProperty("scriptingDefineSymbols");
 
-            foreach (var define in remove)
-            {
+            foreach (var define in remove) {
                 RemoveDefine(property, define);
             }
 
-            foreach (var define in add)
-            {
+            foreach (var define in add) {
                 AddDefine(property, define);
             }
 
@@ -166,25 +143,19 @@ namespace BovineLabs.Core.Editor.FeatureWindow
             ScriptingDefineSymbolsEditor.ApplyDefinesToAll(add, remove);
         }
 
-        private static void RemoveDefine(SerializedProperty property, string value)
-        {
-            for (var i = 0; i < property.arraySize; i++)
-            {
-                if (property.GetArrayElementAtIndex(i).stringValue == value)
-                {
+        private static void RemoveDefine(SerializedProperty property, string value) {
+            for (var i = 0; i < property.arraySize; i++) {
+                if (property.GetArrayElementAtIndex(i).stringValue == value) {
                     property.DeleteArrayElementAtIndex(i);
                     return;
                 }
             }
         }
 
-        private static void AddDefine(SerializedProperty property, string value)
-        {
-            for (var i = 0; i < property.arraySize; i++)
-            {
+        private static void AddDefine(SerializedProperty property, string value) {
+            for (var i = 0; i < property.arraySize; i++) {
                 // Already exists
-                if (property.GetArrayElementAtIndex(i).stringValue == value)
-                {
+                if (property.GetArrayElementAtIndex(i).stringValue == value) {
                     return;
                 }
             }

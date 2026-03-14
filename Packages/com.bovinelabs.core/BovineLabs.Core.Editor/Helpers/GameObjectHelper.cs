@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Helpers
-{
+namespace BovineLabs.Core.Editor.Helpers {
     using System;
     using System.Reflection;
     using BovineLabs.Core.Extensions;
@@ -12,8 +11,7 @@ namespace BovineLabs.Core.Editor.Helpers
     using UnityEngine.Assertions;
 
     /// <summary> Helpers for <see cref="GameObject" />. </summary>
-    public static class GameObjectHelper
-    {
+    public static class GameObjectHelper {
         /// <summary>
         /// Add a component to of GameObject.
         /// This is intended for use on entity components generated via <see cref="GenerateAuthoringComponentAttribute" />.
@@ -21,8 +19,7 @@ namespace BovineLabs.Core.Editor.Helpers
         /// <remarks> Note this only works on types in an asmdef. </remarks>
         /// <param name="gameObject"> GameObject to add the component type to. </param>
         /// <param name="type"> The component type to add. </param>
-        public static void AddAuthoringComponent(GameObject gameObject, Type type)
-        {
+        public static void AddAuthoringComponent(GameObject gameObject, Type type) {
             AddAuthoringComponent(new[] { gameObject }, type);
         }
 
@@ -33,9 +30,9 @@ namespace BovineLabs.Core.Editor.Helpers
         /// <remarks> Note this only works on types in an asmdef. </remarks>
         /// <param name="gameObjects"> GameObjects to add the component type to. </param>
         /// <param name="type"> The component type to add. </param>
-        public static void AddAuthoringComponent(GameObject[] gameObjects, Type type)
-        {
-            var executeMethod = typeof(EditorApplication).GetMethod("ExecuteMenuItemOnGameObjects", BindingFlags.Static | BindingFlags.NonPublic);
+        public static void AddAuthoringComponent(GameObject[] gameObjects, Type type) {
+            var executeMethod = typeof(EditorApplication).GetMethod("ExecuteMenuItemOnGameObjects",
+                BindingFlags.Static | BindingFlags.NonPublic);
             Assert.IsNotNull(executeMethod, "ExecuteMenuItemOnGameObjects has been removed");
 
             var assemblyName = type.Assembly.GetName().Name;

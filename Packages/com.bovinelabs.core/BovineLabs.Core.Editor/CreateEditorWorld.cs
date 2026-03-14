@@ -3,22 +3,16 @@
 // </copyright>
 
 #if !BL_DISABLE_CREATE_EDITOR_WORLD
-namespace BovineLabs.Core.Editor
-{
+namespace BovineLabs.Core.Editor {
     using System.Threading.Tasks;
     using Unity.Entities;
     using UnityEditor;
 
     [InitializeOnLoad]
-    public static class CreateEditorWorld
-    {
-        static CreateEditorWorld()
-        {
-            _ = Initialize();
-        }
+    public static class CreateEditorWorld {
+        static CreateEditorWorld() { _ = Initialize(); }
 
-        private static async Task Initialize()
-        {
+        private static async Task Initialize() {
             await Task.Yield();
 
             DefaultWorldInitialization.DefaultLazyEditModeInitialize();

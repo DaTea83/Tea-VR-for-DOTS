@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Collections
-{
+namespace BovineLabs.Core.Tests.Collections {
     using NUnit.Framework;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
@@ -11,11 +10,9 @@ namespace BovineLabs.Core.Tests.Collections
     using UnityEngine;
     using Random = Unity.Mathematics.Random;
 
-    public class NativeMultiHashMapTests
-    {
+    public class NativeMultiHashMapTests {
         [Test]
-        public void Add()
-        {
+        public void Add() {
             var hashMap = new NativeMultiHashMap<int, ushort>(0, Allocator.Temp);
 
             hashMap.Add(1, 3);
@@ -36,29 +33,26 @@ namespace BovineLabs.Core.Tests.Collections
         }
 
         [TestCase(10000)]
-        public unsafe void ClearTest(int count)
-        {
-            var hashMaps = (UnsafeParallelMultiHashMap<int, Section>*)UnsafeUtility.MallocTracked(sizeof(UnsafeParallelMultiHashMap<int, Section>) * count,
+        public unsafe void ClearTest(int count) {
+            var hashMaps = (UnsafeParallelMultiHashMap<int, Section>*)UnsafeUtility.MallocTracked(
+                sizeof(UnsafeParallelMultiHashMap<int, Section>) * count,
                 UnsafeUtility.AlignOf<UnsafeParallelMultiHashMap<int, Section>>(), Allocator.Persistent, 0);
 
             UnsafeUtility.MemClear(hashMaps, sizeof(UnsafeParallelMultiHashMap<uint, Section>) * count);
 
             var random = Random.CreateFromIndex(12345);
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 ref var h = ref UnsafeUtility.ArrayElementAsRef<UnsafeParallelMultiHashMap<int, Section>>(hashMaps, i);
                 var c = random.NextInt(64, 512);
                 h = new UnsafeParallelMultiHashMap<int, Section>(c, Allocator.Persistent);
 
-                for (var j = 0; j < c; j++)
-                {
+                for (var j = 0; j < c; j++) {
                     h.Add(j, default);
                 }
             }
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 ref var h = ref UnsafeUtility.ArrayElementAsRef<UnsafeParallelMultiHashMap<int, Section>>(hashMaps, i);
 
                 var capacity = random.NextInt(1024, 16 * 1024);
@@ -66,14 +60,12 @@ namespace BovineLabs.Core.Tests.Collections
                 h.Clear();
                 h.Capacity = capacity;
 
-                for (var j = 0; j < capacity; j++)
-                {
+                for (var j = 0; j < capacity; j++) {
                     h.Add(j, default);
                 }
             }
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 hashMaps[i].Dispose();
             }
 
@@ -81,8 +73,7 @@ namespace BovineLabs.Core.Tests.Collections
         }
 
         [Test]
-        public void ItDoesNotLoseValues()
-        {
+        public void ItDoesNotLoseValues() {
             var hashmap = new NativeMultiHashMap<ulong, ulong>(4, Allocator.Temp);
 
             var keys = 66000;
@@ -92,29 +83,23 @@ namespace BovineLabs.Core.Tests.Collections
             hashmap.Add(0, 1);
             hashmap.Add(0, 2);
 
-            for (var i = 1; i < keys; i++)
-            {
-                for (var j = 0; j < values; j++)
-                {
+            for (var i = 1; i < keys; i++) {
+                for (var j = 0; j < values; j++) {
                     hashmap.Add((ulong)i, (ulong)j);
                 }
 
                 var sizeOfKey0 = 0;
-                if (hashmap.TryGetFirstValue(0, out _, out var it))
-                {
-                    do
-                    {
+                if (hashmap.TryGetFirstValue(0, out _, out var it)) {
+                    do {
                         sizeOfKey0++;
-                    }
-                    while (hashmap.TryGetNextValue(out _, ref it));
+                    } while (hashmap.TryGetNextValue(out _, ref it));
 
                     Assert.AreEqual(3, sizeOfKey0);
                 }
             }
         }
 
-        private struct Section
-        {
+        private struct Section {
             public int Next;
             public int Previous;
 

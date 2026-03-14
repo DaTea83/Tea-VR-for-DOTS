@@ -2,21 +2,18 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Iterators
-{
+namespace BovineLabs.Core.Tests.Iterators {
     using System.Collections.Generic;
     using BovineLabs.Core.Iterators;
     using BovineLabs.Testing;
     using NUnit.Framework;
     using Unity.Collections;
 
-    public class DynamicHashMapTests : ECSTestsFixture
-    {
+    public class DynamicHashMapTests : ECSTestsFixture {
         private const int MinGrowth = 64;
 
         [Test]
-        public void Capacity()
-        {
+        public void Capacity() {
             const int newCapacity = 128;
 
             var hashMap = this.CreateHashMap();
@@ -28,21 +25,18 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void AddRemove()
-        {
+        public void AddRemove() {
             const int count = 1024;
 
             var hashMap = this.CreateHashMap();
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 Assert.IsTrue(hashMap.TryAdd(i + i, (byte)i));
             }
 
             Assert.AreEqual(count, hashMap.Count);
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 Assert.IsTrue(hashMap.Remove(i + i));
             }
 
@@ -50,8 +44,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void AddBatchUnsafe()
-        {
+        public void AddBatchUnsafe() {
             const int count = 1027;
 
             var hashMap = this.CreateHashMap();
@@ -59,8 +52,7 @@ namespace BovineLabs.Core.Tests.Iterators
             var keys = new NativeArray<int>(count, Allocator.Temp);
             var values = new NativeArray<byte>(count, Allocator.Temp);
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 keys[i] = i;
                 values[i] = (byte)(i % byte.MaxValue);
             }
@@ -69,15 +61,13 @@ namespace BovineLabs.Core.Tests.Iterators
 
             Assert.AreEqual(count, hashMap.Count);
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 Assert.IsTrue(hashMap.ContainsKey(i));
             }
         }
 
         [Test]
-        public void TryGetValue()
-        {
+        public void TryGetValue() {
             var hashMap = this.CreateHashMap();
             Assert.IsFalse(hashMap.TryGetValue(47, out _));
 
@@ -90,8 +80,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void IndexerSetExisting()
-        {
+        public void IndexerSetExisting() {
             var hashMap = this.CreateHashMap();
 
             // Add initial value
@@ -105,8 +94,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void IndexerSetNew()
-        {
+        public void IndexerSetNew() {
             var hashMap = this.CreateHashMap();
 
             // Test indexer setter on new key (tests optimized path)
@@ -116,8 +104,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void GetOrAddRef()
-        {
+        public void GetOrAddRef() {
             var hashMap = this.CreateHashMap();
 
             // Test with new key
@@ -136,8 +123,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void GetOrAddRefWithFlag()
-        {
+        public void GetOrAddRefWithFlag() {
             var hashMap = this.CreateHashMap();
 
             // Test with new key
@@ -152,21 +138,18 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void EnumerationConsistency()
-        {
+        public void EnumerationConsistency() {
             const int count = 100;
             var hashMap = this.CreateHashMap();
 
             // Add elements
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 hashMap.Add(i, (byte)(i % 255));
             }
 
             // Test enumeration gives all elements
             var found = new HashSet<int>();
-            foreach (var kvp in hashMap)
-            {
+            foreach (var kvp in hashMap) {
                 Assert.IsFalse(found.Contains(kvp.Key), $"Duplicate key {kvp.Key} found during enumeration");
                 found.Add(kvp.Key);
                 Assert.AreEqual((byte)(kvp.Key % 255), kvp.Value);
@@ -176,20 +159,17 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void ResizeStressTest()
-        {
+        public void ResizeStressTest() {
             var hashMap = this.CreateHashMap();
 
             // Force multiple resizes by adding many elements
             const int count = 1000;
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 hashMap.Add(i, (byte)(i % 255));
             }
 
             // Verify all elements are still present and correct
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 Assert.IsTrue(hashMap.TryGetValue(i, out var value), $"Key {i} not found after resize");
                 Assert.AreEqual((byte)(i % 255), value, $"Incorrect value for key {i} after resize");
             }
@@ -197,14 +177,13 @@ namespace BovineLabs.Core.Tests.Iterators
             Assert.AreEqual(count, hashMap.Count);
         }
 
-        private DynamicHashMap<int, byte> CreateHashMap()
-        {
+        private DynamicHashMap<int, byte> CreateHashMap() {
             var entity = this.Manager.CreateEntity(typeof(TestHashMap));
-            return this.Manager.GetBuffer<TestHashMap>(entity).InitializeHashMap<TestHashMap, int, byte>(0, MinGrowth).AsHashMap<TestHashMap, int, byte>();
+            return this.Manager.GetBuffer<TestHashMap>(entity).InitializeHashMap<TestHashMap, int, byte>(0, MinGrowth)
+                .AsHashMap<TestHashMap, int, byte>();
         }
 
-        private struct TestHashMap : IDynamicHashMap<int, byte>
-        {
+        private struct TestHashMap : IDynamicHashMap<int, byte> {
             /// <inheritdoc />
             byte IDynamicHashMap<int, byte>.Value { get; }
         }

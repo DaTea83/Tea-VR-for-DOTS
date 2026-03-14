@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.3] - 2026-03-14
+
+### Changed
+* Reformatted all coding styles (no changes in functionality)
+
 ## [0.1.2] - 2026-03-13
 
 ### Added

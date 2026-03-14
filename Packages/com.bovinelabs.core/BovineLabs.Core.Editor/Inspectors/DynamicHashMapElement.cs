@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using System;
     using System.Collections.Generic;
     using BovineLabs.Core.Editor.SearchWindow;
@@ -15,19 +14,17 @@ namespace BovineLabs.Core.Editor.Inspectors
     public class DynamicHashMapElement<TBuffer, TKey, TValue> : DynamicHashMapElement<TBuffer, TBuffer, TKey, TValue>
         where TBuffer : unmanaged, IDynamicHashMap<TKey, TValue>
         where TKey : unmanaged, IEquatable<TKey>
-        where TValue : unmanaged
-    {
-        public DynamicHashMapElement(object inspector, List<SearchView.Item>? items = null, TValue defaultValue = default)
-            : base(inspector, items, defaultValue)
-        {
-        }
+        where TValue : unmanaged {
+        public DynamicHashMapElement(object inspector,
+            List<SearchView.Item>? items = null,
+            TValue defaultValue = default)
+            : base(inspector, items, defaultValue) { }
     }
 
     public class DynamicHashMapElement<T, TBuffer, TKey, TValue> : VisualElement
         where TBuffer : unmanaged, IDynamicHashMap<TKey, TValue>
         where TKey : unmanaged, IEquatable<TKey>
-        where TValue : unmanaged
-    {
+        where TValue : unmanaged {
         private readonly DynamicHashMapListElement<T, TBuffer, TKey, TValue> listElement;
 
         private readonly DynamicHashMapSearchElement<T, TBuffer, TKey, TValue>? searchElement;
@@ -35,14 +32,14 @@ namespace BovineLabs.Core.Editor.Inspectors
         private readonly ToolbarToggle listElementToggle;
         private readonly ToolbarToggle searchToggle;
 
-        public DynamicHashMapElement(object inspector, List<SearchView.Item>? items = null, TValue defaultValue = default)
-        {
+        public DynamicHashMapElement(object inspector,
+            List<SearchView.Item>? items = null,
+            TValue defaultValue = default) {
             var hasItems = items is { Count: > 0 };
             this.listElementToggle = new ToolbarToggle();
             this.searchToggle = new ToolbarToggle();
 
-            if (hasItems)
-            {
+            if (hasItems) {
                 var toolbar = new Toolbar();
                 this.Add(toolbar);
 
@@ -61,41 +58,31 @@ namespace BovineLabs.Core.Editor.Inspectors
             this.listElement = new DynamicHashMapListElement<T, TBuffer, TKey, TValue>(inspector, 0);
             this.Add(this.listElement);
 
-            if (hasItems)
-            {
-                this.searchElement = new DynamicHashMapSearchElement<T, TBuffer, TKey, TValue>(inspector, items!, defaultValue, 0);
+            if (hasItems) {
+                this.searchElement =
+                    new DynamicHashMapSearchElement<T, TBuffer, TKey, TValue>(inspector, items!, defaultValue, 0);
             }
 
             this.schedule.Execute(this.Update).Every(250);
         }
 
-        public Action<IEntityContext, TKey, TValue> SearchSetValue
-        {
-            get
-            {
-                if (this.searchElement == null)
-                {
-                    return (_, _, _) =>
-                    {
-                    };
+        public Action<IEntityContext, TKey, TValue> SearchSetValue {
+            get {
+                if (this.searchElement == null) {
+                    return (_, _, _) => { };
                 }
 
                 return this.searchElement.SetValue;
             }
-
-            set
-            {
-                if (this.searchElement != null)
-                {
+            set {
+                if (this.searchElement != null) {
                     this.searchElement.SetValue = value;
                 }
             }
         }
 
-        private void ListValueChanged(ChangeEvent<bool> evt)
-        {
-            if (!evt.newValue)
-            {
+        private void ListValueChanged(ChangeEvent<bool> evt) {
+            if (!evt.newValue) {
                 // Don't allow it to toggle off
                 this.listElementToggle.SetValueWithoutNotify(true);
                 return;
@@ -108,10 +95,8 @@ namespace BovineLabs.Core.Editor.Inspectors
             this.listElement.ForceUpdate();
         }
 
-        private void SearchValueChanged(ChangeEvent<bool> evt)
-        {
-            if (!evt.newValue)
-            {
+        private void SearchValueChanged(ChangeEvent<bool> evt) {
+            if (!evt.newValue) {
                 // Don't allow it to toggle off
                 this.searchToggle.SetValueWithoutNotify(true);
                 return;
@@ -122,10 +107,8 @@ namespace BovineLabs.Core.Editor.Inspectors
             this.Add(this.searchElement);
         }
 
-        private void Update()
-        {
-            if (!this.listElement.IsValid())
-            {
+        private void Update() {
+            if (!this.listElement.IsValid()) {
                 this.RemoveFromHierarchy();
                 return;
             }

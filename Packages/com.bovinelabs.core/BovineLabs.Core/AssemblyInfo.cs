@@ -16,9 +16,10 @@ using UnityEngine;
 [assembly: InternalsVisibleTo("BovineLabs.Testing")]
 
 [assembly:
-    SuppressMessage("Code Quality", "CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.",
+    SuppressMessage("Code Quality",
+        "CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.",
         Justification = "Unity")]
 
 #if !HYBRID_ENTITIES_CAMERA_CONVERSION && UNITY_ENTITIES_1_4_0_pre_3
-[assembly:RegisterUnityEngineComponentType(typeof(Camera))]
+[assembly: RegisterUnityEngineComponentType(typeof(Camera))]
 #endif

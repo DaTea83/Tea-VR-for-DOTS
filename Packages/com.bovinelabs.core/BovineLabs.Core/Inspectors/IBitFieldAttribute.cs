@@ -2,10 +2,8 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Inspectors
-{
-    public interface IBitFieldAttribute
-    {
+namespace BovineLabs.Core.Inspectors {
+    public interface IBitFieldAttribute {
         bool Flags { get; }
     }
 }

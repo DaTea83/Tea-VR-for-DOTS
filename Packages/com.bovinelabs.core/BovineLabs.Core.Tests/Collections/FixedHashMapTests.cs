@@ -2,18 +2,15 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Collections
-{
+namespace BovineLabs.Core.Tests.Collections {
     using System.Runtime.InteropServices;
     using BovineLabs.Core.Collections;
     using BovineLabs.Core.Keys;
     using NUnit.Framework;
 
-    public class FixedHashMapTests
-    {
+    public class FixedHashMapTests {
         [Test]
-        public void AddGet()
-        {
+        public void AddGet() {
             var hashMap = new FixedHashMap<MiniString, int, Size>(default);
 
             Assert.IsTrue(hashMap.TryAdd("test", 1));
@@ -32,8 +29,6 @@ namespace BovineLabs.Core.Tests.Collections
         }
 
         [StructLayout(LayoutKind.Explicit, Size = 4096)]
-        private struct Size
-        {
-        }
+        private struct Size { }
     }
 }

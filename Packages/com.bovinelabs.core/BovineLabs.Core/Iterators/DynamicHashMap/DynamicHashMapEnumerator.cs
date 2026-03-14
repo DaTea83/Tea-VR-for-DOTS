@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Iterators
-{
+namespace BovineLabs.Core.Iterators {
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -21,19 +20,15 @@ namespace BovineLabs.Core.Iterators
     [NativeContainerIsReadOnly]
     public struct DynamicHashMapEnumerator<TKey, TValue> : IEnumerator<KVPair<TKey, TValue>>
         where TKey : unmanaged, IEquatable<TKey>
-        where TValue : unmanaged
-    {
-        [NativeDisableUnsafePtrRestriction]
-        private DynamicHashMapHelper<TKey>.Enumerator enumerator;
+        where TValue : unmanaged {
+        [NativeDisableUnsafePtrRestriction] private DynamicHashMapHelper<TKey>.Enumerator enumerator;
 
-        internal unsafe DynamicHashMapEnumerator(DynamicHashMapHelper<TKey>* data)
-        {
+        internal unsafe DynamicHashMapEnumerator(DynamicHashMapHelper<TKey>* data) {
             this.enumerator = new DynamicHashMapHelper<TKey>.Enumerator(data);
         }
 
         /// <summary> The current key-value pair. </summary>
-        public KVPair<TKey, TValue> Current
-        {
+        public KVPair<TKey, TValue> Current {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.enumerator.GetCurrent<TValue>();
         }
@@ -44,20 +39,12 @@ namespace BovineLabs.Core.Iterators
         /// <summary> Advances the enumerator to the next key-value pair. </summary>
         /// <returns> True if <see cref="Current" /> is valid to read after the call. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool MoveNext()
-        {
-            return this.enumerator.MoveNext();
-        }
+        public bool MoveNext() { return this.enumerator.MoveNext(); }
 
         /// <summary> Resets the enumerator to its initial state. </summary>
-        public void Reset()
-        {
-            this.enumerator.Reset();
-        }
+        public void Reset() { this.enumerator.Reset(); }
 
         /// <summary> Does nothing. </summary>
-        public void Dispose()
-        {
-        }
+        public void Dispose() { }
     }
 }

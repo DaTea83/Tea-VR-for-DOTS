@@ -2,13 +2,11 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System.Runtime.CompilerServices;
 
     public interface IBlobCurveSampler<out T>
-        where T : unmanaged
-    {
+        where T : unmanaged {
         bool IsCreated { get; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

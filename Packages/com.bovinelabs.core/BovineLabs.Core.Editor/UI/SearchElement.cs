@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.UI
-{
+namespace BovineLabs.Core.Editor.UI {
     using System;
     using System.Collections.Generic;
     using BovineLabs.Core.Editor.SearchWindow;
@@ -11,19 +10,18 @@ namespace BovineLabs.Core.Editor.UI
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    public class SearchElement : BaseField<int>
-    {
+    public class SearchElement : BaseField<int> {
         private readonly List<SearchView.Item> items;
         private readonly Button componentButton;
 
         public SearchElement(List<SearchView.Item> items, string defaultText, string displayName = "")
-            : this(items, defaultText, displayName, new VisualElement())
-        {
-        }
+            : this(items, defaultText, displayName, new VisualElement()) { }
 
-        private SearchElement(List<SearchView.Item> items, string defaultText, string displayName, VisualElement element)
-            : base(displayName, element)
-        {
+        private SearchElement(List<SearchView.Item> items,
+            string defaultText,
+            string displayName,
+            VisualElement element)
+            : base(displayName, element) {
             this.AddToClassList(BaseField<string>.alignedFieldUssClassName);
             this.AddToClassList(TextInputBaseField<string>.ussClassName);
 
@@ -44,14 +42,12 @@ namespace BovineLabs.Core.Editor.UI
             this.items = items;
             this.labelElement.style.minWidth = 60;
 
-            this.componentButton.clicked += () =>
-            {
+            this.componentButton.clicked += () => {
                 var searchWindow = SearchWindow.Create();
 
                 searchWindow.Title = displayName;
                 searchWindow.Items = items;
-                searchWindow.OnSelection += item =>
-                {
+                searchWindow.OnSelection += item => {
                     this.OnSelection?.Invoke(item);
                     this.componentButton.text = this.SetText(item);
                 };
@@ -59,17 +55,16 @@ namespace BovineLabs.Core.Editor.UI
                 var rect = EditorWindow.focusedWindow.position;
 
                 Rect worldBounds;
-                if (this.labelElement.parent == null)
-                {
+                if (this.labelElement.parent == null) {
                     worldBounds = element.worldBound;
                 }
-                else
-                {
+                else {
                     worldBounds = this.labelElement.worldBound;
                     worldBounds.width += element.worldBound.width;
                 }
 
-                var size = new Rect(rect.x + worldBounds.x, rect.y + worldBounds.y + worldBounds.height, worldBounds.width, this.Height);
+                var size = new Rect(rect.x + worldBounds.x, rect.y + worldBounds.y + worldBounds.height,
+                    worldBounds.width, this.Height);
                 searchWindow.position = size;
                 searchWindow.ShowPopup();
             };
@@ -83,14 +78,9 @@ namespace BovineLabs.Core.Editor.UI
 
         public float Height { get; set; } = 315;
 
-        public string Text
-        {
-            get => this.componentButton.text;
-            set => this.componentButton.text = value;
-        }
+        public string Text { get => this.componentButton.text; set => this.componentButton.text = value; }
 
-        public void SetValue(int index)
-        {
+        public void SetValue(int index) {
             var item = this.items[index];
 
             this.OnSelection?.Invoke(item);

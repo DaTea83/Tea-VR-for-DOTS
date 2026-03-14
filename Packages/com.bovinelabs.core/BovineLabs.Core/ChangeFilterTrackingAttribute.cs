@@ -2,11 +2,8 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core
-{
+namespace BovineLabs.Core {
     using System;
 
-    public class ChangeFilterTrackingAttribute : Attribute
-    {
-    }
+    public class ChangeFilterTrackingAttribute : Attribute { }
 }

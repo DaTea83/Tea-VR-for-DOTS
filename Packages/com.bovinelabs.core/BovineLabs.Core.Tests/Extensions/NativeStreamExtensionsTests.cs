@@ -2,27 +2,23 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Extensions
-{
+namespace BovineLabs.Core.Tests.Extensions {
     using BovineLabs.Core.Extensions;
     using NUnit.Framework;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
 
-    public class NativeStreamExtensionsTests
-    {
+    public class NativeStreamExtensionsTests {
         /// <summary> Tests the extensions AllocateLarge and ReadLarge. </summary>
         /// <param name="size"> The size of the allocation. </param>
         [TestCase(512)] // less than max size
         [TestCase(4092)] // max size
         [TestCase(8192)] // requires just more than 2 blocks
-        public unsafe void WriteLarge(int size)
-        {
+        public unsafe void WriteLarge(int size) {
             var stream = new NativeStream(1, Allocator.Temp);
 
             var sourceData = new NativeArray<byte>(size, Allocator.Temp);
-            for (var i = 0; i < size; i++)
-            {
+            for (var i = 0; i < size; i++) {
                 sourceData[i] = (byte)(i % 255);
             }
 
@@ -45,8 +41,7 @@ namespace BovineLabs.Core.Tests.Extensions
             reader.ReadLarge((byte*)buffer.GetUnsafePtr(), readSize);
             reader.EndForEachIndex();
 
-            for (var i = 0; i < readSize; i++)
-            {
+            for (var i = 0; i < readSize; i++) {
                 Assert.AreEqual(sourceData[i], buffer[i], 0, $"Failed on {i}");
             }
         }
@@ -56,15 +51,12 @@ namespace BovineLabs.Core.Tests.Extensions
         [TestCase(128)] // less than max size
         [TestCase(1023)] // max size
         [TestCase(2048)] // requires just more than 2 blocks
-        public unsafe void WriteLargeSlice(int size)
-        {
+        public unsafe void WriteLargeSlice(int size) {
             var stream = new NativeStream(1, Allocator.Temp);
 
             var sourceData = new NativeArray<Data>(size, Allocator.Temp);
-            for (var i = 0; i < size; i++)
-            {
-                sourceData[i] = new Data
-                {
+            for (var i = 0; i < size; i++) {
+                sourceData[i] = new Data {
                     Key = i,
                     Value = 123,
                 };
@@ -90,8 +82,7 @@ namespace BovineLabs.Core.Tests.Extensions
             reader.ReadLarge((byte*)buffer.GetUnsafePtr(), bytes);
             reader.EndForEachIndex();
 
-            for (var i = 0; i < readSize; i++)
-            {
+            for (var i = 0; i < readSize; i++) {
                 Assert.AreEqual(sourceData[i].Key, buffer[i]);
             }
         }
@@ -101,13 +92,11 @@ namespace BovineLabs.Core.Tests.Extensions
         [TestCase(128)] // less than max size
         [TestCase(1023)] // max size
         [TestCase(2048)] // requires just more than 2 blocks
-        public unsafe void WriteLargeArray(int size)
-        {
+        public unsafe void WriteLargeArray(int size) {
             var stream = new NativeStream(1, Allocator.Temp);
 
             var sourceData = new NativeArray<int>(size, Allocator.Temp);
-            for (var i = 0; i < size; i++)
-            {
+            for (var i = 0; i < size; i++) {
                 sourceData[i] = i;
             }
 
@@ -131,14 +120,12 @@ namespace BovineLabs.Core.Tests.Extensions
             reader.ReadLarge((byte*)buffer.GetUnsafePtr(), bytes);
             reader.EndForEachIndex();
 
-            for (var i = 0; i < readSize; i++)
-            {
+            for (var i = 0; i < readSize; i++) {
                 Assert.AreEqual(sourceData[i], buffer[i]);
             }
         }
 
-        public struct Data
-        {
+        public struct Data {
             public int Key;
             public int Value;
         }

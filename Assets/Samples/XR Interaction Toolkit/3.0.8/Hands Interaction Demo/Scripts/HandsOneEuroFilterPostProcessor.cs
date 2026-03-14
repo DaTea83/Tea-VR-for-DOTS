@@ -4,8 +4,7 @@ using UnityEngine.XR.Hands;
 using UnityEngine.XR.Hands.Processing;
 #endif
 
-namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
-{
+namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands {
     /// <summary>
     /// A post processor for XR hand tracking data, using the One Euro filter to smooth hand positions.
     /// </summary>
@@ -15,14 +14,12 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
     public class HandsOneEuroFilterPostProcessor : MonoBehaviour
 #endif
     {
-        [SerializeField]
-        [Tooltip("Smoothing amount at low speeds.")]
+        [SerializeField] [Tooltip("Smoothing amount at low speeds.")]
 #pragma warning disable CS0414 // Field assigned but its value is never used -- Keep to retain serialized value when XR Hands is not installed
         float m_FilterMinCutoff = 0.1f;
 #pragma warning restore CS0414
 
-        [SerializeField]
-        [Tooltip("Filter's responsiveness to speed changes.")]
+        [SerializeField] [Tooltip("Filter's responsiveness to speed changes.")]
 #pragma warning disable CS0414 // Field assigned but its value is never used -- Keep to retain serialized value when XR Hands is not installed
         float m_FilterBeta = 0.2f;
 #pragma warning restore CS0414
@@ -45,10 +42,8 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void OnDisable()
-        {
-            if (m_Subsystem != null)
-            {
+        void OnDisable() {
+            if (m_Subsystem != null) {
                 m_Subsystem.UnregisterProcessor(this);
                 m_Subsystem = null;
             }
@@ -57,18 +52,15 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void Update()
-        {
+        void Update() {
             if (m_Subsystem != null && m_Subsystem.running)
                 return;
 
             SubsystemManager.GetSubsystems(s_SubsystemsReuse);
             var foundRunningHandSubsystem = false;
-            for (var i = 0; i < s_SubsystemsReuse.Count; ++i)
-            {
+            for (var i = 0; i < s_SubsystemsReuse.Count; ++i) {
                 var handSubsystem = s_SubsystemsReuse[i];
-                if (handSubsystem.running)
-                {
+                if (handSubsystem.running) {
                     m_Subsystem?.UnregisterProcessor(this);
                     m_Subsystem = handSubsystem;
                     foundRunningHandSubsystem = true;
@@ -85,19 +77,18 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         }
 
         /// <inheritdoc />
-        public void ProcessJoints(XRHandSubsystem subsystem, XRHandSubsystem.UpdateSuccessFlags successFlags, XRHandSubsystem.UpdateType updateType)
-        {
+        public void ProcessJoints(XRHandSubsystem subsystem,
+            XRHandSubsystem.UpdateSuccessFlags successFlags,
+            XRHandSubsystem.UpdateType updateType) {
             var leftHand = subsystem.leftHand;
-            if (leftHand.isTracked)
-            {
+            if (leftHand.isTracked) {
                 var leftHandPose = leftHand.rootPose;
-                if (!m_WasLeftHandTrackedLastFrame)
-                {
+                if (!m_WasLeftHandTrackedLastFrame) {
                     m_LeftHandFilter.Initialize(leftHandPose.position);
                 }
-                else
-                {
-                    var newLeftPosition = m_LeftHandFilter.Filter(leftHandPose.position, Time.deltaTime, m_FilterMinCutoff, m_FilterBeta);
+                else {
+                    var newLeftPosition = m_LeftHandFilter.Filter(leftHandPose.position, Time.deltaTime,
+                        m_FilterMinCutoff, m_FilterBeta);
                     var newLeftPose = new Pose(newLeftPosition, leftHandPose.rotation);
 
                     leftHand.SetRootPose(newLeftPose);
@@ -108,16 +99,14 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             m_WasLeftHandTrackedLastFrame = leftHand.isTracked;
 
             var rightHand = subsystem.rightHand;
-            if (rightHand.isTracked)
-            {
+            if (rightHand.isTracked) {
                 var rightHandPose = rightHand.rootPose;
-                if (!m_WasRightHandTrackedLastFrame)
-                {
+                if (!m_WasRightHandTrackedLastFrame) {
                     m_RightHandFilter.Initialize(rightHandPose.position);
                 }
-                else
-                {
-                    var newRightPosition = m_RightHandFilter.Filter(rightHandPose.position, Time.deltaTime, m_FilterMinCutoff, m_FilterBeta);
+                else {
+                    var newRightPosition = m_RightHandFilter.Filter(rightHandPose.position, Time.deltaTime,
+                        m_FilterMinCutoff, m_FilterBeta);
                     var newRightPose = new Pose(newRightPosition, rightHandPose.rotation);
 
                     rightHand.SetRootPose(newRightPose);

@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Functions
-{
+namespace BovineLabs.Core.Functions {
     using System;
     using System.Collections.Generic;
     using System.Reflection;
@@ -20,41 +19,31 @@ namespace BovineLabs.Core.Functions
     /// <typeparam name="TO"> Is the type of result that is expected from the ExecuteFunction. </typeparam>
     public unsafe struct FunctionsBuilder<T, TO> : IDisposable
         where T : unmanaged
-        where TO : unmanaged
-    {
+        where TO : unmanaged {
         private static List<MethodInfo> cachedReflectAll;
 
         private NativeHashSet<BuildData> functions;
 
         /// <summary> Initializes a new instance of the <see cref="FunctionsBuilder{T, TO}" /> struct. </summary>
         /// <param name="allocator"> The allocator to use for the builder. This should nearly always be <see cref="Allocator.Temp" />. </param>
-        public FunctionsBuilder(Allocator allocator)
-        {
-            this.functions = new NativeHashSet<BuildData>(0, allocator);
-        }
+        public FunctionsBuilder(Allocator allocator) { this.functions = new NativeHashSet<BuildData>(0, allocator); }
 
         /// <inheritdoc />
-        public void Dispose()
-        {
-            this.functions.Dispose();
-        }
+        public void Dispose() { this.functions.Dispose(); }
 
         /// <summary> Find all implementations of <see cref="IFunction{T}" />. </summary>
         /// <param name="state"> The system state passed to OnCreate. </param>
         /// <returns> Itself. </returns>
-        public FunctionsBuilder<T, TO> ReflectAll(ref SystemState state)
-        {
-            if (cachedReflectAll == null)
-            {
+        public FunctionsBuilder<T, TO> ReflectAll(ref SystemState state) {
+            if (cachedReflectAll == null) {
                 cachedReflectAll = new List<MethodInfo>();
 
-                var baseMethod = typeof(FunctionsBuilder<T, TO>).GetMethod(nameof(this.AddInternalDefault), BindingFlags.Instance | BindingFlags.NonPublic)!;
+                var baseMethod = typeof(FunctionsBuilder<T, TO>).GetMethod(nameof(this.AddInternalDefault),
+                    BindingFlags.Instance | BindingFlags.NonPublic)!;
 
                 var implementations = ReflectionUtility.GetAllImplementations<IFunction<T>>();
-                foreach (var type in implementations)
-                {
-                    if (!UnsafeUtility.IsUnmanaged(type))
-                    {
+                foreach (var type in implementations) {
+                    if (!UnsafeUtility.IsUnmanaged(type)) {
                         continue;
                     }
 
@@ -63,10 +52,8 @@ namespace BovineLabs.Core.Functions
                 }
             }
 
-            fixed (void* ptr = &state)
-            {
-                foreach (var genericMethod in cachedReflectAll)
-                {
+            fixed (void* ptr = &state) {
+                foreach (var genericMethod in cachedReflectAll) {
                     genericMethod.Invoke(this, new object[] { (IntPtr)ptr });
                 }
             }
@@ -80,8 +67,7 @@ namespace BovineLabs.Core.Functions
         /// <typeparam name="TF"> The type of <see cref="IFunction{T}" />. </typeparam>
         /// <returns> Itself. </returns>
         public FunctionsBuilder<T, TO> Add<TF>(ref SystemState state, TF function)
-            where TF : unmanaged, IFunction<T>
-        {
+            where TF : unmanaged, IFunction<T> {
             return this.Add(ref state, function, BurstRuntime.GetHashCode64<TF>());
         }
 
@@ -92,17 +78,16 @@ namespace BovineLabs.Core.Functions
         /// <typeparam name="TF"> The type of <see cref="IFunction{T}" />. </typeparam>
         /// <returns> Itself. </returns>
         public FunctionsBuilder<T, TO> Add<TF>(ref SystemState state, TF function, long hash)
-            where TF : unmanaged, IFunction<T>
-        {
+            where TF : unmanaged, IFunction<T> {
             var buildData = new BuildData { Hash = hash };
 
-            if (this.functions.Contains(buildData))
-            {
+            if (this.functions.Contains(buildData)) {
                 BLGlobalLogger.LogError($"Trying to add function with hash {hash} multiple times");
                 return this;
             }
 
-            var pinned = (TF*)UnsafeUtility.MallocTracked(UnsafeUtility.SizeOf<TF>(), UnsafeUtility.AlignOf<TF>(), Allocator.Persistent, 0);
+            var pinned = (TF*)UnsafeUtility.MallocTracked(UnsafeUtility.SizeOf<TF>(), UnsafeUtility.AlignOf<TF>(),
+                Allocator.Persistent, 0);
             *pinned = function;
             pinned->OnCreate(ref state);
 
@@ -110,18 +95,15 @@ namespace BovineLabs.Core.Functions
             var updateFunction = default(FunctionPointer<UpdateFunction>);
             var destroyFunction = IntPtr.Zero;
 
-            if (pinned->UpdateFunction != null)
-            {
+            if (pinned->UpdateFunction != null) {
                 updateFunction = BurstCompiler.CompileFunctionPointer(pinned->UpdateFunction!);
             }
 
-            if (pinned->DestroyFunction != null)
-            {
+            if (pinned->DestroyFunction != null) {
                 destroyFunction = Marshal.GetFunctionPointerForDelegate(pinned->DestroyFunction);
             }
 
-            buildData.FunctionData = new FunctionData
-            {
+            buildData.FunctionData = new FunctionData {
                 Target = pinned,
                 DestroyFunction = destroyFunction,
                 ExecuteFunction = executeFunction,
@@ -139,25 +121,21 @@ namespace BovineLabs.Core.Functions
         /// <typeparam name="TF"> The type of <see cref="IFunction{T}" /> to create. </typeparam>
         /// <returns> Itself. </returns>
         public FunctionsBuilder<T, TO> Add<TF>(ref SystemState state)
-            where TF : unmanaged, IFunction<T>
-        {
-            fixed (SystemState* ptr = &state)
-            {
+            where TF : unmanaged, IFunction<T> {
+            fixed (SystemState* ptr = &state) {
                 return this.AddInternalDefault<TF>(ptr);
             }
         }
 
         /// <summary> Builds the <see cref="Functions{T, TO}" /> to use with all the found <see cref="IFunction{T}" />. </summary>
         /// <returns> A new instance of <see cref="Functions{T, TO}" />. </returns>
-        public Functions<T, TO> Build()
-        {
+        public Functions<T, TO> Build() {
             var array = new NativeArray<FunctionData>(this.functions.Count, Allocator.Persistent);
 
             using var e = this.functions.GetEnumerator();
             var index = 0;
 
-            while (e.MoveNext())
-            {
+            while (e.MoveNext()) {
                 array[index++] = e.Current.FunctionData;
             }
 
@@ -166,13 +144,11 @@ namespace BovineLabs.Core.Functions
 
         /// <summary> Builds the <see cref="Functions{T, TO}" /> to use with all the found <see cref="IFunction{T}" />. </summary>
         /// <returns> A new instance of <see cref="Functions{T, TO}" />. </returns>
-        public FunctionsHash<T, TO> BuildHash()
-        {
+        public FunctionsHash<T, TO> BuildHash() {
             var hash = new NativeHashMap<long, FunctionData>(this.functions.Count, Allocator.Persistent);
             using var e = this.functions.GetEnumerator();
 
-            while (e.MoveNext())
-            {
+            while (e.MoveNext()) {
                 hash[e.Current.Hash] = e.Current.FunctionData;
             }
 
@@ -180,25 +156,17 @@ namespace BovineLabs.Core.Functions
         }
 
         private FunctionsBuilder<T, TO> AddInternalDefault<TF>(SystemState* state)
-            where TF : unmanaged, IFunction<T>
-        {
+            where TF : unmanaged, IFunction<T> {
             return this.Add<TF>(ref *state, default);
         }
 
-        private struct BuildData : IEquatable<BuildData>
-        {
+        private struct BuildData : IEquatable<BuildData> {
             public long Hash;
             public FunctionData FunctionData;
 
-            public bool Equals(BuildData other)
-            {
-                return this.Hash == other.Hash;
-            }
+            public bool Equals(BuildData other) { return this.Hash == other.Hash; }
 
-            public override int GetHashCode()
-            {
-                return this.Hash.GetHashCode();
-            }
+            public override int GetHashCode() { return this.Hash.GetHashCode(); }
         }
     }
 }

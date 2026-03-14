@@ -4,140 +4,124 @@ using EugeneC.Mono;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace EugeneC.Singleton
-{
-	public abstract class GenericUiManager<TEnum, TMono> : GenericSingleton<TMono>
-		where TEnum : Enum
-		where TMono : MonoBehaviour
-	{
-		[Serializable]
-		public struct UiSerialize
-		{
-			public TEnum id;
-			public UiHelper prefab;
-		}
+namespace EugeneC.Singleton {
+    public abstract class GenericUiManager<TEnum, TMono> : GenericSingleton<TMono>
+        where TEnum : Enum
+        where TMono : MonoBehaviour {
+        [Serializable]
+        public struct UiSerialize {
+            public TEnum id;
+            public UiHelper prefab;
+        }
 
-		[SerializeField] protected Canvas canvasRef;
-		[SerializeField] protected UiSerialize[] uiElements;
+        [SerializeField] protected Canvas canvasRef;
+        [SerializeField] protected UiSerialize[] uiElements;
 
-		protected UiHelper[] UiObjects;
-		protected RectTransform CanvasPos;
-		protected readonly List<UiHelper> OpenedUi = new();
-		protected bool IsTransitioning;
-		
-		public event Action OnOpenUi;
-		public event Action OnCloseUi;
+        protected UiHelper[] UiObjects;
+        protected RectTransform CanvasPos;
+        protected readonly List<UiHelper> OpenedUi = new();
+        protected bool IsTransitioning;
 
-		protected virtual async void Start()
-		{
-			try
-			{
-				await Awaitable.NextFrameAsync(Token);
-				if (canvasRef is null) return;
-				CanvasPos = (RectTransform)canvasRef.transform;
+        public event Action OnOpenUi;
+        public event Action OnCloseUi;
 
-				UiObjects = new UiHelper[uiElements.Length];
-				for (var i = 0; i < uiElements.Length; i++)
-				{
-					if (uiElements[i].prefab is null) continue;
-					var spawn = Instantiate(uiElements[i].prefab, CanvasPos);
-					spawn.OnSpawn();
-					UiObjects[i] = spawn;
-					spawn.gameObject.SetActive(false);
-				}
-			}
-			catch (Exception e)
-			{
-				print(e);
-			}
-		}
+        protected virtual async void Start() {
+            try {
+                await Awaitable.NextFrameAsync(Token);
+                if (canvasRef is null) return;
+                CanvasPos = (RectTransform)canvasRef.transform;
 
-		protected override async void OnDisable()
-		{
-			try
-			{
-				await CloseAll();
-				base.OnDisable();
-			}
-			catch (Exception e)
-			{
-				print(e);
-			}
-		}
+                UiObjects = new UiHelper[uiElements.Length];
+                for (var i = 0; i < uiElements.Length; i++) {
+                    if (uiElements[i].prefab is null) continue;
+                    var spawn = Instantiate(uiElements[i].prefab, CanvasPos);
+                    spawn.OnSpawn();
+                    UiObjects[i] = spawn;
+                    spawn.gameObject.SetActive(false);
+                }
+            }
+            catch (Exception e) {
+                print(e);
+            }
+        }
 
-		public virtual async Awaitable<(UiHelper, bool)> Open(TEnum id)
-		{
-			if (!Enum.IsDefined(typeof(TEnum), id)) return (null, false);
-			var index = Array.FindIndex(uiElements, i => EqualityComparer<TEnum>.Default.Equals(i.id, id));
+        protected override async void OnDisable() {
+            try {
+                await CloseAll();
+                base.OnDisable();
+            }
+            catch (Exception e) {
+                print(e);
+            }
+        }
 
-			IsTransitioning = true;
-			var newUi = UiObjects[index];
-			newUi.gameObject.SetActive(true);
-			OpenedUi.Add(newUi);
+        public virtual async Awaitable<(UiHelper, bool)> Open(TEnum id) {
+            if (!Enum.IsDefined(typeof(TEnum), id)) return (null, false);
+            var index = Array.FindIndex(uiElements, i => EqualityComparer<TEnum>.Default.Equals(i.id, id));
 
-			OnOpenUi?.Invoke();
-			var t = newUi.OnStartOpen();
-			await Awaitable.WaitForSecondsAsync(math.abs(t), Token);
-			newUi.OnEndOpen();
-			IsTransitioning = false;
+            IsTransitioning = true;
+            var newUi = UiObjects[index];
+            newUi.gameObject.SetActive(true);
+            OpenedUi.Add(newUi);
 
-			return (newUi, true);
-		}
+            OnOpenUi?.Invoke();
+            var t = newUi.OnStartOpen();
+            await Awaitable.WaitForSecondsAsync(math.abs(t), Token);
+            newUi.OnEndOpen();
+            IsTransitioning = false;
 
-		public virtual async Awaitable<(UiHelper, bool)> Close(TEnum id, float time)
-		{
-			if (!Enum.IsDefined(typeof(TEnum), id)) return (null, false);
-			var index = Array.FindIndex(uiElements, i => EqualityComparer<TEnum>.Default.Equals(i.id, id));
+            return (newUi, true);
+        }
 
-			IsTransitioning = true;
-			var newUi = UiObjects[index];
+        public virtual async Awaitable<(UiHelper, bool)> Close(TEnum id, float time) {
+            if (!Enum.IsDefined(typeof(TEnum), id)) return (null, false);
+            var index = Array.FindIndex(uiElements, i => EqualityComparer<TEnum>.Default.Equals(i.id, id));
 
-			OnCloseUi?.Invoke();
-			var t = newUi.OnStartClose();
-			await Awaitable.WaitForSecondsAsync(math.abs(t), Token);
-			newUi.OnEndClose();
+            IsTransitioning = true;
+            var newUi = UiObjects[index];
 
-			await Awaitable.NextFrameAsync();
-			newUi.gameObject.SetActive(false);
-			OpenedUi.Remove(newUi);
-			IsTransitioning = false;
+            OnCloseUi?.Invoke();
+            var t = newUi.OnStartClose();
+            await Awaitable.WaitForSecondsAsync(math.abs(t), Token);
+            newUi.OnEndClose();
 
-			return (newUi, true);
-		}
+            await Awaitable.NextFrameAsync();
+            newUi.gameObject.SetActive(false);
+            OpenedUi.Remove(newUi);
+            IsTransitioning = false;
 
-		public virtual async Awaitable<bool> CloseAll()
-		{
-			IsTransitioning = true;
-			var i = 0f;
-			foreach (var ui in OpenedUi)
-			{
-				OnCloseUi?.Invoke();
-				var t = ui.OnStartClose();
-				//Get the highest value and delay the said value
-				i = i < t ? t : i;
-			}
+            return (newUi, true);
+        }
 
-			await Awaitable.WaitForSecondsAsync(i, Token);
+        public virtual async Awaitable<bool> CloseAll() {
+            IsTransitioning = true;
+            var i = 0f;
+            foreach (var ui in OpenedUi) {
+                OnCloseUi?.Invoke();
+                var t = ui.OnStartClose();
+                //Get the highest value and delay the said value
+                i = i < t ? t : i;
+            }
 
-			foreach (var ui in OpenedUi)
-			{
-				ui.OnEndClose();
-				await Awaitable.NextFrameAsync(Token);
-				ui.gameObject.SetActive(false);
-			}
+            await Awaitable.WaitForSecondsAsync(i, Token);
 
-			IsTransitioning = false;
-			OpenedUi.Clear();
-			return true;
-		}
+            foreach (var ui in OpenedUi) {
+                ui.OnEndClose();
+                await Awaitable.NextFrameAsync(Token);
+                ui.gameObject.SetActive(false);
+            }
 
-		public virtual async Awaitable<bool> Replace(TEnum id)
-		{
-			if (!Enum.IsDefined(typeof(TEnum), id)) return false;
-			var c = await CloseAll();
-			if (!c) return false;
-			await Open(id);
-			return true;
-		}
-	}
+            IsTransitioning = false;
+            OpenedUi.Clear();
+            return true;
+        }
+
+        public virtual async Awaitable<bool> Replace(TEnum id) {
+            if (!Enum.IsDefined(typeof(TEnum), id)) return false;
+            var c = await CloseAll();
+            if (!c) return false;
+            await Open(id);
+            return true;
+        }
+    }
 }

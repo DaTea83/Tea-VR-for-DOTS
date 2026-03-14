@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Iterators
-{
+namespace BovineLabs.Core.Iterators {
     using System;
     using System.Diagnostics;
     using Unity.Burst.CompilerServices;
@@ -13,10 +12,8 @@ namespace BovineLabs.Core.Iterators
     /// <summary> A container that provides access to all instances of components of type T, indexed by <see cref="Entity" />. </summary>
     /// <typeparam name="T"> The type of <see cref="IComponentData" /> to access. </typeparam>
     public unsafe struct UnsafeComponentLookup<T>
-        where T : unmanaged, IComponentData
-    {
-        [NativeDisableUnsafePtrRestriction]
-        private readonly EntityDataAccess* access;
+        where T : unmanaged, IComponentData {
+        [NativeDisableUnsafePtrRestriction] private readonly EntityDataAccess* access;
 
         private readonly TypeIndex typeIndex;
         private readonly byte isZeroSized;
@@ -29,8 +26,7 @@ namespace BovineLabs.Core.Iterators
         private uint globalSystemVersion;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-        internal UnsafeComponentLookup(TypeIndex typeIndex, EntityDataAccess* access, bool isReadOnly)
-        {
+        internal UnsafeComponentLookup(TypeIndex typeIndex, EntityDataAccess* access, bool isReadOnly) {
             this.isReadOnly = isReadOnly ? (byte)1 : (byte)0;
             this.typeIndex = typeIndex;
             this.access = access;
@@ -54,15 +50,12 @@ namespace BovineLabs.Core.Iterators
         /// </summary>
         /// <param name="entity"> The entity. </param>
         /// <returns> An <see cref="IComponentData" /> type. </returns>
-        public T this[Entity entity]
-        {
-            get
-            {
+        public T this[Entity entity] {
+            get {
                 var ecs = this.access->EntityComponentStore;
                 ecs->AssertEntityHasComponent(entity, this.typeIndex, ref this.cache);
 
-                if (this.isZeroSized != 0)
-                {
+                if (this.isZeroSized != 0) {
                     return default;
                 }
 
@@ -71,21 +64,19 @@ namespace BovineLabs.Core.Iterators
 
                 return data;
             }
-
-            set
-            {
+            set {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 CheckWriteAndThrow(this);
 #endif
                 var ecs = this.access->EntityComponentStore;
                 ecs->AssertEntityHasComponent(entity, this.typeIndex, ref this.cache);
 
-                if (this.isZeroSized != 0)
-                {
+                if (this.isZeroSized != 0) {
                     return;
                 }
 
-                void* ptr = ecs->GetComponentDataWithTypeRW(entity, this.typeIndex, this.globalSystemVersion, ref this.cache);
+                void* ptr = ecs->GetComponentDataWithTypeRW(entity, this.typeIndex, this.globalSystemVersion,
+                    ref this.cache);
                 UnsafeUtility.CopyStructureToPtr(ref value, ptr);
             }
         }
@@ -95,11 +86,7 @@ namespace BovineLabs.Core.Iterators
         /// </summary>
         /// <param name="system"> The system handle. </param>
         /// <returns> An <see cref="IComponentData" /> type. </returns>
-        public T this[SystemHandle system]
-        {
-            get => this[system.m_Entity];
-            set => this[system.m_Entity] = value;
-        }
+        public T this[SystemHandle system] { get => this[system.m_Entity]; set => this[system.m_Entity] = value; }
 
         /// <summary>
         /// When a ComponentLookup is cached by a system across multiple system updates, calling this function
@@ -107,10 +94,7 @@ namespace BovineLabs.Core.Iterators
         /// type handle safe to use.
         /// </summary>
         /// <param name="system"> The system on which this type handle is cached. </param>
-        public void Update(SystemBase system)
-        {
-            this.Update(ref *system.m_StatePtr);
-        }
+        public void Update(SystemBase system) { this.Update(ref *system.m_StatePtr); }
 
         /// <summary>
         /// When a ComponentLookup is cached by a system across multiple system updates, calling this function
@@ -118,8 +102,7 @@ namespace BovineLabs.Core.Iterators
         /// type handle safe to use.
         /// </summary>
         /// <param name="systemState"> The SystemState of the system on which this type handle is cached. </param>
-        public void Update(ref SystemState systemState)
-        {
+        public void Update(ref SystemState systemState) {
             this.globalSystemVersion = systemState.m_EntityComponentStore->GlobalSystemVersion;
         }
 
@@ -132,8 +115,7 @@ namespace BovineLabs.Core.Iterators
         /// True if the entity has a component of type T, and false if it does not. Also returns false if
         /// the Entity instance refers to an entity that has been destroyed.
         /// </returns>
-        public bool HasComponent(Entity entity)
-        {
+        public bool HasComponent(Entity entity) {
             var ecs = this.access->EntityComponentStore;
             return ecs->HasComponent(entity, this.typeIndex, ref this.cache, out _);
         }
@@ -147,8 +129,7 @@ namespace BovineLabs.Core.Iterators
         /// True if the entity associated with the system has a component of type T, and false if it does not. Also returns false if
         /// the system handle refers to a system that has been destroyed.
         /// </returns>
-        public bool HasComponent(SystemHandle system)
-        {
+        public bool HasComponent(SystemHandle system) {
             var ecs = this.access->EntityComponentStore;
             return ecs->HasComponent(system.m_Entity, this.typeIndex, ref this.cache, out _);
         }
@@ -162,25 +143,21 @@ namespace BovineLabs.Core.Iterators
         /// ///
         /// <param name="componentData"> The component of type T for the given entity, if it exists. </param>
         /// <returns> True if the entity has a component of type T, and false if it does not. </returns>
-        public bool TryGetComponent(Entity entity, out T componentData)
-        {
+        public bool TryGetComponent(Entity entity, out T componentData) {
             var ecs = this.access->EntityComponentStore;
 
-            if (this.isZeroSized != 0)
-            {
+            if (this.isZeroSized != 0) {
                 componentData = default;
                 return ecs->HasComponent(entity, this.typeIndex, ref this.cache, out _);
             }
 
-            if (Hint.Unlikely(!ecs->Exists(entity)))
-            {
+            if (Hint.Unlikely(!ecs->Exists(entity))) {
                 componentData = default;
                 return false;
             }
 
             void* ptr = ecs->GetOptionalComponentDataWithTypeRO(entity, this.typeIndex, ref this.cache);
-            if (ptr == null)
-            {
+            if (ptr == null) {
                 componentData = default;
                 return false;
             }
@@ -208,19 +185,16 @@ namespace BovineLabs.Core.Iterators
         /// True, if the version number stored in the chunk for this component is more recent than the version
         /// passed to the <paramref name="version" /> parameter.
         /// </returns>
-        public bool DidChange(Entity entity, uint version)
-        {
+        public bool DidChange(Entity entity, uint version) {
             var ecs = this.access->EntityComponentStore;
             var chunk = ecs->GetChunk(entity);
             var archetype = ecs->GetArchetype(chunk);
-            if (Hint.Unlikely(archetype != this.cache.Archetype))
-            {
+            if (Hint.Unlikely(archetype != this.cache.Archetype)) {
                 this.cache.Update(archetype, this.typeIndex);
             }
 
             var typeIndexInArchetype = this.cache.IndexInArchetype;
-            if (typeIndexInArchetype == -1)
-            {
+            if (typeIndexInArchetype == -1) {
                 return false;
             }
 
@@ -238,8 +212,7 @@ namespace BovineLabs.Core.Iterators
         /// <param name="entity"> The entity whose component should be checked. </param>
         /// <returns> True if the specified component is enabled, or false if it is disabled. </returns>
         /// <seealso cref="SetComponentEnabled(Entity, bool)" />
-        public bool IsComponentEnabled(Entity entity)
-        {
+        public bool IsComponentEnabled(Entity entity) {
             return this.access->IsComponentEnabled(entity, this.typeIndex, ref this.cache);
         }
 
@@ -252,8 +225,7 @@ namespace BovineLabs.Core.Iterators
         /// <param name="systemHandle"> The system whose component should be checked. </param>
         /// <returns> True if the specified component is enabled, or false if it is disabled. </returns>
         /// <seealso cref="SetComponentEnabled(SystemHandle, bool)" />
-        public bool IsComponentEnabled(SystemHandle systemHandle)
-        {
+        public bool IsComponentEnabled(SystemHandle systemHandle) {
             return this.access->IsComponentEnabled(systemHandle.m_Entity, this.typeIndex, ref this.cache);
         }
 
@@ -267,8 +239,7 @@ namespace BovineLabs.Core.Iterators
         /// <param name="systemHandle"> The system whose component should be enabled or disabled. </param>
         /// <param name="value"> True if the specified component should be enabled, or false if it should be disabled. </param>
         /// <seealso cref="IsComponentEnabled(SystemHandle)" />
-        public void SetComponentEnabled(SystemHandle systemHandle, bool value)
-        {
+        public void SetComponentEnabled(SystemHandle systemHandle, bool value) {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CheckWriteAndThrow(this);
 #endif
@@ -285,8 +256,7 @@ namespace BovineLabs.Core.Iterators
         /// <param name="entity"> The entity whose component should be enabled or disabled. </param>
         /// <param name="value"> True if the specified component should be enabled, or false if it should be disabled. </param>
         /// <seealso cref="IsComponentEnabled(Entity)" />
-        public void SetComponentEnabled(Entity entity, bool value)
-        {
+        public void SetComponentEnabled(Entity entity, bool value) {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CheckWriteAndThrow(this);
 #endif
@@ -294,11 +264,9 @@ namespace BovineLabs.Core.Iterators
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        private static void CheckWriteAndThrow(in UnsafeComponentLookup<T> componentLookup)
-        {
+        private static void CheckWriteAndThrow(in UnsafeComponentLookup<T> componentLookup) {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            if (componentLookup.isReadOnly != 0)
-            {
+            if (componentLookup.isReadOnly != 0) {
                 throw new InvalidOperationException("Writing when read only");
             }
 #endif

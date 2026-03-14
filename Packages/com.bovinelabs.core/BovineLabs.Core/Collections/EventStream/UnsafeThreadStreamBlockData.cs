@@ -2,21 +2,19 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System.Diagnostics.CodeAnalysis;
     using Unity.Collections;
     using UnityEngine;
 
-    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Convenience")]
-    internal unsafe struct UnsafeThreadStreamBlock
-    {
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name",
+        Justification = "Convenience")]
+    internal unsafe struct UnsafeThreadStreamBlock {
         internal UnsafeThreadStreamBlock* Next;
         internal fixed byte Data[1];
     }
 
-    internal unsafe struct UnsafeThreadStreamRange
-    {
+    internal unsafe struct UnsafeThreadStreamRange {
         internal UnsafeThreadStreamBlock* Block;
         internal int OffsetInFirstBlock;
         internal int ElementCount;
@@ -30,8 +28,7 @@ namespace BovineLabs.Core.Collections
         internal byte* CurrentBlockEnd;
     }
 
-    internal unsafe struct UnsafeThreadStreamBlockData
-    {
+    internal unsafe struct UnsafeThreadStreamBlockData {
         internal const int AllocationSize = 4 * 1024;
         internal AllocatorManager.AllocatorHandle Allocator;
 
@@ -39,21 +36,18 @@ namespace BovineLabs.Core.Collections
 
         internal UnsafeThreadStreamRange* Ranges;
 
-        internal UnsafeThreadStreamBlock* Allocate(UnsafeThreadStreamBlock* oldBlock, int threadIndex)
-        {
+        internal UnsafeThreadStreamBlock* Allocate(UnsafeThreadStreamBlock* oldBlock, int threadIndex) {
             Debug.Assert(threadIndex < UnsafeThreadStream.ForEachCount && threadIndex >= 0);
 
             var block = (UnsafeThreadStreamBlock*)Memory.Unmanaged.Allocate(AllocationSize, 16, this.Allocator);
             block->Next = null;
 
-            if (oldBlock == null)
-            {
+            if (oldBlock == null) {
                 // Append our new block in front of the previous head.
                 block->Next = this.Blocks[threadIndex];
                 this.Blocks[threadIndex] = block;
             }
-            else
-            {
+            else {
                 block->Next = oldBlock->Next;
                 oldBlock->Next = block;
             }

@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using System.Collections.Generic;
     using BovineLabs.Core.Editor.Helpers;
     using UnityEditor;
@@ -11,15 +10,13 @@ namespace BovineLabs.Core.Editor.Inspectors
     using UnityEngine.UIElements;
 
     /// <summary> Provides an inspector ([CustomPropertyDrawer(typeof(T))]) with custom element but will fall back to PropertyField if not overriden. </summary>
-    public abstract class ElementProperty : PropertyDrawer
-    {
+    public abstract class ElementProperty : PropertyDrawer {
         private SerializedObject? serializedObject;
         private VisualElement? parent;
 
         private static readonly Dictionary<SerializedProperty, object> Caches = new();
 
-        protected enum ParentTypes : byte
-        {
+        protected enum ParentTypes : byte {
             Foldout,
             Label,
             None,
@@ -34,22 +31,18 @@ namespace BovineLabs.Core.Editor.Inspectors
         protected SerializedProperty? RootProperty { get; private set; }
 
         /// <inheritdoc/>
-        public sealed override VisualElement CreatePropertyGUI(SerializedProperty rootProperty)
-        {
+        public sealed override VisualElement CreatePropertyGUI(SerializedProperty rootProperty) {
             this.RootProperty = rootProperty;
             this.serializedObject = rootProperty.serializedObject;
 
             var iterateChildren = rootProperty.propertyType == SerializedPropertyType.Generic;
 
-            switch (this.ParentType)
-            {
+            switch (this.ParentType) {
                 case ParentTypes.Label:
                     this.parent = new VisualElement();
 
-                    if (iterateChildren)
-                    {
-                        if (!rootProperty.displayName.StartsWith("Element "))
-                        {
+                    if (iterateChildren) {
+                        if (!rootProperty.displayName.StartsWith("Element ")) {
                             this.parent.AddToClassList("unity-decorator-drawers-container");
                         }
 
@@ -74,24 +67,18 @@ namespace BovineLabs.Core.Editor.Inspectors
 
             var createElements = this.PreElementCreation(this.parent);
 
-            if (createElements)
-            {
-                if (iterateChildren)
-                {
-                    foreach (var property in SerializedHelper.GetChildren(rootProperty))
-                    {
+            if (createElements) {
+                if (iterateChildren) {
+                    foreach (var property in SerializedHelper.GetChildren(rootProperty)) {
                         var element = this.CreateElement(property);
-                        if (element != null)
-                        {
+                        if (element != null) {
                             this.Parent.Add(element);
                         }
                     }
                 }
-                else
-                {
+                else {
                     var element = this.CreateElement(rootProperty);
-                    if (element != null)
-                    {
+                    if (element != null) {
                         this.Parent.Add(element);
                     }
                 }
@@ -102,44 +89,32 @@ namespace BovineLabs.Core.Editor.Inspectors
             return this.Parent;
         }
 
-        protected static PropertyField CreatePropertyField(SerializedProperty property)
-        {
+        protected static PropertyField CreatePropertyField(SerializedProperty property) {
             return PropertyUtil.CreateProperty(property, property.serializedObject);
         }
 
-        protected static PropertyField CreatePropertyField(SerializedProperty property, SerializedObject serializedObject)
-        {
+        protected static PropertyField CreatePropertyField(SerializedProperty property,
+            SerializedObject serializedObject) {
             return PropertyUtil.CreateProperty(property, serializedObject);
         }
 
         protected T Cache<T>()
-            where T : class, new()
-        {
-            if (!Caches.TryGetValue(this.RootProperty!, out var cache))
-            {
+            where T : class, new() {
+            if (!Caches.TryGetValue(this.RootProperty!, out var cache)) {
                 Caches[this.RootProperty!] = cache = new T();
             }
 
             return (T)cache;
         }
 
-        protected virtual string GetDisplayName(SerializedProperty property)
-        {
-            return property.displayName;
-        }
+        protected virtual string GetDisplayName(SerializedProperty property) { return property.displayName; }
 
-        protected virtual VisualElement? CreateElement(SerializedProperty property)
-        {
+        protected virtual VisualElement? CreateElement(SerializedProperty property) {
             return CreatePropertyField(property, this.SerializedObject);
         }
 
-        protected virtual bool PreElementCreation(VisualElement root)
-        {
-            return true;
-        }
+        protected virtual bool PreElementCreation(VisualElement root) { return true; }
 
-        protected virtual void PostElementCreation(VisualElement root, bool createdElements)
-        {
-        }
+        protected virtual void PostElementCreation(VisualElement root, bool createdElements) { }
     }
 }

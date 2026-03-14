@@ -2,13 +2,11 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Extensions
-{
+namespace BovineLabs.Core.Extensions {
     using System.Collections.Generic;
 
     /// <summary> Extensions for <see cref="IReadOnlyList{T}" />. </summary>
-    public static class ReadOnlyListExtensions
-    {
+    public static class ReadOnlyListExtensions {
         // /// <summary> Finds the index of a value, if not found returns -1. </summary>
         // /// <param name="list"> The list to search. </param>
         // /// <param name="value"> The value to search for. </param>

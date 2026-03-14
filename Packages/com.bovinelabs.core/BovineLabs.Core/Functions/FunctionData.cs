@@ -2,13 +2,11 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Functions
-{
+namespace BovineLabs.Core.Functions {
     using System;
     using Unity.Burst;
 
-    internal unsafe struct FunctionData
-    {
+    internal unsafe struct FunctionData {
         public void* Target;
 
         public IntPtr DestroyFunction;

@@ -2,40 +2,31 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor
-{
+namespace BovineLabs.Core.Editor {
     using System.Linq;
     using BovineLabs.Core.Settings;
     using UnityEditor;
     using UnityEditor.Build;
     using UnityEditor.Build.Reporting;
 
-    public class CoreBuildSetup : BuildPlayerProcessor, IPostprocessBuildWithReport
-    {
+    public class CoreBuildSetup : BuildPlayerProcessor, IPostprocessBuildWithReport {
         /// <inheritdoc/>
-        public override void PrepareForBuild(BuildPlayerContext buildPlayerContext)
-        {
+        public override void PrepareForBuild(BuildPlayerContext buildPlayerContext) {
             Revert();
             IncludeSettingsSingleton();
         }
 
         /// <inheritdoc/>
-        public void OnPostprocessBuild(BuildReport report)
-        {
-            Revert();
-        }
+        public void OnPostprocessBuild(BuildReport report) { Revert(); }
 
-        private static void IncludeSettingsSingleton()
-        {
+        private static void IncludeSettingsSingleton() {
             var preloadedAssets = PlayerSettings.GetPreloadedAssets().ToList();
 
             var kSettings = AssetDatabase.FindAssets($"t:{nameof(SettingsSingleton)}");
 
-            foreach (var guid in kSettings)
-            {
+            foreach (var guid in kSettings) {
                 var asset = AssetDatabase.LoadAssetAtPath<SettingsSingleton>(AssetDatabase.GUIDToAssetPath(guid));
-                if (asset != null)
-                {
+                if (asset != null) {
                     preloadedAssets.Add(asset);
                 }
             }
@@ -43,10 +34,10 @@ namespace BovineLabs.Core.Editor
             PlayerSettings.SetPreloadedAssets(preloadedAssets.ToArray());
         }
 
-        private static void Revert()
-        {
+        private static void Revert() {
             // Revert back to original state by removing all SettingsSingleton from preloaded assets.
-            PlayerSettings.SetPreloadedAssets(PlayerSettings.GetPreloadedAssets().Where(x => x is not SettingsSingleton).ToArray());
+            PlayerSettings.SetPreloadedAssets(PlayerSettings.GetPreloadedAssets().Where(x => x is not SettingsSingleton)
+                .ToArray());
         }
     }
 }

@@ -2,21 +2,15 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.PropertyDrawers
-{
+namespace BovineLabs.Core.PropertyDrawers {
     using System;
     using UnityEngine;
 
-    public class StableTypeHashAttribute : PropertyAttribute, IEquatable<StableTypeHashAttribute>
-    {
-        public StableTypeHashAttribute(TypeCategory category)
-        {
-            this.Category = category;
-        }
+    public class StableTypeHashAttribute : PropertyAttribute, IEquatable<StableTypeHashAttribute> {
+        public StableTypeHashAttribute(TypeCategory category) { this.Category = category; }
 
         [Flags]
-        public enum TypeCategory : byte
-        {
+        public enum TypeCategory : byte {
             None = 0,
 
             /// <summary> Implements IComponentData (can be either a struct or a class). </summary>
@@ -43,29 +37,24 @@ namespace BovineLabs.Core.PropertyDrawers
 
         public Type[] BaseType { get; set; } = Type.EmptyTypes;
 
-        public bool Equals(StableTypeHashAttribute other)
-        {
-            if (ReferenceEquals(null, other))
-            {
+        public bool Equals(StableTypeHashAttribute other) {
+            if (ReferenceEquals(null, other)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, other))
-            {
+            if (ReferenceEquals(this, other)) {
                 return true;
             }
 
             return this.Category == other.Category &&
-                this.OnlyZeroSize == other.OnlyZeroSize &&
-                this.OnlyEnableable == other.OnlyEnableable &&
-                this.AllowUnityNamespace == other.AllowUnityNamespace &&
-                this.AllowEditorAssemblies == other.AllowEditorAssemblies;
+                   this.OnlyZeroSize == other.OnlyZeroSize &&
+                   this.OnlyEnableable == other.OnlyEnableable &&
+                   this.AllowUnityNamespace == other.AllowUnityNamespace &&
+                   this.AllowEditorAssemblies == other.AllowEditorAssemblies;
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
+        public override int GetHashCode() {
+            unchecked {
                 var hashCode = base.GetHashCode();
                 hashCode = (hashCode * 397) ^ (int)this.Category;
                 hashCode = (hashCode * 397) ^ this.OnlyZeroSize.GetHashCode();

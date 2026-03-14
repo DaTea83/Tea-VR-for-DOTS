@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
@@ -15,10 +14,8 @@ namespace BovineLabs.Core.Collections
 
     [StructLayout(LayoutKind.Sequential)]
     [DebuggerDisplay("Length = {Length}, Capacity = {Capacity}, IsCreated = {IsCreated}")]
-    public unsafe struct UnsafeUntypedDynamicBuffer
-    {
-        [NativeDisableUnsafePtrRestriction]
-        [NoAlias]
+    public unsafe struct UnsafeUntypedDynamicBuffer {
+        [NativeDisableUnsafePtrRestriction] [NoAlias]
         private readonly BufferHeader* buffer;
 
         // Stores original internal capacity of the buffer header, so heap excess can be removed entirely when trimming.
@@ -26,8 +23,7 @@ namespace BovineLabs.Core.Collections
 
         private readonly int alignOf;
 
-        internal UnsafeUntypedDynamicBuffer(BufferHeader* header, int internalCapacity, int elementSize, int alignOf)
-        {
+        internal UnsafeUntypedDynamicBuffer(BufferHeader* header, int internalCapacity, int elementSize, int alignOf) {
             this.buffer = header;
             this.internalCapacity = internalCapacity;
             this.ElementSize = elementSize;
@@ -35,30 +31,22 @@ namespace BovineLabs.Core.Collections
         }
 
         /// <summary> The number of elements the buffer holds. </summary>
-        public int Length
-        {
-            get => this.buffer->Length;
-            set => this.ResizeUninitialized(value);
-        }
+        public int Length { get => this.buffer->Length; set => this.ResizeUninitialized(value); }
 
         /// <summary>
         /// The number of elements the buffer can hold.
         /// </summary>
-        public int Capacity
-        {
-            get
-            {
-                return this.buffer->Capacity;
-            }
-            set
-            {
+        public int Capacity {
+            get { return this.buffer->Capacity; }
+            set {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS || UNITY_DOTS_DEBUG
-                if (value < this.Length)
-                {
-                    throw new InvalidOperationException($"Capacity {value} can't be set smaller than Length {this.Length}");
+                if (value < this.Length) {
+                    throw new InvalidOperationException(
+                        $"Capacity {value} can't be set smaller than Length {this.Length}");
                 }
 #endif
-                BufferHeader.SetCapacity(this.buffer, value, this.ElementSize, this.alignOf, BufferHeader.TrashMode.RetainOldData, false, 0,
+                BufferHeader.SetCapacity(this.buffer, value, this.ElementSize, this.alignOf,
+                    BufferHeader.TrashMode.RetainOldData, false, 0,
                     this.internalCapacity);
             }
         }
@@ -78,11 +66,10 @@ namespace BovineLabs.Core.Collections
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [Conditional("UNITY_DOTS_DEBUG")]
-        private void CheckBounds(int index)
-        {
-            if ((uint)index >= (uint)this.Length)
-            {
-                throw new IndexOutOfRangeException($"Index {index} is out of range in DynamicBuffer of '{this.Length}' Length.");
+        private void CheckBounds(int index) {
+            if ((uint)index >= (uint)this.Length) {
+                throw new IndexOutOfRangeException(
+                    $"Index {index} is out of range in DynamicBuffer of '{this.Length}' Length.");
             }
         }
 
@@ -93,16 +80,12 @@ namespace BovineLabs.Core.Collections
         ///     <code source="../../DocCodeSamples.Tests/DynamicBufferExamples.cs" language="csharp" region="dynamicbuffer.indexoperator" />
         /// </example>
         /// <param name="index"> The zero-based index. </param>
-        public void* this[int index]
-        {
-            get
-            {
+        public void* this[int index] {
+            get {
                 this.CheckBounds(index);
                 return BufferHeader.GetElementPointer(this.buffer) + (index * this.ElementSize);
             }
-
-            set
-            {
+            set {
                 this.CheckBounds(index);
                 var dst = BufferHeader.GetElementPointer(this.buffer) + (index * this.ElementSize);
                 UnsafeUtility.MemCpy(dst, value, this.ElementSize);
@@ -121,8 +104,7 @@ namespace BovineLabs.Core.Collections
         ///     <code source="../../DocCodeSamples.Tests/DynamicBufferExamples.cs" language="csharp" region="dynamicbuffer.resizeuninitialized" />
         /// </example>
         /// <param name="length"> The new length of the buffer. </param>
-        public void ResizeUninitialized(int length)
-        {
+        public void ResizeUninitialized(int length) {
             this.EnsureCapacity(length);
             this.buffer->Length = length;
         }
@@ -137,14 +119,12 @@ namespace BovineLabs.Core.Collections
         /// </remarks>
         /// <param name="length"> The new length of this buffer. </param>
         /// <param name="options"> Whether to clear any newly allocated bytes to all zeroes. </param>
-        public void Resize(int length, NativeArrayOptions options)
-        {
+        public void Resize(int length, NativeArrayOptions options) {
             this.EnsureCapacity(length);
 
             var oldLength = this.buffer->Length;
             this.buffer->Length = length;
-            if (options == NativeArrayOptions.ClearMemory && oldLength < length)
-            {
+            if (options == NativeArrayOptions.ClearMemory && oldLength < length) {
                 var num = length - oldLength;
                 var ptr = BufferHeader.GetElementPointer(this.buffer);
                 UnsafeUtility.MemClear(ptr + (oldLength * this.ElementSize), num * this.ElementSize);
@@ -165,9 +145,9 @@ namespace BovineLabs.Core.Collections
         ///     <code source="../../DocCodeSamples.Tests/DynamicBufferExamples.cs" language="csharp" region="dynamicbuffer.reserve" />
         /// </example>
         /// <param name="length"> The buffer capacity is ensured to be at least this big. </param>
-        public void EnsureCapacity(int length)
-        {
-            BufferHeader.EnsureCapacity(this.buffer, length, this.ElementSize, this.alignOf, BufferHeader.TrashMode.RetainOldData, false, 0);
+        public void EnsureCapacity(int length) {
+            BufferHeader.EnsureCapacity(this.buffer, length, this.ElementSize, this.alignOf,
+                BufferHeader.TrashMode.RetainOldData, false, 0);
         }
 
         /// <summary>
@@ -180,10 +160,7 @@ namespace BovineLabs.Core.Collections
         /// <example>
         ///     <code source="../../DocCodeSamples.Tests/DynamicBufferExamples.cs" language="csharp" region="dynamicbuffer.clear" />
         /// </example>
-        public void Clear()
-        {
-            this.buffer->Length = 0;
-        }
+        public void Clear() { this.buffer->Length = 0; }
 
         /// <summary>
         /// Adds an element to the end of the buffer, resizing as necessary.
@@ -194,16 +171,14 @@ namespace BovineLabs.Core.Collections
         /// </example>
         /// <param name="elem"> The element to add to the buffer. </param>
         /// <returns> The index of the added element, which is equal to the new length of the buffer minus one. </returns>
-        public int Add(void* elem)
-        {
+        public int Add(void* elem) {
             var length = this.Length;
             this.ResizeUninitialized(length + 1);
             this[length] = elem;
             return length;
         }
 
-        public void AddRange(void* elem, int count)
-        {
+        public void AddRange(void* elem, int count) {
             var oldLength = this.Length;
             this.ResizeUninitialized(oldLength + count);
 
@@ -220,11 +195,9 @@ namespace BovineLabs.Core.Collections
         /// </example>
         /// <param name="index"> The first element to remove. </param>
         /// <param name="count"> How many elements tot remove. </param>
-        public void RemoveRange(int index, int count)
-        {
+        public void RemoveRange(int index, int count) {
             this.CheckBounds(index);
-            if (count == 0)
-            {
+            if (count == 0) {
                 return;
             }
 
@@ -233,7 +206,8 @@ namespace BovineLabs.Core.Collections
             var elemSize = this.ElementSize;
             var basePtr = BufferHeader.GetElementPointer(this.buffer);
 
-            UnsafeUtility.MemMove(basePtr + (index * elemSize), basePtr + ((index + count) * elemSize), (long)elemSize * (this.Length - count - index));
+            UnsafeUtility.MemMove(basePtr + (index * elemSize), basePtr + ((index + count) * elemSize),
+                (long)elemSize * (this.Length - count - index));
 
             this.buffer->Length -= count;
         }
@@ -245,10 +219,7 @@ namespace BovineLabs.Core.Collections
         ///     <code source="../../DocCodeSamples.Tests/DynamicBufferExamples.cs" language="csharp" region="dynamicbuffer.removeat" />
         /// </example>
         /// <param name="index"> The index of the element to remove. </param>
-        public void RemoveAt(int index)
-        {
-            this.RemoveRange(index, 1);
-        }
+        public void RemoveAt(int index) { this.RemoveRange(index, 1); }
 
         /// <summary>
         /// Gets an <see langword="unsafe" /> read/write pointer to the contents of the buffer.
@@ -256,10 +227,7 @@ namespace BovineLabs.Core.Collections
         /// <remarks> This function can only be called in unsafe code contexts. </remarks>
         /// <returns> A typed, unsafe pointer to the first element in the buffer. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void* GetUnsafePtr()
-        {
-            return BufferHeader.GetElementPointer(this.buffer);
-        }
+        public void* GetUnsafePtr() { return BufferHeader.GetElementPointer(this.buffer); }
 
         /// <summary>
         /// Gets an <see langword="unsafe" /> read-only pointer to the contents of the buffer.
@@ -267,9 +235,6 @@ namespace BovineLabs.Core.Collections
         /// <remarks> This function can only be called in unsafe code contexts. </remarks>
         /// <returns> A typed, unsafe pointer to the first element in the buffer. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void* GetUnsafeReadOnlyPtr()
-        {
-            return BufferHeader.GetElementPointer(this.buffer);
-        }
+        public void* GetUnsafeReadOnlyPtr() { return BufferHeader.GetElementPointer(this.buffer); }
     }
 }

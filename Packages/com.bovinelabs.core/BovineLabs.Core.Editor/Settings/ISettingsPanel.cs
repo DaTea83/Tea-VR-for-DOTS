@@ -2,13 +2,11 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Settings
-{
+namespace BovineLabs.Core.Editor.Settings {
     using UnityEngine.UIElements;
 
     /// <summary> The panel interface for <see cref="SettingsBaseWindow{T}" />. </summary>
-    public interface ISettingsPanel
-    {
+    public interface ISettingsPanel {
         /// <summary> Gets the display name for the panel. </summary>
         string DisplayName { get; }
 

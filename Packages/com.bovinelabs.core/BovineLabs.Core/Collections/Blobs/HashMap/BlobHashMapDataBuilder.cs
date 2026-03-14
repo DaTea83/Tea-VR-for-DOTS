@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
@@ -11,8 +10,7 @@ namespace BovineLabs.Core.Collections
 
     internal ref struct BlobBuilderHashMapData<TKey, TValue>
         where TKey : unmanaged, IEquatable<TKey>
-        where TValue : unmanaged
-    {
+        where TValue : unmanaged {
         // we store these values in the builder because we cannot access BlobHashMapData itself (it must live in blob storage)
         internal readonly int KeyCapacity;
         private readonly int bucketCapacityMask;
@@ -23,8 +21,10 @@ namespace BovineLabs.Core.Collections
         private BlobBuilderArray<int> buckets;
         private BlobBuilderArray<int> count;
 
-        internal BlobBuilderHashMapData(int capacity, int bucketCapacityRatio, ref BlobBuilder blobBuilder, ref BlobHashMapData<TKey, TValue> data)
-        {
+        internal BlobBuilderHashMapData(int capacity,
+            int bucketCapacityRatio,
+            ref BlobBuilder blobBuilder,
+            ref BlobHashMapData<TKey, TValue> data) {
             var bucketCapacity = math.ceilpow2(capacity * bucketCapacityRatio);
 
             // bucketCapacityMask is neccessary for retrieval so set it on the data too
@@ -47,21 +47,18 @@ namespace BovineLabs.Core.Collections
 
         internal int Count => this.count[0];
 
-        internal bool TryAdd(TKey key, TValue item, bool multi)
-        {
+        internal bool TryAdd(TKey key, TValue item, bool multi) {
             ref var c = ref this.count[0];
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            if (c >= this.KeyCapacity)
-            {
+            if (c >= this.KeyCapacity) {
                 throw new InvalidOperationException("HashMap is full");
             }
 #endif
 
             var bucket = key.GetHashCode() & this.bucketCapacityMask;
 
-            if (!multi && this.ContainsKey(bucket, key))
-            {
+            if (!multi && this.ContainsKey(bucket, key)) {
                 return false;
             }
 
@@ -74,13 +71,11 @@ namespace BovineLabs.Core.Collections
             return true;
         }
 
-        internal unsafe ref TValue AddUnique(TKey key, bool multi)
-        {
+        internal unsafe ref TValue AddUnique(TKey key, bool multi) {
             ref var c = ref this.count[0];
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            if (c >= this.KeyCapacity)
-            {
+            if (c >= this.KeyCapacity) {
                 throw new InvalidOperationException("HashMap is full");
             }
 #endif
@@ -88,8 +83,7 @@ namespace BovineLabs.Core.Collections
             var bucket = key.GetHashCode() & this.bucketCapacityMask;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            if (!multi && this.ContainsKey(bucket, key))
-            {
+            if (!multi && this.ContainsKey(bucket, key)) {
                 throw new InvalidOperationException("Already contains key");
             }
 #endif
@@ -102,8 +96,7 @@ namespace BovineLabs.Core.Collections
             return ref UnsafeUtility.ArrayElementAsRef<TValue>(this.values.GetUnsafePtr(), index);
         }
 
-        internal bool ContainsKey(TKey key)
-        {
+        internal bool ContainsKey(TKey key) {
             var bucket = key.GetHashCode() & this.bucketCapacityMask;
 
             return this.ContainsKey(bucket, key);
@@ -111,21 +104,17 @@ namespace BovineLabs.Core.Collections
 
         // Safety check for regular hashmap Add
 
-        private bool ContainsKey(int bucket, TKey key)
-        {
+        private bool ContainsKey(int bucket, TKey key) {
             var index = this.buckets[bucket];
 
-            if (index < 0)
-            {
+            if (index < 0) {
                 return false;
             }
 
-            while (!this.keys[index].Equals(key))
-            {
+            while (!this.keys[index].Equals(key)) {
                 index = this.next[index];
 
-                if (index < 0)
-                {
+                if (index < 0) {
                     return false;
                 }
             }
@@ -133,15 +122,12 @@ namespace BovineLabs.Core.Collections
             return true;
         }
 
-        private void Clear()
-        {
-            for (var i = 0; i < this.buckets.Length; i++)
-            {
+        private void Clear() {
+            for (var i = 0; i < this.buckets.Length; i++) {
                 this.buckets[i] = -1;
             }
 
-            for (var i = 0; i < this.next.Length; i++)
-            {
+            for (var i = 0; i < this.next.Length; i++) {
                 this.next[i] = -1;
             }
         }

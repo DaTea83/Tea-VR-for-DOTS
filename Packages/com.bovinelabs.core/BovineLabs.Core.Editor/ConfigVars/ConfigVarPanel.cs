@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.ConfigVars
-{
+namespace BovineLabs.Core.Editor.ConfigVars {
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -18,14 +17,10 @@ namespace BovineLabs.Core.Editor.ConfigVars
     using UnityEngine.UIElements;
 
     /// <summary> A panel that draws a collection of config vars. </summary>
-    public sealed class ConfigVarPanel : ISettingsPanel
-    {
+    public sealed class ConfigVarPanel : ISettingsPanel {
         /// <summary> Initializes a new instance of the <see cref="ConfigVarPanel" /> class. </summary>
         /// <param name="displayName"> The display name of the panel. </param>
-        public ConfigVarPanel(string displayName)
-        {
-            this.DisplayName = displayName;
-        }
+        public ConfigVarPanel(string displayName) { this.DisplayName = displayName; }
 
         /// <inheritdoc />
         public string DisplayName { get; }
@@ -42,24 +37,20 @@ namespace BovineLabs.Core.Editor.ConfigVars
         private List<(ConfigVarAttribute ConfigVar, VisualElement Field)> Fields { get; } = new();
 
         /// <inheritdoc />
-        public void OnActivate(string searchContext, VisualElement rootElement)
-        {
+        public void OnActivate(string searchContext, VisualElement rootElement) {
             // Matching the display name should show everything
             var allMatch = string.IsNullOrWhiteSpace(searchContext);
 
-            foreach (var (attribute, fieldInfo) in this.ConfigVars)
-            {
+            foreach (var (attribute, fieldInfo) in this.ConfigVars) {
                 var readOnly = attribute.IsReadOnly && EditorApplication.isPlaying;
                 var field = CreateVisualElement(attribute, fieldInfo);
 
                 // TODO move to uss
-                if (!allMatch && MatchesSearchContext(attribute.Name, searchContext))
-                {
+                if (!allMatch && MatchesSearchContext(attribute.Name, searchContext)) {
                     field.style.backgroundColor = ConfigVarStyle.Style.HighlightColor;
                 }
 
-                if (readOnly)
-                {
+                if (readOnly) {
                     // TODO
                     // field.style.color = new StyleColor();
                 }
@@ -69,44 +60,39 @@ namespace BovineLabs.Core.Editor.ConfigVars
             }
 
             EditorApplication.playModeStateChanged += this.OnPlayModeStateChanged;
-            this.OnPlayModeStateChanged(EditorApplication.isPlaying ? PlayModeStateChange.EnteredPlayMode : PlayModeStateChange.EnteredEditMode);
+            this.OnPlayModeStateChanged(EditorApplication.isPlaying
+                ? PlayModeStateChange.EnteredPlayMode
+                : PlayModeStateChange.EnteredEditMode);
         }
 
         /// <inheritdoc />
-        public void OnDeactivate()
-        {
+        public void OnDeactivate() {
             this.Fields.Clear();
 
             EditorApplication.playModeStateChanged -= this.OnPlayModeStateChanged;
         }
 
         /// <inheritdoc />
-        bool ISettingsPanel.MatchesFilter(string searchContext, bool allowEmpty)
-        {
-            if (!allowEmpty && this.IsEmpty)
-            {
+        bool ISettingsPanel.MatchesFilter(string searchContext, bool allowEmpty) {
+            if (!allowEmpty && this.IsEmpty) {
                 return false;
             }
 
-            if (string.IsNullOrEmpty(searchContext))
-            {
+            if (string.IsNullOrEmpty(searchContext)) {
                 return true;
             }
 
             return this.ConfigVars.Any(s => MatchesSearchContext(s.ConfigVar.Name, searchContext));
         }
 
-        private static bool MatchesSearchContext(string s, string searchContext)
-        {
+        private static bool MatchesSearchContext(string s, string searchContext) {
             return s.IndexOf(searchContext, StringComparison.InvariantCultureIgnoreCase) >= 0;
         }
 
-        private static VisualElement CreateVisualElement(ConfigVarAttribute configVar, FieldInfo field)
-        {
+        private static VisualElement CreateVisualElement(ConfigVarAttribute configVar, FieldInfo field) {
             var fieldValue = field.GetValue(null);
 
-            return fieldValue switch
-            {
+            return fieldValue switch {
                 SharedStatic<int> sharedStatic => SetupField(new IntegerField(), configVar, sharedStatic),
                 SharedStatic<float> sharedStatic => SetupField(new FloatField(), configVar, sharedStatic),
                 SharedStatic<bool> sharedStatic => SetupField(new Toggle(), configVar, sharedStatic),
@@ -120,27 +106,28 @@ namespace BovineLabs.Core.Editor.ConfigVars
             };
         }
 
-        private static BaseField<T> SetupField<T>(BaseField<T> field, ConfigVarAttribute configVar, SharedStatic<T> sharedStatic)
-            where T : unmanaged, IEquatable<T>
-        {
+        private static BaseField<T> SetupField<T>(BaseField<T> field,
+            ConfigVarAttribute configVar,
+            SharedStatic<T> sharedStatic)
+            where T : unmanaged, IEquatable<T> {
             return SetupField(field, configVar, new ConfigVarBinding<T>(field, configVar, sharedStatic));
         }
 
         private static BaseField<string> SetupTextField<T>(ConfigVarAttribute configVar, SharedStatic<T> sharedStatic)
-            where T : unmanaged, IEquatable<T>
-        {
+            where T : unmanaged, IEquatable<T> {
             var field = new TextField();
             return SetupField(field, configVar, new ConfigVarStringBinding<T>(field, configVar, sharedStatic));
         }
 
-        private static BaseField<Color> SetupColorField(ConfigVarAttribute configVar, SharedStatic<Color> sharedStatic)
-        {
+        private static BaseField<Color>
+            SetupColorField(ConfigVarAttribute configVar, SharedStatic<Color> sharedStatic) {
             var field = new ColorField();
             return SetupField(field, configVar, new ConfigVarColorBinding(field, configVar, sharedStatic));
         }
 
-        private static BaseField<T> SetupField<T>(BaseField<T> field, ConfigVarAttribute configVar, IConfigVarBinding<T> binding)
-        {
+        private static BaseField<T> SetupField<T>(BaseField<T> field,
+            ConfigVarAttribute configVar,
+            IConfigVarBinding<T> binding) {
             field.binding = binding;
             field.label = configVar.Name;
             field.tooltip = configVar.Description;
@@ -148,22 +135,18 @@ namespace BovineLabs.Core.Editor.ConfigVars
             return field;
         }
 
-        private static void UpdateState(VisualElement field, ConfigVarAttribute configVar, bool isPlaying)
-        {
+        private static void UpdateState(VisualElement field, ConfigVarAttribute configVar, bool isPlaying) {
             var isEnabled = !configVar.IsReadOnly || !isPlaying;
             field.SetEnabled(isEnabled);
         }
 
-        private void OnPlayModeStateChanged(PlayModeStateChange state)
-        {
-            if (state is not (PlayModeStateChange.EnteredEditMode or PlayModeStateChange.EnteredPlayMode))
-            {
+        private void OnPlayModeStateChanged(PlayModeStateChange state) {
+            if (state is not (PlayModeStateChange.EnteredEditMode or PlayModeStateChange.EnteredPlayMode)) {
                 return;
             }
 
             var isPlaying = EditorApplication.isPlaying;
-            foreach (var (configVar, field) in this.Fields)
-            {
+            foreach (var (configVar, field) in this.Fields) {
                 UpdateState(field, configVar, isPlaying);
             }
         }

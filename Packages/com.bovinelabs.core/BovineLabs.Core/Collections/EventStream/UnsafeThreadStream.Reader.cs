@@ -2,33 +2,25 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using Unity.Collections.LowLevel.Unsafe;
 
-    public unsafe partial struct UnsafeThreadStream
-    {
+    public unsafe partial struct UnsafeThreadStream {
         /// <summary>
         /// </summary>
-        public struct Reader : INativeStreamReader
-        {
-            [NativeDisableUnsafePtrRestriction]
-            internal UnsafeThreadStreamBlockData* m_BlockStream;
+        public struct Reader : INativeStreamReader {
+            [NativeDisableUnsafePtrRestriction] internal UnsafeThreadStreamBlockData* m_BlockStream;
 
-            [NativeDisableUnsafePtrRestriction]
-            internal UnsafeThreadStreamBlock* m_CurrentBlock;
+            [NativeDisableUnsafePtrRestriction] internal UnsafeThreadStreamBlock* m_CurrentBlock;
 
-            [NativeDisableUnsafePtrRestriction]
-            internal byte* m_CurrentPtr;
+            [NativeDisableUnsafePtrRestriction] internal byte* m_CurrentPtr;
 
-            [NativeDisableUnsafePtrRestriction]
-            internal byte* m_CurrentBlockEnd;
+            [NativeDisableUnsafePtrRestriction] internal byte* m_CurrentBlockEnd;
 
             internal int m_RemainingItemCount;
             internal int m_LastBlockSize;
 
-            internal Reader(ref UnsafeThreadStream stream)
-            {
+            internal Reader(ref UnsafeThreadStream stream) {
                 this.m_BlockStream = stream.blockData;
                 this.m_CurrentBlock = null;
                 this.m_CurrentPtr = null;
@@ -41,13 +33,13 @@ namespace BovineLabs.Core.Collections
             /// <param name="foreachIndex"> </param>
             /// <remarks> BeginForEachIndex must always be called balanced by a EndForEachIndex. </remarks>
             /// <returns> The number of elements at this index. </returns>
-            public int BeginForEachIndex(int foreachIndex)
-            {
+            public int BeginForEachIndex(int foreachIndex) {
                 this.m_RemainingItemCount = this.m_BlockStream->Ranges[foreachIndex].ElementCount;
                 this.m_LastBlockSize = this.m_BlockStream->Ranges[foreachIndex].LastOffset;
 
                 this.m_CurrentBlock = this.m_BlockStream->Ranges[foreachIndex].Block;
-                this.m_CurrentPtr = (byte*)this.m_CurrentBlock + this.m_BlockStream->Ranges[foreachIndex].OffsetInFirstBlock;
+                this.m_CurrentPtr = (byte*)this.m_CurrentBlock +
+                                    this.m_BlockStream->Ranges[foreachIndex].OffsetInFirstBlock;
                 this.m_CurrentBlockEnd = (byte*)this.m_CurrentBlock + UnsafeThreadStreamBlockData.AllocationSize;
 
                 return this.m_RemainingItemCount;
@@ -57,9 +49,7 @@ namespace BovineLabs.Core.Collections
             /// Ensures that all data has been read for the active iteration index.
             /// </summary>
             /// <remarks> EndForEachIndex must always be called balanced by a BeginForEachIndex. </remarks>
-            public void EndForEachIndex()
-            {
-            }
+            public void EndForEachIndex() { }
 
             /// <summary>
             /// Returns for each count.
@@ -76,15 +66,13 @@ namespace BovineLabs.Core.Collections
             /// </summary>
             /// <param name="size"> Size in bytes. </param>
             /// <returns> Pointer to data. </returns>
-            public byte* ReadUnsafePtr(int size)
-            {
+            public byte* ReadUnsafePtr(int size) {
                 this.m_RemainingItemCount--;
 
                 var ptr = this.m_CurrentPtr;
                 this.m_CurrentPtr += size;
 
-                if (this.m_CurrentPtr > this.m_CurrentBlockEnd)
-                {
+                if (this.m_CurrentPtr > this.m_CurrentBlockEnd) {
                     this.m_CurrentBlock = this.m_CurrentBlock->Next;
                     this.m_CurrentPtr = this.m_CurrentBlock->Data;
 
@@ -103,8 +91,7 @@ namespace BovineLabs.Core.Collections
             /// <typeparam name="T"> The type of value. </typeparam>
             /// <returns> Reference to data. </returns>
             public ref T Read<T>()
-                where T : unmanaged
-            {
+                where T : unmanaged {
                 var size = UnsafeUtility.SizeOf<T>();
                 return ref UnsafeUtility.AsRef<T>(this.ReadUnsafePtr(size));
             }
@@ -115,13 +102,11 @@ namespace BovineLabs.Core.Collections
             /// <typeparam name="T"> The type of value. </typeparam>
             /// <returns> Reference to data. </returns>
             public ref T Peek<T>()
-                where T : struct
-            {
+                where T : struct {
                 var size = UnsafeUtility.SizeOf<T>();
 
                 var ptr = this.m_CurrentPtr;
-                if (ptr + size > this.m_CurrentBlockEnd)
-                {
+                if (ptr + size > this.m_CurrentBlockEnd) {
                     ptr = this.m_CurrentBlock->Next->Data;
                 }
 
@@ -132,11 +117,9 @@ namespace BovineLabs.Core.Collections
             /// The current number of items in the container.
             /// </summary>
             /// <returns> The item count. </returns>
-            public int Count()
-            {
+            public int Count() {
                 var itemCount = 0;
-                for (var i = 0; i != UnsafeThreadStream.ForEachCount; i++)
-                {
+                for (var i = 0; i != UnsafeThreadStream.ForEachCount; i++) {
                     itemCount += this.m_BlockStream->Ranges[i].ElementCount;
                 }
 
@@ -146,20 +129,17 @@ namespace BovineLabs.Core.Collections
             /// <summary> Read a chunk of memory that could have been larger than the max allocation size. </summary>
             /// <param name="buffer"> A buffer to write back to. </param>
             /// <param name="size"> For an array, this is UnsafeUtility.SizeOf{T} * length. </param>
-            public void ReadLarge(byte* buffer, int size)
-            {
+            public void ReadLarge(byte* buffer, int size) {
                 var allocationCount = size / MaxLargeSize;
                 var allocationRemainder = size % MaxLargeSize;
 
                 // Write the remainder first as this helps avoid an extra chunk allocation most times
-                if (allocationRemainder > 0)
-                {
+                if (allocationRemainder > 0) {
                     var ptr = this.ReadUnsafePtr(allocationRemainder);
                     UnsafeUtility.MemCpy(buffer + (allocationCount * MaxLargeSize), ptr, allocationRemainder);
                 }
 
-                for (var i = 0; i < allocationCount; i++)
-                {
+                for (var i = 0; i < allocationCount; i++) {
                     var ptr = this.ReadUnsafePtr(MaxLargeSize);
                     UnsafeUtility.MemCpy(buffer + (i * MaxLargeSize), ptr, MaxLargeSize);
                 }
@@ -170,22 +150,19 @@ namespace BovineLabs.Core.Collections
             /// <param name="length"> The number of elements. </param>
             /// <typeparam name="T"> The element type to read. </typeparam>
             public void ReadLarge<T>(byte* buffer, int length)
-                where T : unmanaged
-            {
+                where T : unmanaged {
                 var size = sizeof(T) * length;
 
                 var allocationCount = size / MaxLargeSize;
                 var allocationRemainder = size % MaxLargeSize;
 
                 // Write the remainder first as this helps avoid an extra chunk allocation most times
-                if (allocationRemainder > 0)
-                {
+                if (allocationRemainder > 0) {
                     var ptr = this.ReadUnsafePtr(allocationRemainder);
                     UnsafeUtility.MemCpy(buffer + (allocationCount * MaxLargeSize), ptr, allocationRemainder);
                 }
 
-                for (var i = 0; i < allocationCount; i++)
-                {
+                for (var i = 0; i < allocationCount; i++) {
                     var ptr = this.ReadUnsafePtr(MaxLargeSize);
                     UnsafeUtility.MemCpy(buffer + (i * MaxLargeSize), ptr, MaxLargeSize);
                 }

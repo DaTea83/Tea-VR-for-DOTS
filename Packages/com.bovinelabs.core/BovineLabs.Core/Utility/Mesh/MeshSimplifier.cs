@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Utility
-{
+namespace BovineLabs.Core.Utility {
     using System;
     using System.Runtime.CompilerServices;
     using BovineLabs.Core.Extensions;
@@ -15,15 +14,12 @@ namespace BovineLabs.Core.Utility
     using UnityEngine.Rendering;
 
     [BurstCompile]
-    public static class MeshSimplifier
-    {
+    public static class MeshSimplifier {
         private const int TriangleEdgeCount = 3;
         private const int TriangleVertexCount = 3;
 
-        public static Result Simplify(Mesh mesh, Options options, Allocator allocator = Allocator.Temp)
-        {
-            if (mesh.subMeshCount > 1)
-            {
+        public static Result Simplify(Mesh mesh, Options options, Allocator allocator = Allocator.Temp) {
+            if (mesh.subMeshCount > 1) {
                 Debug.LogWarning("Only supports single sub mesh");
             }
 
@@ -33,16 +29,17 @@ namespace BovineLabs.Core.Utility
             return Simplify(vertices, tris, options, allocator);
         }
 
-        public static Result Simplify(Vector3[] verts, int[] tris, Options options, Allocator allocator = Allocator.Temp)
-        {
+        public static Result Simplify(Vector3[] verts,
+            int[] tris,
+            Options options,
+            Allocator allocator = Allocator.Temp) {
             var trisCount = tris.Length / TriangleVertexCount;
 
             var triangles = new NativeList<Triangle>(trisCount, allocator);
             triangles.ResizeUninitialized(trisCount);
             var trisArr = triangles.AsArray();
 
-            for (var j = 0; j < trisCount; j++)
-            {
+            for (var j = 0; j < trisCount; j++) {
                 var offset = j * 3;
                 var v0 = tris[offset];
                 var v1 = tris[offset + 1];
@@ -53,13 +50,11 @@ namespace BovineLabs.Core.Utility
 
             var vertices = new NativeList<Vertex>(verts.Length, allocator);
             vertices.ResizeUninitialized(verts.Length);
-            for (var i = 0; i < verts.Length; i++)
-            {
+            for (var i = 0; i < verts.Length; i++) {
                 vertices[i] = new Vertex(i, (float3)verts[i]);
             }
 
-            var result = new Result
-            {
+            var result = new Result {
                 Vertices = vertices,
                 Triangles = triangles,
             };
@@ -69,16 +64,17 @@ namespace BovineLabs.Core.Utility
             return result;
         }
 
-        public static Result Simplify(NativeArray<Vector3> verts, NativeArray<int> tris, Options options, Allocator allocator = Allocator.Temp)
-        {
+        public static Result Simplify(NativeArray<Vector3> verts,
+            NativeArray<int> tris,
+            Options options,
+            Allocator allocator = Allocator.Temp) {
             var triangles = new NativeList<Triangle>(tris.Length, allocator);
             triangles.ResizeUninitialized(tris.Length);
 
             var trisArr = triangles.AsArray();
 
             var subMeshTriangleCount = tris.Length / TriangleVertexCount;
-            for (var j = 0; j < subMeshTriangleCount; j++)
-            {
+            for (var j = 0; j < subMeshTriangleCount; j++) {
                 var offset = j * 3;
                 var v0 = tris[offset];
                 var v1 = tris[offset + 1];
@@ -89,13 +85,11 @@ namespace BovineLabs.Core.Utility
 
             var vertices = new NativeList<Vertex>(verts.Length, allocator);
             vertices.ResizeUninitialized(verts.Length);
-            for (var i = 0; i < verts.Length; i++)
-            {
+            for (var i = 0; i < verts.Length; i++) {
                 vertices[i] = new Vertex(i, (float3)verts[i]);
             }
 
-            var result = new Result
-            {
+            var result = new Result {
                 Vertices = vertices,
                 Triangles = triangles,
             };
@@ -106,8 +100,7 @@ namespace BovineLabs.Core.Utility
         }
 
         [BurstCompile(CompileSynchronously = true)]
-        private static void Simplify(ref Result result, ref Options options, in Allocator allocator)
-        {
+        private static void Simplify(ref Result result, ref Options options, in Allocator allocator) {
             var refs = new NativeList<Ref>(allocator);
 
             options.Quality = math.clamp(options.Quality, 0, 1);
@@ -120,24 +113,20 @@ namespace BovineLabs.Core.Utility
             var startTrisCount = triangleCount;
             var targetTrisCount = (int)math.round(triangleCount * options.Quality);
 
-            for (var iteration = 0; iteration < options.MaxIterationCount; iteration++)
-            {
-                if (startTrisCount - deletedTris <= targetTrisCount)
-                {
+            for (var iteration = 0; iteration < options.MaxIterationCount; iteration++) {
+                if (startTrisCount - deletedTris <= targetTrisCount) {
                     break;
                 }
 
                 // Update mesh once in a while
-                if (iteration % 5 == 0)
-                {
+                if (iteration % 5 == 0) {
                     UpdateMesh(ref result, ref refs, iteration);
                     triangles = result.Triangles.AsArray();
                     triangleCount = result.Triangles.Length;
                 }
 
                 // Clear dirty flag
-                for (var i = 0; i < triangleCount; i++)
-                {
+                for (var i = 0; i < triangleCount; i++) {
                     triangles.ElementAt(i).Dirty = false;
                 }
 
@@ -148,7 +137,8 @@ namespace BovineLabs.Core.Utility
                 var threshold = 0.000000001 * math.pow(iteration + 3, options.Agressiveness);
 
                 // Remove vertices & mark deleted triangles
-                RemoveVertexPass(ref result, ref refs, startTrisCount, targetTrisCount, threshold, deleted0, deleted1, ref deletedTris);
+                RemoveVertexPass(ref result, ref refs, startTrisCount, targetTrisCount, threshold, deleted0, deleted1,
+                    ref deletedTris);
             }
 
             CompactMesh(ref result);
@@ -162,8 +152,7 @@ namespace BovineLabs.Core.Utility
         /// Compact triangles, compute edge error and build reference list.
         /// </summary>
         /// <param name="iteration"> The iteration index. </param>
-        private static void UpdateMesh(ref Result result, ref NativeList<Ref> refs, int iteration)
-        {
+        private static void UpdateMesh(ref Result result, ref NativeList<Ref> refs, int iteration) {
             var triangles = result.Triangles.AsArray();
             var vertices = result.Vertices.AsArray();
 
@@ -172,12 +161,9 @@ namespace BovineLabs.Core.Utility
             if (iteration > 0) // compact triangles
             {
                 var dst = 0;
-                for (var i = 0; i < triangleCount; i++)
-                {
-                    if (!triangles[i].Deleted)
-                    {
-                        if (dst != i)
-                        {
+                for (var i = 0; i < triangleCount; i++) {
+                    if (!triangles[i].Deleted) {
+                        if (dst != i) {
                             triangles[dst] = triangles[i];
                             triangles.ElementAt(dst).Index = dst;
                         }
@@ -194,23 +180,20 @@ namespace BovineLabs.Core.Utility
             UpdateReferences(ref result, ref refs);
 
             // Identify boundary : vertices[].border=0,1
-            if (iteration == 0)
-            {
+            if (iteration == 0) {
                 var refArr = refs.AsArray();
 
                 var vcount = new NativeList<int>(8, Allocator.Temp); // TODO reuse
                 var vids = new NativeList<int>(8, Allocator.Temp);
                 int vsize;
-                for (var i = 0; i < vertexCount; i++)
-                {
+                for (var i = 0; i < vertexCount; i++) {
                     ref var v = ref vertices.ElementAt(i);
                     v.BorderEdge = false;
                     v.UVSeamEdge = false;
                     v.UVFoldoverEdge = false;
                 }
 
-                for (var i = 0; i < vertexCount; i++)
-                {
+                for (var i = 0; i < vertexCount; i++) {
                     var tstart = vertices[i].TStart;
                     var tcount = vertices[i].Tcount;
                     vcount.Clear();
@@ -218,40 +201,32 @@ namespace BovineLabs.Core.Utility
                     vsize = 0;
 
                     int id;
-                    for (var j = 0; j < tcount; j++)
-                    {
+                    for (var j = 0; j < tcount; j++) {
                         var tid = refArr[tstart + j].TId;
-                        for (var k = 0; k < TriangleVertexCount; k++)
-                        {
+                        for (var k = 0; k < TriangleVertexCount; k++) {
                             var ofs = 0;
                             id = triangles[tid][k];
-                            while (ofs < vsize)
-                            {
-                                if (vids[ofs] == id)
-                                {
+                            while (ofs < vsize) {
+                                if (vids[ofs] == id) {
                                     break;
                                 }
 
                                 ++ofs;
                             }
 
-                            if (ofs == vsize)
-                            {
+                            if (ofs == vsize) {
                                 vcount.Add(1);
                                 vids.Add(id);
                                 ++vsize;
                             }
-                            else
-                            {
+                            else {
                                 ++vcount[ofs];
                             }
                         }
                     }
 
-                    for (var j = 0; j < vsize; j++)
-                    {
-                        if (vcount[j] == 1)
-                        {
+                    for (var j = 0; j < vsize; j++) {
+                        if (vcount[j] == 1) {
                             id = vids[j];
                             vertices.ElementAt(id).BorderEdge = true;
                         }
@@ -263,13 +238,11 @@ namespace BovineLabs.Core.Utility
                 // required at the beginning ( iteration == 0 )
                 // recomputing during the simplification is not required,
                 // but mostly improves the result for closed meshes
-                for (var i = 0; i < vertexCount; i++)
-                {
+                for (var i = 0; i < vertexCount; i++) {
                     vertices.ElementAt(i).Q = default;
                 }
 
-                for (var i = 0; i < triangleCount; i++)
-                {
+                for (var i = 0; i < triangleCount; i++) {
                     var v = triangles[i].V;
 
                     var p0 = vertices[v.x].P;
@@ -287,15 +260,17 @@ namespace BovineLabs.Core.Utility
                     vertices.ElementAt(v.z).Q += sm;
                 }
 
-                for (var i = 0; i < triangleCount; i++)
-                {
+                for (var i = 0; i < triangleCount; i++) {
                     // Calc Edge Error
                     // var triangle = triangles[i];
                     ref var triangle = ref triangles.ElementAt(i);
 
-                    var err0 = CalculateError(ref vertices.ElementAt(triangle.V.x), ref vertices.ElementAt(triangle.V.y), out _);
-                    var err1 = CalculateError(ref vertices.ElementAt(triangle.V.y), ref vertices.ElementAt(triangle.V.z), out _);
-                    var err2 = CalculateError(ref vertices.ElementAt(triangle.V.z), ref vertices.ElementAt(triangle.V.x), out _);
+                    var err0 = CalculateError(ref vertices.ElementAt(triangle.V.x),
+                        ref vertices.ElementAt(triangle.V.y), out _);
+                    var err1 = CalculateError(ref vertices.ElementAt(triangle.V.y),
+                        ref vertices.ElementAt(triangle.V.z), out _);
+                    var err2 = CalculateError(ref vertices.ElementAt(triangle.V.z),
+                        ref vertices.ElementAt(triangle.V.x), out _);
 
                     triangle.Err0 = err0;
                     triangle.Err1 = err1;
@@ -306,26 +281,27 @@ namespace BovineLabs.Core.Utility
         }
 
         private static void RemoveVertexPass(
-            ref Result result, ref NativeList<Ref> refs, int startTrisCount, int targetTrisCount, double threshold, NativeList<bool> deleted0,
-            NativeList<bool> deleted1, ref int deletedTris)
-        {
+            ref Result result,
+            ref NativeList<Ref> refs,
+            int startTrisCount,
+            int targetTrisCount,
+            double threshold,
+            NativeList<bool> deleted0,
+            NativeList<bool> deleted1,
+            ref int deletedTris) {
             var triangles = result.Triangles.AsArray();
             var triangleCount = result.Triangles.Length;
             var vertices = result.Vertices.AsArray();
 
-            for (var tid = 0; tid < triangleCount; tid++)
-            {
-                if (triangles[tid].Dirty || triangles[tid].Deleted || triangles[tid].Err3 > threshold)
-                {
+            for (var tid = 0; tid < triangleCount; tid++) {
+                if (triangles[tid].Dirty || triangles[tid].Deleted || triangles[tid].Err3 > threshold) {
                     continue;
                 }
 
                 var errArr = triangles[tid].GetErrors();
                 var attributeIndexArr = triangles[tid].GetAttributeIndices();
-                for (var edgeIndex = 0; edgeIndex < TriangleEdgeCount; edgeIndex++)
-                {
-                    if (errArr[edgeIndex] > threshold)
-                    {
+                for (var edgeIndex = 0; edgeIndex < TriangleEdgeCount; edgeIndex++) {
+                    if (errArr[edgeIndex] > threshold) {
                         continue;
                     }
 
@@ -334,20 +310,17 @@ namespace BovineLabs.Core.Utility
                     var i1 = triangles[tid][nextEdgeIndex];
 
                     // Border check
-                    if (vertices[i0].BorderEdge != vertices[i1].BorderEdge)
-                    {
+                    if (vertices[i0].BorderEdge != vertices[i1].BorderEdge) {
                         continue;
                     }
 
                     // Seam check
-                    if (vertices[i0].UVSeamEdge != vertices[i1].UVSeamEdge)
-                    {
+                    if (vertices[i0].UVSeamEdge != vertices[i1].UVSeamEdge) {
                         continue;
                     }
 
                     // Foldover check
-                    if (vertices[i0].UVFoldoverEdge != vertices[i1].UVFoldoverEdge)
-                    {
+                    if (vertices[i0].UVFoldoverEdge != vertices[i1].UVFoldoverEdge) {
                         continue;
                     }
 
@@ -369,13 +342,11 @@ namespace BovineLabs.Core.Utility
                     deleted1.Resize(vertices[i1].Tcount, NativeArrayOptions.UninitializedMemory); // normals temporarily
 
                     // Don't remove if flipped
-                    if (Flipped(ref result, ref refs, ref p, i0, i1, ref vertices.ElementAt(i0), deleted0.AsArray()))
-                    {
+                    if (Flipped(ref result, ref refs, ref p, i0, i1, ref vertices.ElementAt(i0), deleted0.AsArray())) {
                         continue;
                     }
 
-                    if (Flipped(ref result, ref refs, ref p, i1, i0, ref vertices.ElementAt(i1), deleted1.AsArray()))
-                    {
+                    if (Flipped(ref result, ref refs, ref p, i1, i0, ref vertices.ElementAt(i1), deleted1.AsArray())) {
                         continue;
                     }
 
@@ -386,22 +357,21 @@ namespace BovineLabs.Core.Utility
                     // Interpolate the vertex attributes
                     var ia0 = attributeIndexArr[edgeIndex];
 
-                    if (vertices[i0].UVSeamEdge)
-                    {
+                    if (vertices[i0].UVSeamEdge) {
                         ia0 = -1;
                     }
 
                     var tstart = refs.Length;
 
-                    UpdateTriangles(ref result, ref refs, i0, ia0, ref vertices.ElementAt(i0), deleted0, ref deletedTris);
-                    UpdateTriangles(ref result, ref refs, i0, ia0, ref vertices.ElementAt(i1), deleted1, ref deletedTris);
+                    UpdateTriangles(ref result, ref refs, i0, ia0, ref vertices.ElementAt(i0), deleted0,
+                        ref deletedTris);
+                    UpdateTriangles(ref result, ref refs, i0, ia0, ref vertices.ElementAt(i1), deleted1,
+                        ref deletedTris);
 
                     var tcount = refs.Length - tstart;
-                    if (tcount <= vertices[i0].Tcount)
-                    {
+                    if (tcount <= vertices[i0].Tcount) {
                         // save ram
-                        if (tcount > 0)
-                        {
+                        if (tcount > 0) {
                             var refsArr = refs.AsArray();
 
                             // TODO does this need a memmove?
@@ -409,15 +379,14 @@ namespace BovineLabs.Core.Utility
                             var dst = refsArr.GetSubArray(vertices[i0].TStart, tcount);
                             // refsArr.GetSubArray(tstart, tcount).CopyTo(refsArr.GetSubArray(vertices[i0].tstart, tcount));
 
-                            unsafe
-                            {
+                            unsafe {
                                 // TODO pretty sure this is safe but need to confirm MemMove isn't required
-                                UnsafeUtility.MemCpy(dst.GetUnsafePtr(), src.GetUnsafeReadOnlyPtr(), tcount * sizeof(Ref));
+                                UnsafeUtility.MemCpy(dst.GetUnsafePtr(), src.GetUnsafeReadOnlyPtr(),
+                                    tcount * sizeof(Ref));
                             }
                         }
                     }
-                    else
-                    {
+                    else {
                         // append
                         vertices.ElementAt(i0).TStart = tstart;
                     }
@@ -427,48 +396,40 @@ namespace BovineLabs.Core.Utility
                 }
 
                 // Check if we are already done
-                if (startTrisCount - deletedTris <= targetTrisCount)
-                {
+                if (startTrisCount - deletedTris <= targetTrisCount) {
                     break;
                 }
             }
         }
 
-        private static void CompactMesh(ref Result result)
-        {
+        private static void CompactMesh(ref Result result) {
             var dst = 0;
             var vertices = result.Vertices.AsArray();
             var vertexCount = result.Vertices.Length;
-            for (var i = 0; i < vertexCount; i++)
-            {
+            for (var i = 0; i < vertexCount; i++) {
                 vertices.ElementAt(i).Tcount = 0;
             }
 
             var triangles = result.Triangles.AsArray();
             var triangleCount = result.Triangles.Length;
-            for (var i = 0; i < triangleCount; i++)
-            {
+            for (var i = 0; i < triangleCount; i++) {
                 var triangle = triangles[i];
-                if (!triangle.Deleted)
-                {
-                    if (triangle.Va.x != triangle.V.x)
-                    {
+                if (!triangle.Deleted) {
+                    if (triangle.Va.x != triangle.V.x) {
                         var iDest = triangle.Va.x;
                         var iSrc = triangle.V.x;
                         vertices.ElementAt(iDest).P = vertices[iSrc].P;
                         triangle.V.x = triangle.Va.x;
                     }
 
-                    if (triangle.Va.y != triangle.V.y)
-                    {
+                    if (triangle.Va.y != triangle.V.y) {
                         var iDest = triangle.Va.y;
                         var iSrc = triangle.V.y;
                         vertices.ElementAt(iDest).P = vertices[iSrc].P;
                         triangle.V.y = triangle.Va.y;
                     }
 
-                    if (triangle.Va.z != triangle.V.z)
-                    {
+                    if (triangle.Va.z != triangle.V.z) {
                         var iDest = triangle.Va.z;
                         var iSrc = triangle.V.z;
                         vertices.ElementAt(iDest).P = vertices[iSrc].P;
@@ -491,15 +452,12 @@ namespace BovineLabs.Core.Utility
             triangles = result.Triangles.AsArray();
 
             dst = 0;
-            for (var i = 0; i < vertexCount; i++)
-            {
+            for (var i = 0; i < vertexCount; i++) {
                 var vert = vertices[i];
-                if (vert.Tcount > 0)
-                {
+                if (vert.Tcount > 0) {
                     vertices.ElementAt(i).TStart = dst;
 
-                    if (dst != i)
-                    {
+                    if (dst != i) {
                         vertices.ElementAt(dst).Index = dst;
                         vertices.ElementAt(dst).P = vert.P;
                     }
@@ -508,8 +466,7 @@ namespace BovineLabs.Core.Utility
                 }
             }
 
-            for (var i = 0; i < triangleCount; i++)
-            {
+            for (var i = 0; i < triangleCount; i++) {
                 var triangle = triangles[i];
                 triangle.V.x = vertices[triangle.V.x].TStart;
                 triangle.V.y = vertices[triangle.V.y].TStart;
@@ -521,31 +478,27 @@ namespace BovineLabs.Core.Utility
             result.Vertices.Resize(vertexCount, NativeArrayOptions.UninitializedMemory);
         }
 
-        private static void UpdateReferences(ref Result result, ref NativeList<Ref> refs)
-        {
+        private static void UpdateReferences(ref Result result, ref NativeList<Ref> refs) {
             var triangleCount = result.Triangles.Length;
             var vertexCount = result.Vertices.Length;
             var triangles = result.Triangles.AsArray();
             var vertices = result.Vertices.AsArray();
 
             // Init Reference ID list
-            for (var i = 0; i < vertexCount; i++)
-            {
+            for (var i = 0; i < vertexCount; i++) {
                 ref var v = ref vertices.ElementAt(i);
                 v.TStart = 0;
                 v.Tcount = 0;
             }
 
-            for (var i = 0; i < triangleCount; i++)
-            {
+            for (var i = 0; i < triangleCount; i++) {
                 ++vertices.ElementAt(triangles[i].V.x).Tcount;
                 ++vertices.ElementAt(triangles[i].V.y).Tcount;
                 ++vertices.ElementAt(triangles[i].V.z).Tcount;
             }
 
             var tstart = 0;
-            for (var i = 0; i < vertexCount; i++)
-            {
+            for (var i = 0; i < vertexCount; i++) {
                 ref var v = ref vertices.ElementAt(i);
                 v.TStart = tstart;
                 tstart += v.Tcount;
@@ -555,8 +508,7 @@ namespace BovineLabs.Core.Utility
             // Write References
             refs.ResizeUninitialized(tstart);
             var refArr = refs.AsArray();
-            for (var i = 0; i < triangleCount; i++)
-            {
+            for (var i = 0; i < triangleCount; i++) {
                 var v = triangles[i].V;
 
                 ref var v0 = ref vertices.ElementAt(v.x);
@@ -576,15 +528,13 @@ namespace BovineLabs.Core.Utility
             }
         }
 
-        private static double CalculateError(ref Vertex vert0, ref Vertex vert1, out double3 result)
-        {
+        private static double CalculateError(ref Vertex vert0, ref Vertex vert1, out double3 result) {
             // compute interpolated vertex
             var q = vert0.Q + vert1.Q;
             var borderEdge = vert0.BorderEdge && vert1.BorderEdge;
             double error;
             var det = q.Determinant1();
-            if (det != 0.0 && !borderEdge)
-            {
+            if (det != 0.0 && !borderEdge) {
                 // q_delta is invertible
                 result = new double3((-1.0 / det) * q.Determinant2(), // vx = A41/det(q_delta)
                     (1.0 / det) * q.Determinant3(), // vy = A42/det(q_delta)
@@ -598,8 +548,7 @@ namespace BovineLabs.Core.Utility
 
                 error = VertexError(ref q, result.x, result.y, result.z); // + curvatureError;
             }
-            else
-            {
+            else {
                 // det = 0 -> try to find best result
                 var p1 = vert0.P;
                 var p2 = vert1.P;
@@ -608,26 +557,21 @@ namespace BovineLabs.Core.Utility
                 var error2 = VertexError(ref q, p2.x, p2.y, p2.z);
                 var error3 = VertexError(ref q, p3.x, p3.y, p3.z);
 
-                if (error1 < error2)
-                {
-                    if (error1 < error3)
-                    {
+                if (error1 < error2) {
+                    if (error1 < error3) {
                         error = error1;
                         result = p1;
                     }
-                    else
-                    {
+                    else {
                         error = error3;
                         result = p3;
                     }
                 }
-                else if (error2 < error3)
-                {
+                else if (error2 < error3) {
                     error = error2;
                     result = p2;
                 }
-                else
-                {
+                else {
                     error = error3;
                     result = p3;
                 }
@@ -636,39 +580,40 @@ namespace BovineLabs.Core.Utility
             return error;
         }
 
-        private static double VertexError(ref SymmetricMatrix q, double x, double y, double z)
-        {
+        private static double VertexError(ref SymmetricMatrix q, double x, double y, double z) {
             return (q.M0 * x * x) +
-                (2 * q.M1 * x * y) +
-                (2 * q.M2 * x * z) +
-                (2 * q.M3 * x) +
-                (q.M4 * y * y) +
-                (2 * q.M5 * y * z) +
-                (2 * q.M6 * y) +
-                (q.M7 * z * z) +
-                (2 * q.M8 * z) +
-                q.M9;
+                   (2 * q.M1 * x * y) +
+                   (2 * q.M2 * x * z) +
+                   (2 * q.M3 * x) +
+                   (q.M4 * y * y) +
+                   (2 * q.M5 * y * z) +
+                   (2 * q.M6 * y) +
+                   (q.M7 * z * z) +
+                   (2 * q.M8 * z) +
+                   q.M9;
         }
 
-        private static bool Flipped(ref Result result, ref NativeList<Ref> refs, ref double3 p, int i0, int i1, ref Vertex v0, NativeArray<bool> deleted)
-        {
+        private static bool Flipped(ref Result result,
+            ref NativeList<Ref> refs,
+            ref double3 p,
+            int i0,
+            int i1,
+            ref Vertex v0,
+            NativeArray<bool> deleted) {
             var tcount = v0.Tcount;
             var refsArr = refs.AsArray();
             var triangles = result.Triangles.AsArray();
             var vertices = result.Vertices.AsArray();
-            for (var k = 0; k < tcount; k++)
-            {
+            for (var k = 0; k < tcount; k++) {
                 var r = refsArr[v0.TStart + k];
-                if (triangles[r.TId].Deleted)
-                {
+                if (triangles[r.TId].Deleted) {
                     continue;
                 }
 
                 var s = r.TVertex;
                 var id1 = triangles[r.TId][(s + 1) % 3];
                 var id2 = triangles[r.TId][(s + 2) % 3];
-                if (id1 == i1 || id2 == i1)
-                {
+                if (id1 == i1 || id2 == i1) {
                     deleted[k] = true;
                     continue;
                 }
@@ -678,8 +623,7 @@ namespace BovineLabs.Core.Utility
                 var d2 = vertices[id2].P - p;
                 d2 = math.normalizesafe(d2);
                 var dot = math.dot(d1, d2);
-                if (Math.Abs(dot) > 0.999)
-                {
+                if (Math.Abs(dot) > 0.999) {
                     return true;
                 }
 
@@ -687,8 +631,7 @@ namespace BovineLabs.Core.Utility
                 n = math.normalizesafe(n);
                 deleted[k] = false;
                 dot = math.dot(n, triangles[r.TId].N);
-                if (dot < 0.2)
-                {
+                if (dot < 0.2) {
                     return true;
                 }
             }
@@ -696,8 +639,11 @@ namespace BovineLabs.Core.Utility
             return false;
         }
 
-        private static void CalculateBarycentricCoords(ref double3 point, ref double3 a, ref double3 b, ref double3 c, out Vector3 result)
-        {
+        private static void CalculateBarycentricCoords(ref double3 point,
+            ref double3 a,
+            ref double3 b,
+            ref double3 c,
+            out Vector3 result) {
             const double denomEpilson = 0.00000001;
 
             var v0 = b - a;
@@ -711,8 +657,7 @@ namespace BovineLabs.Core.Utility
             var denom = (d00 * d11) - (d01 * d01);
 
             // Make sure the denominator is not too small to cause math problems
-            if (math.abs(denom) < denomEpilson)
-            {
+            if (math.abs(denom) < denomEpilson) {
                 denom = denomEpilson;
             }
 
@@ -723,31 +668,32 @@ namespace BovineLabs.Core.Utility
         }
 
         private static void UpdateTriangles(
-            ref Result result, ref NativeList<Ref> refs, int i0, int ia0, ref Vertex v, NativeList<bool> deleted, ref int deletedTriangles)
-        {
+            ref Result result,
+            ref NativeList<Ref> refs,
+            int i0,
+            int ia0,
+            ref Vertex v,
+            NativeList<bool> deleted,
+            ref int deletedTriangles) {
             var tcount = v.Tcount;
             var triangles = result.Triangles.AsArray();
             var vertices = result.Vertices.AsArray();
-            for (var k = 0; k < tcount; k++)
-            {
+            for (var k = 0; k < tcount; k++) {
                 var r = refs[v.TStart + k];
                 var tid = r.TId;
                 var t = triangles[tid];
-                if (t.Deleted)
-                {
+                if (t.Deleted) {
                     continue;
                 }
 
-                if (deleted[k])
-                {
+                if (deleted[k]) {
                     triangles.ElementAt(tid).Deleted = true;
                     ++deletedTriangles;
                     continue;
                 }
 
                 t[r.TVertex] = i0;
-                if (ia0 != -1)
-                {
+                if (ia0 != -1) {
                     t.SetAttributeIndex(r.TVertex, ia0);
                 }
 
@@ -762,8 +708,7 @@ namespace BovineLabs.Core.Utility
         }
 
         [Serializable]
-        public struct Options
-        {
+        public struct Options {
             public double Quality { get; set; }
 
             /// <summary>
@@ -771,70 +716,63 @@ namespace BovineLabs.Core.Utility
             /// Sometimes a lower maximum count might be desired in order to lower the performance cost.
             /// Default value: 100
             /// </summary>
-            [Tooltip("The maximum iteration count. Higher number is more expensive but can bring you closer to your target quality.")]
+            [Tooltip(
+                "The maximum iteration count. Higher number is more expensive but can bring you closer to your target quality.")]
             public int MaxIterationCount { get; set; }
 
             /// <summary>
             /// The agressiveness of the mesh simplification. Higher number equals higher quality, but more expensive to run.
             /// Default value: 7.0
             /// </summary>
-            [Tooltip("The agressiveness of the mesh simplification. Higher number equals higher quality, but more expensive to run.")]
+            [Tooltip(
+                "The agressiveness of the mesh simplification. Higher number equals higher quality, but more expensive to run.")]
             public double Agressiveness { get; set; }
 
-            public Options(double quality)
-            {
+            public Options(double quality) {
                 this.Quality = quality;
                 this.MaxIterationCount = 100;
                 this.Agressiveness = 7;
             }
         }
 
-        public struct Result : IDisposable
-        {
+        public struct Result : IDisposable {
             internal NativeList<Vertex> Vertices;
             internal NativeList<Triangle> Triangles;
 
-            public void Dispose()
-            {
+            public void Dispose() {
                 this.Vertices.Dispose();
                 this.Triangles.Dispose();
             }
 
-            public NativeArray<float3> GetVertices(Allocator allocator)
-            {
+            public NativeArray<float3> GetVertices(Allocator allocator) {
                 var vertexCount = this.Vertices.Length;
                 var vertices = new NativeArray<float3>(vertexCount, allocator);
                 var vertArr = this.Vertices.AsArray();
-                for (var i = 0; i < vertexCount; i++)
-                {
+                for (var i = 0; i < vertexCount; i++) {
                     vertices[i] = (float3)vertArr[i].P;
                 }
 
                 return vertices;
             }
 
-            public Vector3[] GetVertices()
-            {
+            public Vector3[] GetVertices() {
                 var vertexCount = this.Vertices.Length;
                 var vertices = new Vector3[vertexCount];
                 var vertArr = this.Vertices.AsArray();
-                for (var i = 0; i < vertexCount; i++)
-                {
+                for (var i = 0; i < vertexCount; i++) {
                     vertices[i] = (float3)vertArr[i].P;
                 }
 
                 return vertices;
             }
 
-            public NativeArray<int> GetIndices(Allocator allocator)
-            {
+            public NativeArray<int> GetIndices(Allocator allocator) {
                 var triangles = this.Triangles.AsArray();
                 var triangleCount = this.Triangles.Length;
 
                 var indices = new NativeArray<int>(triangleCount * 3, allocator);
 
-                for (var triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
-                {
+                for (var triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++) {
                     var triangle = triangles[triangleIndex];
                     var offset = triangleIndex * 3;
                     indices[offset] = triangle.V.x;
@@ -845,15 +783,13 @@ namespace BovineLabs.Core.Utility
                 return indices;
             }
 
-            public int[] GetIndices()
-            {
+            public int[] GetIndices() {
                 var triangles = this.Triangles.AsArray();
                 var triangleCount = this.Triangles.Length;
 
                 var indices = new int[triangleCount * 3];
 
-                for (var triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
-                {
+                for (var triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++) {
                     var triangle = triangles[triangleIndex];
                     var offset = triangleIndex * 3;
                     indices[offset] = triangle.V.x;
@@ -864,8 +800,7 @@ namespace BovineLabs.Core.Utility
                 return indices;
             }
 
-            public Mesh GetMesh(bool calculateBounds, bool calculateNormals)
-            {
+            public Mesh GetMesh(bool calculateBounds, bool calculateNormals) {
                 var vertices = this.GetVertices();
                 var indices = this.GetIndices();
 
@@ -873,13 +808,11 @@ namespace BovineLabs.Core.Utility
                 mesh.SetVertices(vertices);
                 mesh.SetIndices(indices, MeshTopology.Triangles, 0);
 
-                if (calculateNormals)
-                {
+                if (calculateNormals) {
                     mesh.RecalculateNormals();
                 }
 
-                if (calculateBounds)
-                {
+                if (calculateBounds) {
                     mesh.RecalculateBounds();
                 }
 
@@ -887,8 +820,7 @@ namespace BovineLabs.Core.Utility
             }
         }
 
-        internal struct Vertex : IEquatable<Vertex>
-        {
+        internal struct Vertex : IEquatable<Vertex> {
             public int Index;
             public double3 P;
             public int TStart;
@@ -899,8 +831,7 @@ namespace BovineLabs.Core.Utility
             public bool UVFoldoverEdge;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Vertex(int index, double3 p)
-            {
+            public Vertex(int index, double3 p) {
                 this.Index = index;
                 this.P = p;
                 this.TStart = 0;
@@ -911,19 +842,12 @@ namespace BovineLabs.Core.Utility
                 this.UVFoldoverEdge = false;
             }
 
-            public override int GetHashCode()
-            {
-                return this.Index;
-            }
+            public override int GetHashCode() { return this.Index; }
 
-            public bool Equals(Vertex other)
-            {
-                return this.Index == other.Index;
-            }
+            public bool Equals(Vertex other) { return this.Index == other.Index; }
         }
 
-        internal struct Triangle : IEquatable<Triangle>
-        {
+        internal struct Triangle : IEquatable<Triangle> {
             private const double Quantize = 1000000.0;
 
             public int Index;
@@ -940,34 +864,16 @@ namespace BovineLabs.Core.Utility
             private int err2;
             private int err3;
 
-            public double Err0
-            {
-                get => this.err0 / Quantize;
-                set => this.err0 = (int)(value * Quantize);
-            }
+            public double Err0 { get => this.err0 / Quantize; set => this.err0 = (int)(value * Quantize); }
 
-            public double Err1
-            {
-                get => this.err1 / Quantize;
-                set => this.err1 = (int)(value * Quantize);
-            }
+            public double Err1 { get => this.err1 / Quantize; set => this.err1 = (int)(value * Quantize); }
 
-            public double Err2
-            {
-                get => this.err2 / Quantize;
-                set => this.err2 = (int)(value * Quantize);
-            }
+            public double Err2 { get => this.err2 / Quantize; set => this.err2 = (int)(value * Quantize); }
 
-            public double Err3
-            {
-                get => this.err3 / Quantize;
-                set => this.err3 = (int)(value * Quantize);
-            }
+            public double Err3 { get => this.err3 / Quantize; set => this.err3 = (int)(value * Quantize); }
 
 
-
-            public int this[int index]
-            {
+            public int this[int index] {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => this.V[index];
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -975,8 +881,7 @@ namespace BovineLabs.Core.Utility
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Triangle(int index, int v0, int v1, int v2)
-            {
+            public Triangle(int index, int v0, int v1, int v2) {
                 this.Index = index;
 
                 this.V = new int3(v0, v1, v2);
@@ -987,41 +892,24 @@ namespace BovineLabs.Core.Utility
                 this.N = new float3();
             }
 
-            public int3 GetAttributeIndices()
-            {
-                return this.Va;
-            }
+            public int3 GetAttributeIndices() { return this.Va; }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void SetAttributeIndex(int index, int value)
-            {
-                this.Va[index] = value;
-            }
+            public void SetAttributeIndex(int index, int value) { this.Va[index] = value; }
 
-            public double3 GetErrors()
-            {
-                return new double3(this.Err0, this.Err1, this.Err2);
-            }
+            public double3 GetErrors() { return new double3(this.Err0, this.Err1, this.Err2); }
 
-            public override int GetHashCode()
-            {
-                return this.Index;
-            }
+            public override int GetHashCode() { return this.Index; }
 
-            public bool Equals(Triangle other)
-            {
-                return this.Index == other.Index;
-            }
+            public bool Equals(Triangle other) { return this.Index == other.Index; }
         }
 
-        internal struct Ref
-        {
+        internal struct Ref {
             public int TId;
             public int TVertex;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Set(int tid, int tvertex)
-            {
+            public void Set(int tid, int tvertex) {
                 this.TId = tid;
                 this.TVertex = tvertex;
             }
@@ -1029,8 +917,7 @@ namespace BovineLabs.Core.Utility
     }
 
     /// <summary> A symmetric matrix. </summary>
-    public readonly struct SymmetricMatrix
-    {
+    public readonly struct SymmetricMatrix {
         /// <summary> The m11 component. </summary>
         public readonly double M0;
 
@@ -1064,13 +951,10 @@ namespace BovineLabs.Core.Utility
         /// <summary> Gets the component value with a specific index. </summary>
         /// <param name="index"> The component index. </param>
         /// <returns> The value. </returns>
-        public double this[int index]
-        {
+        public double this[int index] {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return index switch
-                {
+            get {
+                return index switch {
                     0 => this.M0,
                     1 => this.M1,
                     2 => this.M2,
@@ -1098,8 +982,16 @@ namespace BovineLabs.Core.Utility
         /// <param name="m8"> The m34 component. </param>
         /// <param name="m9"> The m44 component. </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public SymmetricMatrix(double m0, double m1, double m2, double m3, double m4, double m5, double m6, double m7, double m8, double m9)
-        {
+        public SymmetricMatrix(double m0,
+            double m1,
+            double m2,
+            double m3,
+            double m4,
+            double m5,
+            double m6,
+            double m7,
+            double m8,
+            double m9) {
             this.M0 = m0;
             this.M1 = m1;
             this.M2 = m2;
@@ -1118,8 +1010,7 @@ namespace BovineLabs.Core.Utility
         /// <param name="c"> The plane z-component </param>
         /// <param name="d"> The plane w-component </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public SymmetricMatrix(double a, double b, double c, double d)
-        {
+        public SymmetricMatrix(double a, double b, double c, double d) {
             this.M0 = a * a;
             this.M1 = a * b;
             this.M2 = a * c;
@@ -1140,21 +1031,20 @@ namespace BovineLabs.Core.Utility
         /// <param name="b"> The right hand side. </param>
         /// <returns> The resulting matrix. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SymmetricMatrix operator +(SymmetricMatrix a, SymmetricMatrix b)
-        {
+        public static SymmetricMatrix operator +(SymmetricMatrix a, SymmetricMatrix b) {
             return new SymmetricMatrix(
-                a.M0 + b.M0, a.M1 + b.M1, a.M2 + b.M2, a.M3 + b.M3, a.M4 + b.M4, a.M5 + b.M5, a.M6 + b.M6, a.M7 + b.M7, a.M8 + b.M8, a.M9 + b.M9);
+                a.M0 + b.M0, a.M1 + b.M1, a.M2 + b.M2, a.M3 + b.M3, a.M4 + b.M4, a.M5 + b.M5, a.M6 + b.M6, a.M7 + b.M7,
+                a.M8 + b.M8, a.M9 + b.M9);
         }
 
         /// <summary> Determinant(0, 1, 2, 1, 4, 5, 2, 5, 7) </summary>
         /// <returns> </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal double Determinant1()
-        {
+        internal double Determinant1() {
             var det = ((this.M0 * this.M4 * this.M7) + (this.M2 * this.M1 * this.M5) + (this.M1 * this.M5 * this.M2)) -
-                (this.M2 * this.M4 * this.M2) -
-                (this.M0 * this.M5 * this.M5) -
-                (this.M1 * this.M1 * this.M7);
+                      (this.M2 * this.M4 * this.M2) -
+                      (this.M0 * this.M5 * this.M5) -
+                      (this.M1 * this.M1 * this.M7);
 
             return det;
         }
@@ -1162,12 +1052,11 @@ namespace BovineLabs.Core.Utility
         /// <summary> Determinant(1, 2, 3, 4, 5, 6, 5, 7, 8) </summary>
         /// <returns> </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal double Determinant2()
-        {
+        internal double Determinant2() {
             var det = ((this.M1 * this.M5 * this.M8) + (this.M3 * this.M4 * this.M7) + (this.M2 * this.M6 * this.M5)) -
-                (this.M3 * this.M5 * this.M5) -
-                (this.M1 * this.M6 * this.M7) -
-                (this.M2 * this.M4 * this.M8);
+                      (this.M3 * this.M5 * this.M5) -
+                      (this.M1 * this.M6 * this.M7) -
+                      (this.M2 * this.M4 * this.M8);
 
             return det;
         }
@@ -1175,12 +1064,11 @@ namespace BovineLabs.Core.Utility
         /// <summary> Determinant(0, 2, 3, 1, 5, 6, 2, 7, 8) </summary>
         /// <returns> </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal double Determinant3()
-        {
+        internal double Determinant3() {
             var det = ((this.M0 * this.M5 * this.M8) + (this.M3 * this.M1 * this.M7) + (this.M2 * this.M6 * this.M2)) -
-                (this.M3 * this.M5 * this.M2) -
-                (this.M0 * this.M6 * this.M7) -
-                (this.M2 * this.M1 * this.M8);
+                      (this.M3 * this.M5 * this.M2) -
+                      (this.M0 * this.M6 * this.M7) -
+                      (this.M2 * this.M1 * this.M8);
 
             return det;
         }
@@ -1188,12 +1076,11 @@ namespace BovineLabs.Core.Utility
         /// <summary> Determinant(0, 1, 3, 1, 4, 6, 2, 5, 8) </summary>
         /// <returns> </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal double Determinant4()
-        {
+        internal double Determinant4() {
             var det = ((this.M0 * this.M4 * this.M8) + (this.M3 * this.M1 * this.M5) + (this.M1 * this.M6 * this.M2)) -
-                (this.M3 * this.M4 * this.M2) -
-                (this.M0 * this.M6 * this.M5) -
-                (this.M1 * this.M1 * this.M8);
+                      (this.M3 * this.M4 * this.M2) -
+                      (this.M0 * this.M6 * this.M5) -
+                      (this.M1 * this.M1 * this.M8);
 
             return det;
         }

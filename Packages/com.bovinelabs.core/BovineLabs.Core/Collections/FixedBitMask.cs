@@ -2,16 +2,14 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System;
     using System.Diagnostics;
     using BovineLabs.Core.Utility;
     using Unity.Collections.LowLevel.Unsafe;
 
     public unsafe struct FixedBitMask<T>
-        where T : unmanaged, IFixedSize
-    {
+        where T : unmanaged, IFixedSize {
         private const int Idx = 3;
         private const int Shift = (1 << Idx) - 1;
 
@@ -23,12 +21,10 @@ namespace BovineLabs.Core.Collections
         /// <summary> Sets the value of a bit in the bitmask. </summary>
         /// <param name="pos"> The bit to set. </param>
         /// <param name="value"> The value to set it to. </param>
-        public void Set(int pos, bool value)
-        {
+        public void Set(int pos, bool value) {
             this.CheckArgs(pos, 1);
 
-            fixed (T* t = &this.data)
-            {
+            fixed (T* t = &this.data) {
                 var ptr = (byte*)t;
 
                 var idx = pos >> Idx;
@@ -43,12 +39,10 @@ namespace BovineLabs.Core.Collections
         /// <summary> Checks if a bit is set. </summary>
         /// <param name="pos"> The bit to change. </param>
         /// <returns> The value of the bit at pos. </returns>
-        public bool IsSet(int pos)
-        {
+        public bool IsSet(int pos) {
             this.CheckArgs(pos, 1);
 
-            fixed (T* t = &this.data)
-            {
+            fixed (T* t = &this.data) {
                 var ptr = (byte*)t;
 
                 var idx = pos >> Idx;
@@ -59,20 +53,17 @@ namespace BovineLabs.Core.Collections
         }
 
         /// <summary> Reset all bits in the bitmask. </summary>
-        public void Reset()
-        {
-            fixed (T* t = &this.data)
-            {
+        public void Reset() {
+            fixed (T* t = &this.data) {
                 UnsafeUtility.MemClear(t, UnsafeUtility.SizeOf<T>());
             }
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        private void CheckArgs(int pos, int numBits)
-        {
-            if (pos < 0 || pos >= this.Length || numBits < 1)
-            {
-                throw new ArgumentException($"BitArray invalid arguments: pos {pos} (must be 0-{this.Length}), numBits {numBits} (must be greater than 0).");
+        private void CheckArgs(int pos, int numBits) {
+            if (pos < 0 || pos >= this.Length || numBits < 1) {
+                throw new ArgumentException(
+                    $"BitArray invalid arguments: pos {pos} (must be 0-{this.Length}), numBits {numBits} (must be greater than 0).");
             }
         }
     }

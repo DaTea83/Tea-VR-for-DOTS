@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Component
-{
+namespace BovineLabs.Core.Editor.Component {
     using System;
     using System.Collections.Generic;
     using System.Reflection;
@@ -13,8 +12,7 @@ namespace BovineLabs.Core.Editor.Component
     using UnityEngine.UIElements;
 
     [CustomEditor(typeof(ComponentFieldAsset))]
-    public class ComponentFieldAssetEditor : ElementEditor
-    {
+    public class ComponentFieldAssetEditor : ElementEditor {
         private readonly List<string> fieldNames = new();
 
         private SerializedProperty? componentProperty;
@@ -24,10 +22,8 @@ namespace BovineLabs.Core.Editor.Component
         private DropdownField? fieldNameField;
 
         /// <inheritdoc/>
-        protected override VisualElement? CreateElement(SerializedProperty property)
-        {
-            switch (property.name)
-            {
+        protected override VisualElement? CreateElement(SerializedProperty property) {
+            switch (property.name) {
                 case "component":
                     this.componentProperty = property;
                     return this.componentField = CreatePropertyField(property);
@@ -46,17 +42,14 @@ namespace BovineLabs.Core.Editor.Component
         }
 
         /// <inheritdoc/>
-        protected override void PostElementCreation(VisualElement root, bool createdElements)
-        {
+        protected override void PostElementCreation(VisualElement root, bool createdElements) {
             this.SetupDropDown();
 
             this.componentField!.RegisterValueChangeCallback(_ => this.SetupDropDown());
         }
 
-        private void FieldNameChanged(ChangeEvent<string> evt)
-        {
-            if (string.IsNullOrWhiteSpace(evt.newValue))
-            {
+        private void FieldNameChanged(ChangeEvent<string> evt) {
+            if (string.IsNullOrWhiteSpace(evt.newValue)) {
                 return;
             }
 
@@ -64,26 +57,20 @@ namespace BovineLabs.Core.Editor.Component
             this.fieldNameProperty.serializedObject.ApplyModifiedProperties();
         }
 
-        private void SetupDropDown()
-        {
+        private void SetupDropDown() {
             this.fieldNames.Clear();
 
             var componentAsset = this.componentProperty!.objectReferenceValue as ComponentAssetBase;
-            if (componentAsset)
-            {
-                try
-                {
+            if (componentAsset) {
+                try {
                     var type = componentAsset.GetComponentType();
                     var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
 
-                    foreach (var field in fields)
-                    {
+                    foreach (var field in fields) {
                         this.fieldNames.Add(field.Name);
                     }
                 }
-                catch (InvalidCastException)
-                {
-                }
+                catch (InvalidCastException) { }
             }
 
             this.fieldNameField!.choices = this.fieldNames;

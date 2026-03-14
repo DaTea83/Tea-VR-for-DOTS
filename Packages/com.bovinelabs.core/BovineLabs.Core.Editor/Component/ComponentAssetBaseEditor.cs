@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Component
-{
+namespace BovineLabs.Core.Editor.Component {
     using BovineLabs.Core.Editor.Inspectors;
     using Unity.Entities;
     using UnityEditor;
@@ -11,23 +10,18 @@ namespace BovineLabs.Core.Editor.Component
     using UnityEngine.UIElements;
 
     [CustomEditor(typeof(ComponentAssetBase), isFallback = true)]
-    public class ComponentAssetBaseEditor : ElementEditor
-    {
+    public class ComponentAssetBaseEditor : ElementEditor {
         private SerializedProperty? componentNameProperty;
 
         /// <inheritdoc/>
-        protected override VisualElement? CreateElement(SerializedProperty property)
-        {
-            switch (property.name)
-            {
-                case "componentName":
-                {
+        protected override VisualElement? CreateElement(SerializedProperty property) {
+            switch (property.name) {
+                case "componentName": {
                     this.componentNameProperty = property;
                     return CreatePropertyField(property);
                 }
 
-                case "component":
-                {
+                case "component": {
                     var componentField = CreatePropertyField(property);
                     componentField.RegisterValueChangeCallback(this.ComponentChanged);
                     return componentField;
@@ -37,21 +31,17 @@ namespace BovineLabs.Core.Editor.Component
             return base.CreateElement(property);
         }
 
-        private void ComponentChanged(SerializedPropertyChangeEvent evt)
-        {
+        private void ComponentChanged(SerializedPropertyChangeEvent evt) {
             var stableTypeHash = evt.changedProperty.ulongValue;
             string compName;
 
-            if (stableTypeHash == 0)
-            {
+            if (stableTypeHash == 0) {
                 compName = string.Empty;
             }
-            else
-            {
+            else {
                 var typeIndex = TypeManager.GetTypeIndexFromStableTypeHash(stableTypeHash);
 
-                if (typeIndex == TypeIndex.Null)
-                {
+                if (typeIndex == TypeIndex.Null) {
                     return;
                 }
 

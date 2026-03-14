@@ -6,8 +6,7 @@
 #define DEBUG_LOG
 #endif
 
-namespace BovineLabs.Core.States
-{
+namespace BovineLabs.Core.States {
     using System.Runtime.CompilerServices;
     using BovineLabs.Core.Collections;
     using BovineLabs.Core.Extensions;
@@ -18,8 +17,7 @@ namespace BovineLabs.Core.States
     using Unity.Entities;
 
     /// <summary> Main thread state API for managing game state, UI and input. </summary>
-    public static class AppAPI
-    {
+    public static class AppAPI {
         /// <summary> Gets the current state. </summary>
         /// <param name="systemState"> The owning system state. </param>
         /// <typeparam name="T"> The state. </typeparam>
@@ -28,8 +26,7 @@ namespace BovineLabs.Core.States
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TA StateCurrent<T, TA>(ref SystemState systemState)
             where T : unmanaged, IState<TA>
-            where TA : unmanaged, IBitArray<TA>
-        {
+            where TA : unmanaged, IBitArray<TA> {
             return systemState.EntityManager.GetSingleton<T>().Value;
         }
 
@@ -44,8 +41,7 @@ namespace BovineLabs.Core.States
         public static bool StateIsEnabled<T, TA, TS>(ref SystemState systemState, FixedString32Bytes name)
             where T : unmanaged, IState<TA>
             where TA : unmanaged, IBitArray<TA>
-            where TS : KSettingsBase<TS, byte>
-        {
+            where TS : KSettingsBase<TS, byte> {
             var state = KSettingsBase<TS, byte>.NameToKey(name);
             return systemState.EntityManager.GetSingleton<T>().Value[state];
         }
@@ -60,8 +56,7 @@ namespace BovineLabs.Core.States
         public static void StateSet<T, TA, TS>(ref SystemState systemState, FixedString32Bytes name)
             where T : unmanaged, IState<TA>
             where TA : unmanaged, IBitArray<TA>
-            where TS : KSettingsBase<TS, byte>
-        {
+            where TS : KSettingsBase<TS, byte> {
 #if DEBUG_LOG
             systemState.EntityManager.GetSingleton<BLLogger>(false).LogDebug($"{GetName<T, TA>()} set to {name}");
 #endif
@@ -78,8 +73,7 @@ namespace BovineLabs.Core.States
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void StateSet<T, TA>(ref SystemState systemState, byte state)
             where T : unmanaged, IState<TA>
-            where TA : unmanaged, IBitArray<TA>
-        {
+            where TA : unmanaged, IBitArray<TA> {
 #if DEBUG_LOG
             systemState.EntityManager.GetSingleton<BLLogger>(false).LogDebug($"{GetName<T, TA>()} set to {state}");
 #endif
@@ -97,8 +91,7 @@ namespace BovineLabs.Core.States
         public static void StateEnable<T, TA, TS>(ref SystemState systemState, FixedString32Bytes name)
             where T : unmanaged, IState<TA>
             where TA : unmanaged, IBitArray<TA>
-            where TS : KSettingsBase<TS, byte>
-        {
+            where TS : KSettingsBase<TS, byte> {
 #if DEBUG_LOG
             systemState.EntityManager.GetSingleton<BLLogger>(false).LogDebug($"{GetName<T, TA>()} enabled {name}");
 #endif
@@ -115,8 +108,7 @@ namespace BovineLabs.Core.States
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void StateEnable<T, TA>(ref SystemState systemState, byte state)
             where T : unmanaged, IState<TA>
-            where TA : unmanaged, IBitArray<TA>
-        {
+            where TA : unmanaged, IBitArray<TA> {
 #if DEBUG_LOG
             systemState.EntityManager.GetSingleton<BLLogger>(false).LogDebug($"{GetName<T, TA>()} enable {state}");
 #endif
@@ -133,8 +125,7 @@ namespace BovineLabs.Core.States
         public static void StateDisable<T, TA, TS>(ref SystemState systemState, FixedString32Bytes name)
             where T : unmanaged, IState<TA>
             where TA : unmanaged, IBitArray<TA>
-            where TS : KSettingsBase<TS, byte>
-        {
+            where TS : KSettingsBase<TS, byte> {
 #if DEBUG_LOG
             systemState.EntityManager.GetSingleton<BLLogger>(false).LogDebug($"{GetName<T, TA>()} disabled {name}");
 #endif
@@ -150,8 +141,7 @@ namespace BovineLabs.Core.States
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void StateDisable<T, TA>(ref SystemState systemState, byte state)
             where T : unmanaged, IState<TA>
-            where TA : unmanaged, IBitArray<TA>
-        {
+            where TA : unmanaged, IBitArray<TA> {
 #if DEBUG_LOG
             systemState.EntityManager.GetSingleton<BLLogger>(false).LogDebug($"{GetName<T, TA>()} disable {state}");
 #endif
@@ -162,8 +152,7 @@ namespace BovineLabs.Core.States
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void StateEnable<T, TA>(ref SystemState systemState, byte state, bool enabled)
             where T : unmanaged, IState<TA>
-            where TA : unmanaged, IBitArray<TA>
-        {
+            where TA : unmanaged, IBitArray<TA> {
             var gameState = systemState.EntityManager.GetSingletonRW<T>();
 
             ref var r = ref UnsafeUtility.As<T, BitArray256>(ref gameState.ValueRW);
@@ -172,8 +161,7 @@ namespace BovineLabs.Core.States
 
         private static FixedString128Bytes GetName<T, TA>()
             where T : unmanaged, IState<TA>
-            where TA : unmanaged, IBitArray<TA>
-        {
+            where TA : unmanaged, IBitArray<TA> {
             return TypeManagerEx.GetTypeName(TypeManager.GetTypeIndex<T>());
         }
     }

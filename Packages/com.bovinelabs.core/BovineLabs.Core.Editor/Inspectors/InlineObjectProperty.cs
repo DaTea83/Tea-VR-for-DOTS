@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using BovineLabs.Core.Editor.Helpers;
     using BovineLabs.Core.PropertyDrawers;
     using UnityEditor;
@@ -12,25 +11,21 @@ namespace BovineLabs.Core.Editor.Inspectors
     using UnityEngine.UIElements;
 
     [CustomPropertyDrawer(typeof(InlineObjectAttribute))]
-    public class InlineObjectProperty : PropertyDrawer
-    {
+    public class InlineObjectProperty : PropertyDrawer {
         private VisualElement parent = null!;
         private ObjectField rootField = null!;
         private SerializedProperty rootProperty = null!;
 
         /// <inheritdoc/>
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             this.rootProperty = property;
 
-            if (property.propertyType != SerializedPropertyType.ObjectReference)
-            {
+            if (property.propertyType != SerializedPropertyType.ObjectReference) {
                 return new Label("InlineObjectAttribute can only be used on Objects");
             }
 
             this.parent = new VisualElement();
-            this.rootField = new ObjectField(property.name)
-            {
+            this.rootField = new ObjectField(property.name) {
                 objectType = property.GetFieldType(),
                 value = property.objectReferenceValue,
             };
@@ -45,28 +40,24 @@ namespace BovineLabs.Core.Editor.Inspectors
             return this.parent;
         }
 
-        private void Callback(ChangeEvent<Object> changeEvent)
-        {
+        private void Callback(ChangeEvent<Object> changeEvent) {
             this.rootProperty.objectReferenceValue = changeEvent.newValue;
             this.rootProperty.serializedObject.ApplyModifiedProperties();
 
             this.Rebuild();
         }
 
-        private void Rebuild()
-        {
+        private void Rebuild() {
             this.parent.Clear();
             this.parent.Add(this.rootField);
 
-            if (this.rootProperty.objectReferenceValue == null)
-            {
+            if (this.rootProperty.objectReferenceValue == null) {
                 return;
             }
 
             var serializedObject = new SerializedObject(this.rootProperty.objectReferenceValue);
 
-            foreach (var linkedProperty in SerializedHelper.IterateAllChildren(serializedObject, false))
-            {
+            foreach (var linkedProperty in SerializedHelper.IterateAllChildren(serializedObject, false)) {
                 var element = PropertyUtil.CreateProperty(linkedProperty, serializedObject);
                 this.parent.Add(element);
             }

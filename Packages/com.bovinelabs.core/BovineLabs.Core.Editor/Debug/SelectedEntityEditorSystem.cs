@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor
-{
+namespace BovineLabs.Core.Editor {
     using BovineLabs.Core.ConfigVars;
     using BovineLabs.Core.Editor.Internal;
     using BovineLabs.Core.Extensions;
@@ -16,10 +15,11 @@ namespace BovineLabs.Core.Editor
     [Configurable]
     [WorldSystemFilter(WorldSystemFilterFlags.Default | WorldSystemFilterFlags.Editor)]
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    public partial class SelectedEntityEditorSystem : SystemBase
-    {
-        [ConfigVar("debug.selection", true, "Write the current hierarchy selection to SelectedEntity and SelectedEntities.")]
-        public static readonly SharedStatic<bool> IsEnabled = SharedStatic<bool>.GetOrCreate<SelectedEntityEditorSystem>();
+    public partial class SelectedEntityEditorSystem : SystemBase {
+        [ConfigVar("debug.selection", true,
+            "Write the current hierarchy selection to SelectedEntity and SelectedEntities.")]
+        public static readonly SharedStatic<bool> IsEnabled =
+            SharedStatic<bool>.GetOrCreate<SelectedEntityEditorSystem>();
 
         private NativeList<int> instanceIds;
         private NativeList<Entity> entities;
@@ -28,8 +28,7 @@ namespace BovineLabs.Core.Editor
         private JobHandle lastFrame;
 
         /// <inheritdoc />
-        protected override void OnCreate()
-        {
+        protected override void OnCreate() {
             this.instanceIds = new NativeList<int>(512, Allocator.Persistent);
             this.entities = new NativeList<Entity>(512, Allocator.Persistent);
             this.entityLookup = new NativeParallelMultiHashMap<int, Entity>(1024, Allocator.Persistent);
@@ -38,18 +37,15 @@ namespace BovineLabs.Core.Editor
         }
 
         /// <inheritdoc/>
-        protected override void OnDestroy()
-        {
+        protected override void OnDestroy() {
             this.instanceIds.Dispose();
             this.entities.Dispose();
             this.entityLookup.Dispose();
         }
 
         /// <inheritdoc />
-        protected override void OnUpdate()
-        {
-            if (!IsEnabled.Data)
-            {
+        protected override void OnUpdate() {
+            if (!IsEnabled.Data) {
                 return;
             }
 
@@ -57,13 +53,13 @@ namespace BovineLabs.Core.Editor
             this.instanceIds.Clear();
             this.entities.Clear();
 
-            var selectedEntities = SystemAPI.QueryBuilder().WithAllRW<SelectedEntities>().Build().GetSingletonBufferNoSync<SelectedEntities>(false);
+            var selectedEntities = SystemAPI.QueryBuilder().WithAllRW<SelectedEntities>().Build()
+                .GetSingletonBufferNoSync<SelectedEntities>(false);
 
             EntitySelection.GetAllSelectionsInWorld(this.World, this.entities, this.instanceIds);
 
             // No need to build this if not selecting a gameobject
-            if (this.instanceIds.Length > 0)
-            {
+            if (this.instanceIds.Length > 0) {
                 var query = SystemAPI
                     .QueryBuilder()
                     .WithAll<EntityGuid>()
@@ -72,22 +68,19 @@ namespace BovineLabs.Core.Editor
 
                 var count = query.CalculateEntityCount();
 
-                this.Dependency = new ResizeJob
-                {
+                this.Dependency = new ResizeJob {
                     EntityLookup = this.entityLookup,
                     Count = count,
                 }.Schedule(this.Dependency);
 
-                this.Dependency = new BuildInstanceIDToEntityIndexJob
-                {
+                this.Dependency = new BuildInstanceIDToEntityIndexJob {
                     EntityLookup = this.entityLookup.AsParallelWriter(),
                     GuidType = SystemAPI.GetComponentTypeHandle<EntityGuid>(true),
                     EntityType = SystemAPI.GetEntityTypeHandle(),
                 }.ScheduleParallel(query, this.Dependency);
             }
 
-            this.Dependency = new SetSelectionJob
-            {
+            this.Dependency = new SetSelectionJob {
                 EntityLookup = this.entityLookup,
                 InstanceIDs = this.instanceIds,
                 Entities = this.entities,
@@ -101,34 +94,30 @@ namespace BovineLabs.Core.Editor
         }
 
         [BurstCompile]
-        private struct ResizeJob : IJob
-        {
+        private struct ResizeJob : IJob {
             public NativeParallelMultiHashMap<int, Entity> EntityLookup;
             public int Count;
 
-            public void Execute()
-            {
+            public void Execute() {
                 this.EntityLookup.Clear();
-                if (this.EntityLookup.Capacity < this.Count)
-                {
+                if (this.EntityLookup.Capacity < this.Count) {
                     this.EntityLookup.Capacity = this.Count;
                 }
             }
         }
 
         [BurstCompile]
-        private struct BuildInstanceIDToEntityIndexJob : IJobChunk
-        {
+        private struct BuildInstanceIDToEntityIndexJob : IJobChunk {
             public NativeParallelMultiHashMap<int, Entity>.ParallelWriter EntityLookup;
 
-            [ReadOnly]
-            public ComponentTypeHandle<EntityGuid> GuidType;
+            [ReadOnly] public ComponentTypeHandle<EntityGuid> GuidType;
 
-            [ReadOnly]
-            public EntityTypeHandle EntityType;
+            [ReadOnly] public EntityTypeHandle EntityType;
 
-            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
-            {
+            public void Execute(in ArchetypeChunk chunk,
+                int unfilteredChunkIndex,
+                bool useEnabledMask,
+                in v128 chunkEnabledMask) {
                 var entities = chunk.GetNativeArray(this.EntityType);
                 var guids = chunk.GetNativeArray(ref this.GuidType).Slice().SliceWithStride<int>();
                 this.EntityLookup.AddBatchUnsafe(guids, entities);
@@ -136,19 +125,14 @@ namespace BovineLabs.Core.Editor
         }
 
         [BurstCompile]
-        private struct SetSelectionJob : IJob
-        {
-            [ReadOnly]
-            public NativeParallelMultiHashMap<int, Entity> EntityLookup;
+        private struct SetSelectionJob : IJob {
+            [ReadOnly] public NativeParallelMultiHashMap<int, Entity> EntityLookup;
 
-            [ReadOnly]
-            public NativeList<int> InstanceIDs;
+            [ReadOnly] public NativeList<int> InstanceIDs;
 
-            [ReadOnly]
-            public NativeList<Entity> Entities;
+            [ReadOnly] public NativeList<Entity> Entities;
 
-            [ReadOnly]
-            public ComponentLookup<EntityGuid> EntityGuids;
+            [ReadOnly] public ComponentLookup<EntityGuid> EntityGuids;
 
             public ComponentLookup<SelectedEntity> SelectedEntitys;
 
@@ -156,39 +140,30 @@ namespace BovineLabs.Core.Editor
 
             public Entity SingletonEntity;
 
-            public void Execute()
-            {
+            public void Execute() {
                 var selectedEntity = default(SelectedEntity);
                 this.SelectedEntities.Clear();
 
-                foreach (var entity in this.Entities)
-                {
-                    if (selectedEntity.Value == Entity.Null)
-                    {
+                foreach (var entity in this.Entities) {
+                    if (selectedEntity.Value == Entity.Null) {
                         selectedEntity.Value = entity;
                     }
 
                     this.SelectedEntities.Add(new SelectedEntities { Value = entity });
                 }
 
-                foreach (var instanceID in this.InstanceIDs)
-                {
-                    if (this.EntityLookup.TryGetFirstValue(instanceID, out var entity, out var it))
-                    {
-                        do
-                        {
-                            if (this.EntityGuids[entity].Serial == 0)
-                            {
-                                if (selectedEntity.Value == Entity.Null)
-                                {
+                foreach (var instanceID in this.InstanceIDs) {
+                    if (this.EntityLookup.TryGetFirstValue(instanceID, out var entity, out var it)) {
+                        do {
+                            if (this.EntityGuids[entity].Serial == 0) {
+                                if (selectedEntity.Value == Entity.Null) {
                                     selectedEntity.Value = entity;
                                 }
 
                                 this.SelectedEntities.Add(new SelectedEntities { Value = entity });
                                 break;
                             }
-                        }
-                        while (this.EntityLookup.TryGetNextValue(out entity, ref it));
+                        } while (this.EntityLookup.TryGetNextValue(out entity, ref it));
                     }
                 }
 

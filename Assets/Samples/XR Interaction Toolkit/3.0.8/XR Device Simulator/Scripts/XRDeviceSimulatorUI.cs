@@ -8,10 +8,8 @@ using UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation;
 using UnityEditor;
 #endif
 
-namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
-{
-    class XRDeviceSimulatorUI : MonoBehaviour
-    {
+namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator {
+    class XRDeviceSimulatorUI : MonoBehaviour {
         XRDeviceSimulator m_Simulator;
 
         const string k_MouseDeviceType = "Mouse";
@@ -21,22 +19,16 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 #if UNITY_EDITOR
         const string k_MenuOpenStateKey = "XRI." + nameof(XRDeviceSimulatorUI) + ".MenuOpenState";
 #endif
-        [SerializeField]
-        [HideInInspector]
-        bool m_IsMenuOpen = true;
+        [SerializeField] [HideInInspector] bool m_IsMenuOpen = true;
 
-        bool isMenuOpen
-        {
-            get
-            {
+        bool isMenuOpen {
+            get {
 #if UNITY_EDITOR
                 m_IsMenuOpen = EditorPrefs.GetBool(k_MenuOpenStateKey, m_IsMenuOpen);
 #endif
                 return m_IsMenuOpen;
             }
-
-            set
-            {
+            set {
                 m_IsMenuOpen = value;
 #if UNITY_EDITOR
                 EditorPrefs.SetBool(k_MenuOpenStateKey, m_IsMenuOpen);
@@ -44,43 +36,30 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             }
         }
 
-        [Header("Open/Close Panels")]
-
-        [SerializeField]
+        [Header("Open/Close Panels")] [SerializeField]
         GameObject m_XRDeviceSimulatorMainPanel;
-        [SerializeField]
-        GameObject m_XRDeviceSimulatorCollapsedPanel;
 
-        [Header("Sprites")]
+        [SerializeField] GameObject m_XRDeviceSimulatorCollapsedPanel;
 
-        [SerializeField]
-        Sprite m_HmdSpriteDark;
-        [SerializeField]
-        Sprite m_HmdSpriteLight;
+        [Header("Sprites")] [SerializeField] Sprite m_HmdSpriteDark;
+        [SerializeField] Sprite m_HmdSpriteLight;
 
-        [SerializeField]
-        Sprite m_KeyboardSprite;
+        [SerializeField] Sprite m_KeyboardSprite;
         internal Sprite keyboardSprite => m_KeyboardSprite;
 
-        [SerializeField]
-        Sprite m_MouseSprite;
+        [SerializeField] Sprite m_MouseSprite;
         internal Sprite mouseSprite => m_MouseSprite;
 
-        [SerializeField]
-        Sprite m_RMouseSpriteDark;
+        [SerializeField] Sprite m_RMouseSpriteDark;
         internal Sprite rMouseSpriteDark => m_RMouseSpriteDark;
 
-        [SerializeField]
-        Sprite m_RMouseSpriteLight;
+        [SerializeField] Sprite m_RMouseSpriteLight;
         internal Sprite rMouseSpriteLight => m_RMouseSpriteLight;
 
-        [HideInInspector]
-        [SerializeField]
-        Sprite m_RMouseSprite;
-        internal Sprite rMouseSprite
-        {
-            get
-            {
+        [HideInInspector] [SerializeField] Sprite m_RMouseSprite;
+
+        internal Sprite rMouseSprite {
+            get {
 #if !UNITY_EDITOR
                 if (m_RMouseSprite == null)
                     m_RMouseSprite = m_RMouseSpriteDark;
@@ -89,157 +68,95 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             }
         }
 
-        [SerializeField]
-        Sprite m_RoundedRectangle;
+        [SerializeField] Sprite m_RoundedRectangle;
 
-        [Header("General")]
+        [Header("General")] [SerializeField] Text m_CycleDevicesText;
 
-        [SerializeField]
-        Text m_CycleDevicesText;
+        [SerializeField] Text m_CurrentSelectedDeviceText;
 
-        [SerializeField]
-        Text m_CurrentSelectedDeviceText;
-
-        [Header("Headset Device")]
-
-        [SerializeField]
+        [Header("Headset Device")] [SerializeField]
         Image m_HeadsetImage;
 
-        [Space]
+        [Space] [SerializeField] Image m_HeadsetMoveButton;
 
-        [SerializeField]
-        Image m_HeadsetMoveButton;
+        [SerializeField] Image m_HeadsetMoveButtonIcon;
 
-        [SerializeField]
-        Image m_HeadsetMoveButtonIcon;
+        [SerializeField] Text m_HeadsetMoveButtonText;
 
-        [SerializeField]
-        Text m_HeadsetMoveButtonText;
+        [SerializeField] Image m_HeadsetMoveValueIcon;
 
-        [SerializeField]
-        Image m_HeadsetMoveValueIcon;
+        [SerializeField] Text m_HeadsetMoveValueText;
 
-        [SerializeField]
-        Text m_HeadsetMoveValueText;
+        [Space] [SerializeField] Image m_HeadsetLookButton;
 
-        [Space]
+        [SerializeField] Text m_HeadsetLookButtonText;
 
-        [SerializeField]
-        Image m_HeadsetLookButton;
+        [SerializeField] Image m_HeadsetLookValueIcon;
 
-        [SerializeField]
-        Text m_HeadsetLookButtonText;
+        [SerializeField] Text m_HeadsetLookValueText;
 
-        [SerializeField]
-        Image m_HeadsetLookValueIcon;
-
-        [SerializeField]
-        Text m_HeadsetLookValueText;
-
-        [Space]
-
-        [SerializeField]
-        [FormerlySerializedAs("m_ShowCursorButton")]
+        [Space] [SerializeField] [FormerlySerializedAs("m_ShowCursorButton")]
         Image m_CursorLockButton;
 
-        [SerializeField]
-        [FormerlySerializedAs("m_ShowCursorValueText")]
+        [SerializeField] [FormerlySerializedAs("m_ShowCursorValueText")]
         Text m_CursorLockValueText;
 
-        [Space]
+        [Space] [SerializeField] Text m_MouseModeButtonText;
 
-        [SerializeField]
-        Text m_MouseModeButtonText;
+        [SerializeField] Text m_MouseModeValueText;
 
-        [SerializeField]
-        Text m_MouseModeValueText;
+        [Space] [SerializeField] Image m_HeadsetSelectedButton;
 
-        [Space]
+        [SerializeField] Text m_HeadsetSelectedValueText;
 
-        [SerializeField]
-        Image m_HeadsetSelectedButton;
-
-        [SerializeField]
-        Text m_HeadsetSelectedValueText;
-
-        [Header("Controllers")]
-
-        [SerializeField]
+        [Header("Controllers")] [SerializeField]
         Image m_ControllerSelectedButton;
 
-        [SerializeField]
-        Image m_ControllerSelectedIcon;
+        [SerializeField] Image m_ControllerSelectedIcon;
 
-        [SerializeField]
-        Text m_ControllerSelectedText;
+        [SerializeField] Text m_ControllerSelectedText;
 
-        [SerializeField]
-        Text m_ControllersSelectedValueText;
+        [SerializeField] Text m_ControllersSelectedValueText;
 
-        [SerializeField]
-        CanvasGroup m_ControllersCanvasGroup;
+        [SerializeField] CanvasGroup m_ControllersCanvasGroup;
 
-        [Header("Left Controller")]
-
-        [SerializeField]
+        [Header("Left Controller")] [SerializeField]
         XRDeviceSimulatorControllerUI m_LeftController;
 
-        [SerializeField]
-        Text m_LeftControllerButtonText;
+        [SerializeField] Text m_LeftControllerButtonText;
 
-        [Header("Right Controller")]
-
-        [SerializeField]
+        [Header("Right Controller")] [SerializeField]
         XRDeviceSimulatorControllerUI m_RightController;
 
-        [SerializeField]
-        Text m_RightControllerButtonText;
+        [SerializeField] Text m_RightControllerButtonText;
 
-        [Header("Hands")]
+        [Header("Hands")] [SerializeField] Image m_HandsSelectedButton;
 
-        [SerializeField]
-        Image m_HandsSelectedButton;
+        [SerializeField] Image m_HandsSelectedIcon;
 
-        [SerializeField]
-        Image m_HandsSelectedIcon;
+        [SerializeField] Text m_HandsSelectedText;
 
-        [SerializeField]
-        Text m_HandsSelectedText;
+        [SerializeField] Image m_HandsSelectedValueIcon;
 
-        [SerializeField]
-        Image m_HandsSelectedValueIcon;
+        [SerializeField] Text m_HandsSelectedValueText;
 
-        [SerializeField]
-        Text m_HandsSelectedValueText;
+        [SerializeField] CanvasGroup m_HandsCanvasGroup;
 
-        [SerializeField]
-        CanvasGroup m_HandsCanvasGroup;
+        [Header("Left Hand")] [SerializeField] XRDeviceSimulatorHandsUI m_LeftHand;
 
-        [Header("Left Hand")]
+        [SerializeField] Text m_LeftHandButtonText;
 
-        [SerializeField]
-        XRDeviceSimulatorHandsUI m_LeftHand;
-
-        [SerializeField]
-        Text m_LeftHandButtonText;
-
-        [Header("Right Hand")]
-
-        [SerializeField]
+        [Header("Right Hand")] [SerializeField]
         XRDeviceSimulatorHandsUI m_RightHand;
 
-        [SerializeField]
-        Text m_RightHandButtonText;
+        [SerializeField] Text m_RightHandButtonText;
 
         static readonly Color k_EnabledColorDark = new Color(0xC4 / 255f, 0xC4 / 255f, 0xC4 / 255f);
         static readonly Color k_EnabledColorLight = new Color(0x55 / 255f, 0x55 / 255f, 0x55 / 255f);
-        [HideInInspector]
-        [SerializeField]
-        Color m_EnabledColor = Color.clear;
-        internal Color enabledColor
-        {
-            get
-            {
+        [HideInInspector] [SerializeField] Color m_EnabledColor = Color.clear;
+
+        internal Color enabledColor {
+            get {
 #if !UNITY_EDITOR
                 if (m_EnabledColor == Color.clear)
                     m_EnabledColor = k_EnabledColorDark;
@@ -250,13 +167,10 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 
         static readonly Color k_DisabledColorDark = new Color(0xC4 / 255f, 0xC4 / 255f, 0xC4 / 255f, 0.5f);
         static readonly Color k_DisabledColorLight = new Color(0x55 / 255f, 0x55 / 255f, 0x55 / 255f, 0.5f);
-        [HideInInspector]
-        [SerializeField]
-        Color m_DisabledColor = Color.clear;
-        internal Color disabledColor
-        {
-            get
-            {
+        [HideInInspector] [SerializeField] Color m_DisabledColor = Color.clear;
+
+        internal Color disabledColor {
+            get {
 #if !UNITY_EDITOR
                 if (m_DisabledColor == Color.clear)
                     m_DisabledColor = k_DisabledColorDark;
@@ -267,13 +181,10 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 
         static readonly Color k_ButtonColorDark = new Color(0x55 / 255f, 0x55 / 255f, 0x55 / 255f);
         static readonly Color k_ButtonColorLight = new Color(0xE4 / 255f, 0xE4 / 255f, 0xE4 / 255f);
-        [HideInInspector]
-        [SerializeField]
-        Color m_ButtonColor = Color.clear;
-        internal Color buttonColor
-        {
-            get
-            {
+        [HideInInspector] [SerializeField] Color m_ButtonColor = Color.clear;
+
+        internal Color buttonColor {
+            get {
 #if !UNITY_EDITOR
                 if (m_ButtonColor == Color.clear)
                     m_ButtonColor = k_ButtonColorDark;
@@ -284,13 +195,10 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 
         static readonly Color k_DisabledButtonColorDark = new Color(0x55 / 255f, 0x55 / 255f, 0x55 / 255f, 0.5f);
         static readonly Color k_DisabledButtonColorLight = new Color(0xE4 / 255f, 0xE4 / 255f, 0xE4 / 255f, 0.5f);
-        [HideInInspector]
-        [SerializeField]
-        Color m_DisabledButtonColor = Color.clear;
-        internal Color disabledButtonColor
-        {
-            get
-            {
+        [HideInInspector] [SerializeField] Color m_DisabledButtonColor = Color.clear;
+
+        internal Color disabledButtonColor {
+            get {
 #if !UNITY_EDITOR
                 if (m_DisabledButtonColor == Color.clear)
                     m_DisabledButtonColor = k_DisabledButtonColorDark;
@@ -301,13 +209,10 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 
         static readonly Color k_SelectedColorDark = new Color(0x4F / 255f, 0x65 / 255f, 0x7F / 255f);
         static readonly Color k_SelectedColorLight = new Color(0x96 / 255f, 0xC3 / 255f, 0xFB / 255f);
-        [HideInInspector]
-        [SerializeField]
-        Color m_SelectedColor = Color.clear;
-        internal Color selectedColor
-        {
-            get
-            {
+        [HideInInspector] [SerializeField] Color m_SelectedColor = Color.clear;
+
+        internal Color selectedColor {
+            get {
 #if !UNITY_EDITOR
                 if (m_SelectedColor == Color.clear)
                     m_SelectedColor = k_SelectedColorDark;
@@ -318,13 +223,10 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 
         static readonly Color k_BackgroundColorDark = Color.black;
         static readonly Color k_BackgroundColorLight = new Color(0xB6 / 255f, 0xB6 / 255f, 0xB6 / 255f);
-        [HideInInspector]
-        [SerializeField]
-        Color m_BackgroundColor = Color.clear;
-        internal Color backgroundColor
-        {
-            get
-            {
+        [HideInInspector] [SerializeField] Color m_BackgroundColor = Color.clear;
+
+        internal Color backgroundColor {
+            get {
 #if !UNITY_EDITOR
                 if (m_BackgroundColor == Color.clear)
                     m_BackgroundColor = k_BackgroundColorDark;
@@ -335,13 +237,10 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 
         static readonly Color k_DeviceColorDark = new Color(0x6E / 255f, 0x6E / 255f, 0x6E / 255f);
         static readonly Color k_DeviceColorLight = new Color(0xE4 / 255f, 0xE4 / 255f, 0xE4 / 255f);
-        [HideInInspector]
-        [SerializeField]
-        Color m_DeviceColor = Color.clear;
-        internal Color deviceColor
-        {
-            get
-            {
+        [HideInInspector] [SerializeField] Color m_DeviceColor = Color.clear;
+
+        internal Color deviceColor {
+            get {
 #if !UNITY_EDITOR
                 if (m_DeviceColor == Color.clear)
                     m_DeviceColor = k_DeviceColorDark;
@@ -352,13 +251,10 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 
         static readonly Color k_DisabledDeviceColorDark = new Color(0x58 / 255f, 0x58 / 255f, 0x58 / 255f);
         static readonly Color k_DisabledDeviceColorLight = new Color(0xA2 / 255f, 0xA2 / 255f, 0xA2 / 255f, 0.5f);
-        [HideInInspector]
-        [SerializeField]
-        Color m_DisabledDeviceColor = Color.clear;
-        internal Color disabledDeviceColor
-        {
-            get
-            {
+        [HideInInspector] [SerializeField] Color m_DisabledDeviceColor = Color.clear;
+
+        internal Color disabledDeviceColor {
+            get {
 #if !UNITY_EDITOR
                 if (m_DisabledDeviceColor == Color.clear)
                     m_DisabledDeviceColor = k_DisabledDeviceColorDark;
@@ -375,8 +271,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        protected void Start()
-        {
+        protected void Start() {
             var simulator = GetComponentInParent<XRDeviceSimulator>();
             if (simulator != null)
                 Initialize(simulator);
@@ -385,10 +280,8 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        protected void OnDestroy()
-        {
-            if (m_Simulator != null)
-            {
+        protected void OnDestroy() {
+            if (m_Simulator != null) {
                 Unsubscribe(m_Simulator.manipulateLeftAction, OnManipulateLeftAction);
                 Unsubscribe(m_Simulator.manipulateRightAction, OnManipulateRightAction);
                 Unsubscribe(m_Simulator.toggleManipulateLeftAction, OnToggleManipulateLeftAction);
@@ -411,17 +304,14 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
                 Unsubscribe(m_Simulator.primaryButtonAction, OnPrimaryButtonAction);
                 Unsubscribe(m_Simulator.secondaryButtonAction, OnSecondaryButtonAction);
 #if XR_HANDS_1_1_OR_NEWER
-                foreach (var simulatedExpression in m_Simulator.simulatedHandExpressions)
-                {
+                foreach (var simulatedExpression in m_Simulator.simulatedHandExpressions) {
                     simulatedExpression.performed -= OnHandExpressionAction;
                 }
 #endif
-
             }
         }
 
-        void Initialize(XRDeviceSimulator simulator)
-        {
+        void Initialize(XRDeviceSimulator simulator) {
             m_Simulator = simulator;
             InitColorTheme();
             Initialize();
@@ -430,8 +320,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             OnActivateHeadsetDevice();
         }
 
-        void InitColorTheme()
-        {
+        void InitColorTheme() {
 #if UNITY_EDITOR
             var isEditorPro = EditorGUIUtility.isProSkin;
             m_EnabledColor = isEditorPro ? k_EnabledColorDark : k_EnabledColorLight;
@@ -447,8 +336,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 #endif
         }
 
-        void Initialize()
-        {
+        void Initialize() {
             var bckgrdAlpha = m_XRDeviceSimulatorMainPanel.GetComponent<Image>().color.a;
 
             foreach (var image in GetComponentsInChildren<Image>(true))
@@ -473,31 +361,40 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 
             var ctrlsBinding1 = m_Simulator.axis2DAction.action.controls;
             var ctrlsBinding2 = m_Simulator.keyboardYTranslateAction.action.controls;
-            m_HeadsetMoveValueText.text = $"{ctrlsBinding1[0].displayName},{ctrlsBinding1[1].displayName},{ctrlsBinding1[2].displayName},{ctrlsBinding1[3].displayName} + " +
+            m_HeadsetMoveValueText.text =
+                $"{ctrlsBinding1[0].displayName},{ctrlsBinding1[1].displayName},{ctrlsBinding1[2].displayName},{ctrlsBinding1[3].displayName} + " +
                 $"{ctrlsBinding2[0].displayName},{ctrlsBinding2[1].displayName}";
 
             m_CursorLockValueText.text = m_Simulator.toggleCursorLockAction.action.controls[0].displayName;
             m_CursorLockButton.color = Cursor.lockState == CursorLockMode.Locked ? selectedColor : buttonColor;
 
-            m_HeadsetLookButtonText.text = m_Simulator.mouseTransformationMode == XRDeviceSimulator.TransformationMode.Translate ? k_TranslateLookText : k_RotateLookText;
+            m_HeadsetLookButtonText.text =
+                m_Simulator.mouseTransformationMode == XRDeviceSimulator.TransformationMode.Translate
+                    ? k_TranslateLookText
+                    : k_RotateLookText;
             m_MouseModeValueText.text = m_Simulator.toggleMouseTransformationModeAction.action.controls[0].displayName;
 
             var manipulateHeadActionControl = m_Simulator.manipulateHeadAction.action.controls[0];
             m_HeadsetLookValueIcon.sprite = GetInputIcon(manipulateHeadActionControl);
-            if (manipulateHeadActionControl.name.Equals("leftButton") || manipulateHeadActionControl.name.Equals("rightButton"))
-            {
+            if (manipulateHeadActionControl.name.Equals("leftButton") ||
+                manipulateHeadActionControl.name.Equals("rightButton")) {
                 m_HeadsetLookValueIcon.color = Color.white;
 
                 // If the binding is using the left button, mirror the MouseR image
                 if (manipulateHeadActionControl.name.Equals("leftButton"))
                     m_HeadsetLookValueIcon.transform.localScale = new Vector3(-1f, 1f, 1f);
             }
-            m_HeadsetLookValueText.text = manipulateHeadActionControl.device.name == k_MouseDeviceType ? k_MouseDeviceType : manipulateHeadActionControl.displayName;
+
+            m_HeadsetLookValueText.text = manipulateHeadActionControl.device.name == k_MouseDeviceType
+                ? k_MouseDeviceType
+                : manipulateHeadActionControl.displayName;
 
             m_LeftController.Initialize(m_Simulator);
             m_RightController.Initialize(m_Simulator);
-            var toggleSlashHoldLeftText = $"{m_Simulator.toggleManipulateLeftAction.action.controls[0].displayName} / {m_Simulator.manipulateLeftAction.action.controls[0].displayName} [Hold]";
-            var toggleSlashHoldRightText = $"{m_Simulator.toggleManipulateRightAction.action.controls[0].displayName} / {m_Simulator.manipulateRightAction.action.controls[0].displayName} [Hold]";
+            var toggleSlashHoldLeftText =
+                $"{m_Simulator.toggleManipulateLeftAction.action.controls[0].displayName} / {m_Simulator.manipulateLeftAction.action.controls[0].displayName} [Hold]";
+            var toggleSlashHoldRightText =
+                $"{m_Simulator.toggleManipulateRightAction.action.controls[0].displayName} / {m_Simulator.manipulateRightAction.action.controls[0].displayName} [Hold]";
             m_LeftControllerButtonText.text = toggleSlashHoldLeftText;
             m_RightControllerButtonText.text = toggleSlashHoldRightText;
 
@@ -543,8 +440,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             Subscribe(m_Simulator.primaryButtonAction, OnPrimaryButtonAction);
             Subscribe(m_Simulator.secondaryButtonAction, OnSecondaryButtonAction);
 #if XR_HANDS_1_1_OR_NEWER
-            foreach (var simulatedExpression in m_Simulator.simulatedHandExpressions)
-            {
+            foreach (var simulatedExpression in m_Simulator.simulatedHandExpressions) {
                 simulatedExpression.performed += OnHandExpressionAction;
             }
 #endif
@@ -553,19 +449,27 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             m_XRDeviceSimulatorCollapsedPanel.SetActive(!isMenuOpen);
         }
 
-        void UpdateDeviceInputMethod()
-        {
-            var toggleManipulateText = $"{m_Simulator.toggleManipulateLeftAction.action.controls[0].displayName}, {m_Simulator.toggleManipulateRightAction.action.controls[0].displayName} [Toggle]";
+        void UpdateDeviceInputMethod() {
+            var toggleManipulateText =
+                $"{m_Simulator.toggleManipulateLeftAction.action.controls[0].displayName}, {m_Simulator.toggleManipulateRightAction.action.controls[0].displayName} [Toggle]";
 #if XR_HANDS_1_1_OR_NEWER
-            var modeChangeText = m_Simulator.handControllerModeAction != null ? $"{m_Simulator.handControllerModeAction.action.controls[0].displayName}" : string.Empty;
+            var modeChangeText = m_Simulator.handControllerModeAction != null
+                ? $"{m_Simulator.handControllerModeAction.action.controls[0].displayName}"
+                : string.Empty;
 #else
             var modeChangeText = string.Empty;
 #endif
 
-            m_ControllersSelectedValueText.text = m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Controller ? toggleManipulateText : modeChangeText;
-            m_HandsSelectedValueText.text = m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Hand ? toggleManipulateText : modeChangeText;
+            m_ControllersSelectedValueText.text = m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Controller
+                ? toggleManipulateText
+                : modeChangeText;
+            m_HandsSelectedValueText.text = m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Hand
+                ? toggleManipulateText
+                : modeChangeText;
 
-            var modeColor = m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Controller ? enabledColor : disabledColor;
+            var modeColor = m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Controller
+                ? enabledColor
+                : disabledColor;
             m_ControllerSelectedIcon.color = modeColor;
             m_ControllerSelectedText.color = modeColor;
 
@@ -574,16 +478,13 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             m_HandsSelectedText.color = modeColor;
         }
 
-        internal Sprite GetInputIcon(InputControl control)
-        {
+        internal Sprite GetInputIcon(InputControl control) {
             if (control == null)
                 return null;
 
             var icon = keyboardSprite;
-            if (control.device.name == k_MouseDeviceType)
-            {
-                switch (control.name)
-                {
+            if (control.device.name == k_MouseDeviceType) {
+                switch (control.name) {
                     case "leftButton":
                     case "rightButton":
                         icon = rMouseSprite;
@@ -600,8 +501,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// Hides the simulator UI panel when called while displaying the simulator button.
         /// </summary>
-        public void OnClickCloseSimulatorUIPanel()
-        {
+        public void OnClickCloseSimulatorUIPanel() {
             isMenuOpen = false;
             m_XRDeviceSimulatorMainPanel.SetActive(false);
             m_XRDeviceSimulatorCollapsedPanel.SetActive(true);
@@ -610,31 +510,27 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// Displays the simulator UI panel when called while hiding the simulator button.
         /// </summary>
-        public void OnClickOpenSimulatorUIPanel()
-        {
+        public void OnClickOpenSimulatorUIPanel() {
             isMenuOpen = true;
             m_XRDeviceSimulatorMainPanel.SetActive(true);
             m_XRDeviceSimulatorCollapsedPanel.SetActive(false);
         }
 
-        void OnActivateLeftDevice()
-        {
+        void OnActivateLeftDevice() {
             if (m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Controller)
                 OnActivateLeftController();
             else if (m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Hand)
                 OnActivateLeftHand();
         }
 
-        void OnActivateRightDevice()
-        {
+        void OnActivateRightDevice() {
             if (m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Controller)
                 OnActivateRightController();
             else if (m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Hand)
                 OnActivateRightHand();
         }
 
-        void OnActivateBothDevices()
-        {
+        void OnActivateBothDevices() {
             if (m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Controller)
                 OnActivateBothControllers();
             else if (m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Hand)
@@ -644,8 +540,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// Sets the Left Controller device as active to receive input.
         /// </summary>
-        void OnActivateLeftController()
-        {
+        void OnActivateLeftController() {
             m_CurrentSelectedDeviceText.text = "Left Controller";
             OnActivateController(m_LeftController);
         }
@@ -653,14 +548,12 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// Sets the Right Controller device as active to receive input.
         /// </summary>
-        void OnActivateRightController()
-        {
+        void OnActivateRightController() {
             m_CurrentSelectedDeviceText.text = "Right Controller";
             OnActivateController(m_RightController);
         }
 
-        void OnActivateController(XRDeviceSimulatorControllerUI controller)
-        {
+        void OnActivateController(XRDeviceSimulatorControllerUI controller) {
             ControllersSetActive(true);
             PushCurrentButtonState(controller);
             controller.SetAsActiveController(true, m_Simulator);
@@ -674,8 +567,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// Sets both Left & Right Controller devices as active to receive input.
         /// </summary>
-        void OnActivateBothControllers()
-        {
+        void OnActivateBothControllers() {
             ControllersSetActive(true);
             m_CurrentSelectedDeviceText.text = "Left & Right Controllers";
             PushCurrentButtonState(m_LeftController);
@@ -687,8 +579,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             HandsSetActive(false);
         }
 
-        void PushCurrentButtonState(XRDeviceSimulatorControllerUI controller)
-        {
+        void PushCurrentButtonState(XRDeviceSimulatorControllerUI controller) {
             controller.OnGrip(m_Simulator.gripAction.action.inProgress);
             controller.OnTrigger(m_Simulator.triggerAction.action.inProgress);
             controller.OnMenu(m_Simulator.menuAction.action.inProgress);
@@ -701,8 +592,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// Sets the Left Hand device as active to receive input.
         /// </summary>
-        void OnActivateLeftHand()
-        {
+        void OnActivateLeftHand() {
             m_CurrentSelectedDeviceText.text = "Left Hand";
             OnActivateHand(m_LeftHand);
         }
@@ -710,14 +600,12 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// Sets the Right Hand device as active to receive input.
         /// </summary>
-        void OnActivateRightHand()
-        {
+        void OnActivateRightHand() {
             m_CurrentSelectedDeviceText.text = "Right Hand";
             OnActivateHand(m_RightHand);
         }
 
-        void OnActivateHand(XRDeviceSimulatorHandsUI hand)
-        {
+        void OnActivateHand(XRDeviceSimulatorHandsUI hand) {
             HandsSetActive(true);
             hand.SetActive(true, m_Simulator);
             XRDeviceSimulatorHandsUI otherHand = hand == m_LeftHand ? m_RightHand : m_LeftHand;
@@ -730,8 +618,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// Sets both Left & Right Hand devices as active to receive input.
         /// </summary>
-        void OnActivateBothHands()
-        {
+        void OnActivateBothHands() {
             HandsSetActive(true);
             m_CurrentSelectedDeviceText.text = "Left & Right Hands";
             m_LeftHand.SetActive(true, m_Simulator);
@@ -744,8 +631,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// <summary>
         /// Sets the headset device as active to receive input.
         /// </summary>
-        void OnActivateHeadsetDevice(bool activated = true)
-        {
+        void OnActivateHeadsetDevice(bool activated = true) {
             m_LeftController.SetAsActiveController(false, m_Simulator);
             m_RightController.SetAsActiveController(false, m_Simulator);
 
@@ -757,13 +643,11 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 
             HeadDeviceSetActive(activated);
 
-            if (m_Simulator.manipulatingFPS)
-            {
+            if (m_Simulator.manipulatingFPS) {
                 ControllersSetActive(false, m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Controller);
                 HandsSetActive(false, m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Hand);
             }
-            else
-            {
+            else {
                 HandsSetActive(false, Mathf.Approximately(m_HandsCanvasGroup.alpha, 1f));
                 ControllersSetActive(false, Mathf.Approximately(m_ControllersCanvasGroup.alpha, 1f));
             }
@@ -773,8 +657,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         /// Updates all the UI associated the the Headset.
         /// </summary>
         /// <param name="active">Whether the headset is the active device or not.</param>
-        void HeadDeviceSetActive(bool active)
-        {
+        void HeadDeviceSetActive(bool active) {
             m_HeadsetImage.gameObject.SetActive(active);
             m_HeadsetSelectedButton.color = active ? selectedColor : buttonColor;
 
@@ -787,8 +670,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             m_HeadsetMoveButton.color = active ? buttonColor : disabledButtonColor;
         }
 
-        void HandsSetActive(bool isActive, bool showCanvasGroup = false)
-        {
+        void HandsSetActive(bool isActive, bool showCanvasGroup = false) {
             m_HandsCanvasGroup.alpha = isActive || showCanvasGroup ? 1f : 0f;
 
 #if XR_HANDS_1_1_OR_NEWER
@@ -798,43 +680,36 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 #endif
         }
 
-        void ControllersSetActive(bool isActive, bool showCanvasGroup = false)
-        {
+        void ControllersSetActive(bool isActive, bool showCanvasGroup = false) {
             m_ControllersCanvasGroup.alpha = isActive || showCanvasGroup ? 1f : 0f;
             m_ControllerSelectedButton.color = isActive ? selectedColor : buttonColor;
         }
 
-        static void Subscribe(InputActionReference reference, Action<InputAction.CallbackContext> performedOrCanceled)
-        {
+        static void Subscribe(InputActionReference reference, Action<InputAction.CallbackContext> performedOrCanceled) {
             var action = reference != null ? reference.action : null;
-            if (action != null && performedOrCanceled != null)
-            {
+            if (action != null && performedOrCanceled != null) {
                 action.performed += performedOrCanceled;
                 action.canceled += performedOrCanceled;
             }
         }
 
-        static void Unsubscribe(InputActionReference reference, Action<InputAction.CallbackContext> performedOrCanceled)
-        {
+        static void Unsubscribe(InputActionReference reference,
+            Action<InputAction.CallbackContext> performedOrCanceled) {
             var action = reference != null ? reference.action : null;
-            if (action != null && performedOrCanceled != null)
-            {
+            if (action != null && performedOrCanceled != null) {
                 action.performed -= performedOrCanceled;
                 action.canceled -= performedOrCanceled;
             }
         }
 
-        void OnManipulateLeftAction(InputAction.CallbackContext context)
-        {
-            if (context.phase.IsInProgress())
-            {
+        void OnManipulateLeftAction(InputAction.CallbackContext context) {
+            if (context.phase.IsInProgress()) {
                 if (m_Simulator.manipulatingLeftDevice && m_Simulator.manipulatingRightDevice)
                     OnActivateBothDevices();
                 else if (m_Simulator.manipulatingLeftDevice)
                     OnActivateLeftDevice();
             }
-            else
-            {
+            else {
                 if (m_Simulator.manipulatingRightDevice)
                     OnActivateRightDevice();
                 else
@@ -842,17 +717,14 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             }
         }
 
-        void OnManipulateRightAction(InputAction.CallbackContext context)
-        {
-            if (context.phase.IsInProgress())
-            {
+        void OnManipulateRightAction(InputAction.CallbackContext context) {
+            if (context.phase.IsInProgress()) {
                 if (m_Simulator.manipulatingLeftDevice && m_Simulator.manipulatingRightDevice)
                     OnActivateBothDevices();
                 else if (m_Simulator.manipulatingRightDevice)
                     OnActivateRightDevice();
             }
-            else
-            {
+            else {
                 if (m_Simulator.manipulatingLeftDevice)
                     OnActivateLeftDevice();
                 else
@@ -860,10 +732,8 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             }
         }
 
-        void OnToggleManipulateLeftAction(InputAction.CallbackContext context)
-        {
-            if (context.phase.IsInProgress())
-            {
+        void OnToggleManipulateLeftAction(InputAction.CallbackContext context) {
+            if (context.phase.IsInProgress()) {
                 if (m_Simulator.manipulatingLeftDevice)
                     OnActivateLeftDevice();
                 else
@@ -871,10 +741,8 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             }
         }
 
-        void OnToggleManipulateRightAction(InputAction.CallbackContext context)
-        {
-            if (context.phase.IsInProgress())
-            {
+        void OnToggleManipulateRightAction(InputAction.CallbackContext context) {
+            if (context.phase.IsInProgress()) {
                 if (m_Simulator.manipulatingRightDevice)
                     OnActivateRightDevice();
                 else
@@ -882,36 +750,29 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             }
         }
 
-        void OnToggleManipulateBodyAction(InputAction.CallbackContext context)
-        {
-            if (context.phase.IsInProgress())
-            {
+        void OnToggleManipulateBodyAction(InputAction.CallbackContext context) {
+            if (context.phase.IsInProgress()) {
                 OnActivateHeadsetDevice();
             }
         }
 
-        void OnManipulateHeadAction(InputAction.CallbackContext context)
-        {
+        void OnManipulateHeadAction(InputAction.CallbackContext context) {
             var isInProgress = context.phase.IsInProgress();
             var noDevices = !m_Simulator.manipulatingLeftDevice && !m_Simulator.manipulatingRightDevice;
-            if (isInProgress)
-            {
+            if (isInProgress) {
                 if (m_Simulator.manipulatingFPS || noDevices)
                     OnActivateHeadsetDevice();
             }
-            else if (noDevices)
-            {
+            else if (noDevices) {
                 OnActivateHeadsetDevice(m_Simulator.manipulatingFPS);
             }
 
             m_HeadsetLookButton.color = isInProgress ? selectedColor : buttonColor;
         }
 
-        void OnHandControllerModeAction(InputAction.CallbackContext context)
-        {
+        void OnHandControllerModeAction(InputAction.CallbackContext context) {
 #if XR_HANDS_1_1_OR_NEWER
-            if (context.phase.IsInProgress())
-            {
+            if (context.phase.IsInProgress()) {
                 if (m_Simulator.manipulatingLeftDevice && m_Simulator.manipulatingRightDevice)
                     OnActivateBothDevices();
                 else if (m_Simulator.manipulatingLeftDevice)
@@ -920,8 +781,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
                     OnActivateRightDevice();
                 else if (m_Simulator.manipulatingFPS)
                     OnActivateHeadsetDevice();
-                else
-                {
+                else {
                     ControllersSetActive(false, m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Controller);
                     HandsSetActive(false, m_Simulator.deviceMode == XRDeviceSimulator.DeviceMode.Hand);
                 }
@@ -931,10 +791,8 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
 #endif
         }
 
-        void OnCycleDevicesAction(InputAction.CallbackContext context)
-        {
-            if (context.phase.IsInProgress())
-            {
+        void OnCycleDevicesAction(InputAction.CallbackContext context) {
+            if (context.phase.IsInProgress()) {
                 if (m_Simulator.manipulatingFPS)
                     OnActivateHeadsetDevice();
 
@@ -946,56 +804,44 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             }
         }
 
-        void OnStopManipulationAction(InputAction.CallbackContext context)
-        {
+        void OnStopManipulationAction(InputAction.CallbackContext context) {
             if (context.phase.IsInProgress())
                 OnActivateHeadsetDevice(m_Simulator.manipulatingFPS);
         }
 
-        void OnToggleMouseTransformationModeAction(InputAction.CallbackContext context)
-        {
+        void OnToggleMouseTransformationModeAction(InputAction.CallbackContext context) {
             if (context.phase.IsInProgress())
                 OnSetMouseMode();
         }
 
-        void OnNegateModeAction(InputAction.CallbackContext context)
-        {
-            OnSetMouseMode();
-        }
+        void OnNegateModeAction(InputAction.CallbackContext context) { OnSetMouseMode(); }
 
-        void OnToggleCursorLockAction(InputAction.CallbackContext context)
-        {
+        void OnToggleCursorLockAction(InputAction.CallbackContext context) {
             if (context.phase.IsInProgress())
                 OnCursorLockChanged();
         }
 
-        void OnKeyboardXTranslateAction(InputAction.CallbackContext context)
-        {
+        void OnKeyboardXTranslateAction(InputAction.CallbackContext context) {
             OnXAxisTranslatePerformed(context.phase.IsInProgress(), false);
         }
 
-        void OnKeyboardYTranslateAction(InputAction.CallbackContext context)
-        {
+        void OnKeyboardYTranslateAction(InputAction.CallbackContext context) {
             OnYAxisTranslatePerformed(context.phase.IsInProgress());
         }
 
-        void OnKeyboardZTranslateAction(InputAction.CallbackContext context)
-        {
+        void OnKeyboardZTranslateAction(InputAction.CallbackContext context) {
             OnZAxisTranslatePerformed(context.phase.IsInProgress(), false);
         }
 
-        void OnRestingHandAxis2DAction(InputAction.CallbackContext context)
-        {
+        void OnRestingHandAxis2DAction(InputAction.CallbackContext context) {
             var restingHandAxis2DInput = Vector2.ClampMagnitude(context.ReadValue<Vector2>(), 1f);
-            if (context.phase.IsInProgress())
-            {
+            if (context.phase.IsInProgress()) {
                 if (restingHandAxis2DInput.x != 0f)
                     OnXAxisTranslatePerformed(true, true);
                 if (restingHandAxis2DInput.y != 0f)
                     OnZAxisTranslatePerformed(true, true);
             }
-            else
-            {
+            else {
                 if (restingHandAxis2DInput.x == 0f)
                     OnXAxisTranslatePerformed(false, true);
                 if (restingHandAxis2DInput.y == 0f)
@@ -1003,35 +849,23 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             }
         }
 
-        void OnGripAction(InputAction.CallbackContext context)
-        {
-            OnGripPerformed(context.phase.IsInProgress());
-        }
+        void OnGripAction(InputAction.CallbackContext context) { OnGripPerformed(context.phase.IsInProgress()); }
 
-        void OnTriggerAction(InputAction.CallbackContext context)
-        {
-            OnTriggerPerformed(context.phase.IsInProgress());
-        }
+        void OnTriggerAction(InputAction.CallbackContext context) { OnTriggerPerformed(context.phase.IsInProgress()); }
 
-        void OnMenuAction(InputAction.CallbackContext context)
-        {
-            OnMenuPerformed(context.phase.IsInProgress());
-        }
+        void OnMenuAction(InputAction.CallbackContext context) { OnMenuPerformed(context.phase.IsInProgress()); }
 
-        void OnPrimaryButtonAction(InputAction.CallbackContext context)
-        {
+        void OnPrimaryButtonAction(InputAction.CallbackContext context) {
             OnPrimaryButtonPerformed(context.phase.IsInProgress());
         }
 
-        void OnSecondaryButtonAction(InputAction.CallbackContext context)
-        {
+        void OnSecondaryButtonAction(InputAction.CallbackContext context) {
             OnSecondaryButtonPerformed(context.phase.IsInProgress());
         }
 
-        void OnHandExpressionAction(XRDeviceSimulator.SimulatedHandExpression simulatedExpression, InputAction.CallbackContext context)
-        {
-            if (context.phase.IsInProgress())
-            {
+        void OnHandExpressionAction(XRDeviceSimulator.SimulatedHandExpression simulatedExpression,
+            InputAction.CallbackContext context) {
+            if (context.phase.IsInProgress()) {
                 if (m_Simulator.manipulatingLeftHand)
                     m_LeftHand.ToggleExpression(simulatedExpression, m_Simulator);
 
@@ -1040,8 +874,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
             }
         }
 
-        void OnSetMouseMode()
-        {
+        void OnSetMouseMode() {
             // Translate/Rotate
             m_MouseModeButtonText.text = m_Simulator.negateMode
                 ? XRDeviceSimulator.Negate(m_Simulator.mouseTransformationMode).ToString()
@@ -1053,29 +886,24 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
                     : k_RotateLookText;
         }
 
-        void OnCursorLockChanged()
-        {
+        void OnCursorLockChanged() {
             m_CursorLockButton.color = Cursor.lockState == CursorLockMode.Locked ? selectedColor : buttonColor;
         }
 
         // x-axis [A-D]
-        void OnXAxisTranslatePerformed(bool activated, bool restingHand)
-        {
+        void OnXAxisTranslatePerformed(bool activated, bool restingHand) {
             var active = activated;
-            if (!restingHand)
-            {
+            if (!restingHand) {
                 m_XAxisActivated = activated;
                 active |= m_ZAxisActivated;
             }
 
-            if (m_Simulator.manipulatingLeftController)
-            {
+            if (m_Simulator.manipulatingLeftController) {
                 var lController = restingHand ? m_RightController : m_LeftController;
                 lController.OnXAxisTranslatePerformed(active);
             }
 
-            if (m_Simulator.manipulatingRightController)
-            {
+            if (m_Simulator.manipulatingRightController) {
                 var rController = restingHand ? m_LeftController : m_RightController;
                 rController.OnXAxisTranslatePerformed(active);
             }
@@ -1085,30 +913,25 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
         }
 
         // y-axis [Q-E]
-        void OnYAxisTranslatePerformed(bool activated)
-        {
+        void OnYAxisTranslatePerformed(bool activated) {
             if (m_Simulator.manipulatingFPS)
                 m_HeadsetMoveButton.color = activated ? selectedColor : buttonColor;
         }
 
         // z-axis [W-S]
-        void OnZAxisTranslatePerformed(bool activated, bool restingHand)
-        {
+        void OnZAxisTranslatePerformed(bool activated, bool restingHand) {
             var active = activated;
-            if (!restingHand)
-            {
+            if (!restingHand) {
                 m_ZAxisActivated = activated;
                 active |= m_XAxisActivated;
             }
 
-            if (m_Simulator.manipulatingLeftController)
-            {
+            if (m_Simulator.manipulatingLeftController) {
                 var lController = restingHand ? m_RightController : m_LeftController;
                 lController.OnZAxisTranslatePerformed(active);
             }
 
-            if (m_Simulator.manipulatingRightController)
-            {
+            if (m_Simulator.manipulatingRightController) {
                 var rController = restingHand ? m_LeftController : m_RightController;
                 rController.OnZAxisTranslatePerformed(active);
             }
@@ -1117,8 +940,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
                 m_HeadsetMoveButton.color = active ? selectedColor : buttonColor;
         }
 
-        void OnMenuPerformed(bool activated)
-        {
+        void OnMenuPerformed(bool activated) {
             if (m_Simulator.manipulatingLeftController)
                 m_LeftController.OnMenu(activated);
 
@@ -1126,8 +948,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
                 m_RightController.OnMenu(activated);
         }
 
-        void OnGripPerformed(bool activated)
-        {
+        void OnGripPerformed(bool activated) {
             if (m_Simulator.manipulatingLeftController)
                 m_LeftController.OnGrip(activated);
 
@@ -1135,8 +956,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
                 m_RightController.OnGrip(activated);
         }
 
-        void OnTriggerPerformed(bool activated)
-        {
+        void OnTriggerPerformed(bool activated) {
             if (m_Simulator.manipulatingLeftController)
                 m_LeftController.OnTrigger(activated);
 
@@ -1144,8 +964,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
                 m_RightController.OnTrigger(activated);
         }
 
-        void OnPrimaryButtonPerformed(bool activated)
-        {
+        void OnPrimaryButtonPerformed(bool activated) {
             if (m_Simulator.manipulatingLeftController)
                 m_LeftController.OnPrimaryButton(activated);
 
@@ -1153,8 +972,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.DeviceSimulator
                 m_RightController.OnPrimaryButton(activated);
         }
 
-        void OnSecondaryButtonPerformed(bool activated)
-        {
+        void OnSecondaryButtonPerformed(bool activated) {
             if (m_Simulator.manipulatingLeftController)
                 m_LeftController.OnSecondaryButton(activated);
 

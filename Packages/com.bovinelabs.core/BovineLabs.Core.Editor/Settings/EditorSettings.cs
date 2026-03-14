@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Settings
-{
+namespace BovineLabs.Core.Editor.Settings {
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -14,18 +13,15 @@ namespace BovineLabs.Core.Editor.Settings
     using UnityEngine;
 
     [SettingsGroup("Core")]
-    public class EditorSettings : ScriptableObject, ISettings
-    {
+    public class EditorSettings : ScriptableObject, ISettings {
         public const string SettingsKey = "settings";
         public const string SettingsResourceKey = "settings.resource";
         public const string DefaultSettingsDirectory = "Assets/Settings/Settings";
         public const string DefaultSettingsResourceDirectory = "Assets/Settings/";
 
-        [SerializeField]
-        private string[] scriptingDefineSymbols = Array.Empty<string>();
+        [SerializeField] private string[] scriptingDefineSymbols = Array.Empty<string>();
 
-        [SerializeField]
-        private KeyPath[] paths = Array.Empty<KeyPath>();
+        [SerializeField] private KeyPath[] paths = Array.Empty<KeyPath>();
 
 #if BL_CORE_EXTENSIONS && !BL_DISABLE_SUBSCENE
         [Header("Scenes")]
@@ -36,12 +32,9 @@ namespace BovineLabs.Core.Editor.Settings
         private SceneAsset? startupScene;
 #endif
 
-        [Header("Settings")]
-        [SerializeField]
-        private SettingsAuthoring? defaultSettingsAuthoring;
+        [Header("Settings")] [SerializeField] private SettingsAuthoring? defaultSettingsAuthoring;
 
-        [SerializeField]
-        private KeyAuthoring[] settingAuthoring = { new() { World = "service" } };
+        [SerializeField] private KeyAuthoring[] settingAuthoring = { new() { World = "service" } };
 
         public IReadOnlyList<string> ScriptingDefineSymbols => this.scriptingDefineSymbols;
 
@@ -55,11 +48,9 @@ namespace BovineLabs.Core.Editor.Settings
 
         public IReadOnlyList<KeyAuthoring> SettingsAuthorings => this.settingAuthoring;
 
-        public void GetOrAddPath(string key, ref string path)
-        {
+        public void GetOrAddPath(string key, ref string path) {
             var result = this.paths.FirstOrDefault(k => k.Key.ToLower() == key);
-            if (result == null)
-            {
+            if (result == null) {
                 var serializedObject = new SerializedObject(this);
                 serializedObject.Update();
 
@@ -79,8 +70,7 @@ namespace BovineLabs.Core.Editor.Settings
             path = result.Path;
         }
 
-        public bool TryGetAuthoring(string world, out SettingsAuthoring? authoring)
-        {
+        public bool TryGetAuthoring(string world, out SettingsAuthoring? authoring) {
             world = world.ToLower();
 
             authoring = this.settingAuthoring.FirstOrDefault(k => k.World.ToLower() == world)?.Authoring;
@@ -88,17 +78,14 @@ namespace BovineLabs.Core.Editor.Settings
         }
 
         [Serializable]
-        public class KeyPath
-        {
-            [InspectorReadOnly]
-            public string Key = string.Empty;
+        public class KeyPath {
+            [InspectorReadOnly] public string Key = string.Empty;
 
             public string Path = string.Empty;
         }
 
         [Serializable]
-        public class KeyAuthoring
-        {
+        public class KeyAuthoring {
             public string World = string.Empty;
 
             public SettingsAuthoring? Authoring;

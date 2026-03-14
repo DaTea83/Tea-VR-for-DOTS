@@ -2,16 +2,12 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Utility
-{
-    public struct ButtonEvent
-    {
+namespace BovineLabs.Core.Utility {
+    public struct ButtonEvent {
         public bool Value;
 
-        public bool TryConsume()
-        {
-            if (this.Value)
-            {
+        public bool TryConsume() {
+            if (this.Value) {
                 this.Value = false;
                 return true;
             }
@@ -19,10 +15,8 @@ namespace BovineLabs.Core.Utility
             return false;
         }
 
-        public bool TryProduce(bool value = true)
-        {
-            if (value && !this.Value)
-            {
+        public bool TryProduce(bool value = true) {
+            if (value && !this.Value) {
                 this.Value = true;
                 return true;
             }

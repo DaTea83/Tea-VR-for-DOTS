@@ -2,9 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
-    public interface IFixedSize
-    {
-    }
+namespace BovineLabs.Core.Collections {
+    public interface IFixedSize { }
 }

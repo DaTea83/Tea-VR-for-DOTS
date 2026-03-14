@@ -2,34 +2,27 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Utility
-{
+namespace BovineLabs.Core.Utility {
     using System.Runtime.CompilerServices;
     using System.Threading;
 
     // Taken from com.unity.collections\Unity.Collections\AllocatorManager.cs
-    public struct SpinLock
-    {
+    public struct SpinLock {
         private int @lock;
 
         /// <summary>
         /// Continually spin until the lock can be acquired.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Acquire()
-        {
-            for (;;)
-            {
+        public void Acquire() {
+            for (;;) {
                 // Optimistically assume the lock is free on the first try.
-                if (Interlocked.CompareExchange(ref this.@lock, 1, 0) == 0)
-                {
+                if (Interlocked.CompareExchange(ref this.@lock, 1, 0) == 0) {
                     return;
                 }
 
                 // Wait for lock to be released without generating cache misses.
-                while (Volatile.Read(ref this.@lock) == 1)
-                {
-                }
+                while (Volatile.Read(ref this.@lock) == 1) { }
 
                 // Future improvement: the 'continue' instruction above could be swapped for a 'pause' intrinsic
                 // instruction when the CPU supports it, to further reduce contention by reducing load-store unit
@@ -44,8 +37,7 @@ namespace BovineLabs.Core.Utility
         /// </summary>
         /// <returns> <see langword="true" /> if the lock was acquired, <see langword="false" /> otherwise. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryAcquire()
-        {
+        public bool TryAcquire() {
             // First do a memory load (read) to check if lock is free in order to prevent unnecessary cache misses.
             return Volatile.Read(ref this.@lock) == 0 && Interlocked.CompareExchange(ref this.@lock, 1, 0) == 0;
         }
@@ -54,10 +46,8 @@ namespace BovineLabs.Core.Utility
         /// <param name="spin"> Set to true to spin the lock. </param>
         /// <returns> <see langword="true" /> if the lock was acquired, <see langword="false" /> otherwise. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryAcquire(bool spin)
-        {
-            if (spin)
-            {
+        public bool TryAcquire(bool spin) {
+            if (spin) {
                 this.Acquire();
                 return true;
             }
@@ -67,9 +57,6 @@ namespace BovineLabs.Core.Utility
 
         /// <summary> Release the lock. </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Release()
-        {
-            Volatile.Write(ref this.@lock, 0);
-        }
+        public void Release() { Volatile.Write(ref this.@lock, 0); }
     }
 }

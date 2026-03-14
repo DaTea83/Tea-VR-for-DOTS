@@ -1,11 +1,11 @@
 {
-    "name": "Datea83.Vrfordots.Tests",
-    "references": [
-        "Datea83.Vrfordots"
-    ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": []
+  "name": "Datea83.Vrfordots.Tests",
+  "references": [
+    "Datea83.Vrfordots"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": []
 }

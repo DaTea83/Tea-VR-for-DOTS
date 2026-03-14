@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Settings
-{
+namespace BovineLabs.Core.Editor.Settings {
     using System;
     using System.Collections.Generic;
     using BovineLabs.Core.Authoring.Settings;
@@ -12,30 +11,25 @@ namespace BovineLabs.Core.Editor.Settings
     using UnityEngine.UIElements;
 
     [CustomEditor(typeof(EditorSettings))]
-    public class EditorSettingsEditor : ElementEditor
-    {
+    public class EditorSettingsEditor : ElementEditor {
         private readonly List<string> scriptingDefineSymbols = new();
         private readonly List<string> scriptingDefineSymbolsOriginal = new();
 
         private readonly List<string> removed = new();
 
 
-        protected override VisualElement? CreateElement(SerializedProperty property)
-        {
-            return property.name switch
-            {
+        protected override VisualElement? CreateElement(SerializedProperty property) {
+            return property.name switch {
                 "scriptingDefineSymbols" => this.CreateScriptingDefine(property),
                 _ => base.CreateElement(property),
             };
         }
 
-        private VisualElement CreateScriptingDefine(SerializedProperty property)
-        {
+        private VisualElement CreateScriptingDefine(SerializedProperty property) {
             this.scriptingDefineSymbolsOriginal.Clear();
             this.scriptingDefineSymbols.Clear();
 
-            for (var i = 0; i < property.arraySize; i++)
-            {
+            for (var i = 0; i < property.arraySize; i++) {
                 this.scriptingDefineSymbols.Add(property.GetArrayElementAtIndex(i).stringValue);
             }
 
@@ -43,14 +37,12 @@ namespace BovineLabs.Core.Editor.Settings
 
             var ve = CreateFoldout(property.displayName, property.isExpanded);
 
-            ve.RegisterValueChangedCallback(evt =>
-            {
+            ve.RegisterValueChangedCallback(evt => {
                 property.isExpanded = evt.newValue;
                 property.serializedObject.ApplyModifiedProperties();
             });
 
-            var listView = new ListView(this.scriptingDefineSymbols)
-            {
+            var listView = new ListView(this.scriptingDefineSymbols) {
                 selectionType = SelectionType.None,
                 reorderable = true,
                 reorderMode = ListViewReorderMode.Animated,
@@ -75,34 +67,29 @@ namespace BovineLabs.Core.Editor.Settings
             return ve;
 
             TextField MakeItem() => new() { label = string.Empty, style = { flexGrow = 1f } };
-            void BindItem(VisualElement element, int index)
-            {
+
+            void BindItem(VisualElement element, int index) {
                 var tf = (TextField)element;
                 tf.value = this.scriptingDefineSymbols[index];
                 tf.RegisterValueChangedCallback(evt => this.scriptingDefineSymbols[index] = evt.newValue);
             }
 
-            void UnbindItem(VisualElement element, int index)
-            {
+            void UnbindItem(VisualElement element, int index) {
                 var tf = (TextField)element;
                 tf.UnregisterValueChangedCallback(evt => this.scriptingDefineSymbols[index] = evt.newValue);
             }
 
-            void Revert()
-            {
+            void Revert() {
                 this.scriptingDefineSymbols.Clear();
                 this.scriptingDefineSymbols.AddRange(this.scriptingDefineSymbolsOriginal);
                 listView.Rebuild();
             }
 
-            void Apply()
-            {
+            void Apply() {
                 this.removed.Clear();
 
-                foreach (var c in this.scriptingDefineSymbolsOriginal)
-                {
-                    if (!this.scriptingDefineSymbols.Contains(c))
-                    {
+                foreach (var c in this.scriptingDefineSymbolsOriginal) {
+                    if (!this.scriptingDefineSymbols.Contains(c)) {
                         this.removed.Add(c);
                     }
                 }
@@ -112,8 +99,7 @@ namespace BovineLabs.Core.Editor.Settings
 
                 property.arraySize = this.scriptingDefineSymbols.Count;
 
-                for (var i = 0; i < this.scriptingDefineSymbols.Count; i++)
-                {
+                for (var i = 0; i < this.scriptingDefineSymbols.Count; i++) {
                     property.GetArrayElementAtIndex(i).stringValue = this.scriptingDefineSymbols[i];
                 }
 
@@ -123,12 +109,10 @@ namespace BovineLabs.Core.Editor.Settings
         }
 
         /// <inheritdoc/>
-        protected override void PostElementCreation(VisualElement root, bool createdElements)
-        {
+        protected override void PostElementCreation(VisualElement root, bool createdElements) {
             var editorSettings = (EditorSettings)this.target;
 
-            var button = new Button(() => UpdateSettings(editorSettings))
-            {
+            var button = new Button(() => UpdateSettings(editorSettings)) {
                 text = "Update Settings",
                 style = { maxWidth = 200 },
             };
@@ -136,25 +120,20 @@ namespace BovineLabs.Core.Editor.Settings
             root.Add(button);
         }
 
-        private static void UpdateSettings(EditorSettings editorSettings)
-        {
-            if (editorSettings.DefaultSettingsAuthoring == null)
-            {
+        private static void UpdateSettings(EditorSettings editorSettings) {
+            if (editorSettings.DefaultSettingsAuthoring == null) {
                 return;
             }
 
             // Clear all our existing settings
             ClearSettings(editorSettings.DefaultSettingsAuthoring);
-            foreach (var i in editorSettings.SettingsAuthorings)
-            {
+            foreach (var i in editorSettings.SettingsAuthorings) {
                 ClearSettings(i.Authoring);
             }
 
-            foreach (var guid in AssetDatabase.FindAssets("t:SettingsBase"))
-            {
+            foreach (var guid in AssetDatabase.FindAssets("t:SettingsBase")) {
                 var settingsBase = AssetDatabase.LoadAssetAtPath<SettingsBase>(AssetDatabase.GUIDToAssetPath(guid));
-                if (settingsBase == null)
-                {
+                if (settingsBase == null) {
                     continue;
                 }
 
@@ -163,10 +142,8 @@ namespace BovineLabs.Core.Editor.Settings
 
             return;
 
-            static void ClearSettings(SettingsAuthoring? authoring)
-            {
-                if (authoring == null)
-                {
+            static void ClearSettings(SettingsAuthoring? authoring) {
+                if (authoring == null) {
                     return;
                 }
 

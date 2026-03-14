@@ -3,26 +3,21 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-namespace TeaFramework
-{
+namespace TeaFramework {
     [DisallowMultipleComponent]
-    public class LookTowardsAuthoring : MonoBehaviour
-    {
+    public class LookTowardsAuthoring : MonoBehaviour {
         public Transform target;
         public float3 offset;
         public bool ignoreX;
         public bool ignoreY;
         public bool ignoreZ;
-        
-        public class Baker : Baker<LookTowardsAuthoring>
-        {
-            public override void Bake(LookTowardsAuthoring authoring)
-            {
+
+        public class Baker : Baker<LookTowardsAuthoring> {
+            public override void Bake(LookTowardsAuthoring authoring) {
                 DependsOn(authoring.target);
                 var e = GetEntity(TransformUsageFlags.Dynamic);
                 var t = GetEntity(authoring.transform, TransformUsageFlags.Dynamic);
-                AddComponent(e, new LookTowardsIData
-                {
+                AddComponent(e, new LookTowardsIData {
                     Target = t,
                     Offset = authoring.offset,
                     IgnoreX = authoring.ignoreX,
@@ -33,8 +28,7 @@ namespace TeaFramework
         }
     }
 
-    public struct LookTowardsIData : IComponentData
-    {
+    public struct LookTowardsIData : IComponentData {
         public Entity Target;
         public float3 Offset;
         public bool IgnoreX;
@@ -43,16 +37,13 @@ namespace TeaFramework
     }
 
     [UpdateInGroup(typeof(Tea_PreTransformSystemGroup), OrderLast = true)]
-    public partial struct LookTowardsISystem : ISystem
-    {
-        public void OnUpdate(ref SystemState state)
-        {
-            foreach (var (look, lt) 
-                     in SystemAPI.Query<RefRO<LookTowardsIData>, RefRW<LocalTransform>>())
-            {
+    public partial struct LookTowardsISystem : ISystem {
+        public void OnUpdate(ref SystemState state) {
+            foreach (var (look, lt)
+                     in SystemAPI.Query<RefRO<LookTowardsIData>, RefRW<LocalTransform>>()) {
                 var tLtw = SystemAPI.GetComponent<LocalToWorld>(look.ValueRO.Target);
                 float3 fwd = math.normalizesafe(lt.ValueRO.Position - tLtw.Position, new float3(0, 0, 1));
-                float3 up  = new float3(0, 1, 0);
+                float3 up = new float3(0, 1, 0);
                 var newEuler = math.Euler(quaternion.LookRotationSafe(fwd, up)) + look.ValueRO.Offset;
                 var newRad = new float3(look.ValueRO.IgnoreX ? lt.ValueRO.Rotation.GetEuler().x : newEuler.x,
                     look.ValueRO.IgnoreY ? lt.ValueRO.Rotation.GetEuler().y : newEuler.y,

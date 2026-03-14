@@ -2,15 +2,10 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Internal
-{
+namespace BovineLabs.Core.Internal {
     using Unity.Entities;
 
-    public static class ChunkInternals
-    {
-        public static int GetChunkBufferSize()
-        {
-            return Chunk.kChunkBufferSize;
-        }
+    public static class ChunkInternals {
+        public static int GetChunkBufferSize() { return Chunk.kChunkBufferSize; }
     }
 }

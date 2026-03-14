@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System.Runtime.InteropServices;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
@@ -12,42 +11,37 @@ namespace BovineLabs.Core.Collections
     using UnityEngine.Assertions;
 
     /// <summary> A thread safe random. As it's thread based it should not be used for anything requiring determinism. </summary>
-    public unsafe struct ThreadRandom
-    {
+    public unsafe struct ThreadRandom {
         private readonly AllocatorManager.AllocatorHandle allocator;
 
-        [NativeDisableUnsafePtrRestriction]
-        private Randoms* buffer;
+        [NativeDisableUnsafePtrRestriction] private Randoms* buffer;
 
-        public ThreadRandom(uint seed, AllocatorManager.AllocatorHandle allocator)
-        {
+        public ThreadRandom(uint seed, AllocatorManager.AllocatorHandle allocator) {
             this.allocator = allocator;
-            this.buffer = (Randoms*)Memory.Unmanaged.Allocate(sizeof(Randoms) * JobsUtility.ThreadIndexCount, UnsafeUtility.AlignOf<Randoms>(), allocator);
+            this.buffer = (Randoms*)Memory.Unmanaged.Allocate(sizeof(Randoms) * JobsUtility.ThreadIndexCount,
+                UnsafeUtility.AlignOf<Randoms>(), allocator);
 
             // uint.MaxValue is invalid for Random.CreateFromIndex
             seed = (uint)math.min(seed, uint.MaxValue - JobsUtility.ThreadIndexCount - 1);
 
-            for (var i = 0; i < JobsUtility.ThreadIndexCount; i++)
-            {
+            for (var i = 0; i < JobsUtility.ThreadIndexCount; i++) {
                 this.buffer[i].Random = Random.CreateFromIndex((uint)(seed + i));
             }
         }
 
         public readonly bool IsCreated => this.buffer != null;
 
-        public ref Random GetRandomRef()
-        {
+        public ref Random GetRandomRef() {
 #if UNITY_EDITOR
-            Assert.IsTrue(JobsUtility.IsExecutingJob || UnityEditorInternal.InternalEditorUtility.CurrentThreadIsMainThread());
+            Assert.IsTrue(JobsUtility.IsExecutingJob ||
+                          UnityEditorInternal.InternalEditorUtility.CurrentThreadIsMainThread());
 #endif
             ref var randoms = ref UnsafeUtility.ArrayElementAsRef<Randoms>(this.buffer, JobsUtility.ThreadIndex);
             return ref randoms.Random;
         }
 
-        public void Dispose()
-        {
-            if (!this.IsCreated)
-            {
+        public void Dispose() {
+            if (!this.IsCreated) {
                 return;
             }
 
@@ -57,10 +51,8 @@ namespace BovineLabs.Core.Collections
 
         // 1 random per cache line to avoid false sharing
         [StructLayout(LayoutKind.Explicit, Size = JobsUtility.CacheLineSize)]
-        private struct Randoms
-        {
-            [FieldOffset(0)]
-            public Random Random;
+        private struct Randoms {
+            [FieldOffset(0)] public Random Random;
         }
     }
 }

@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Extensions
-{
+namespace BovineLabs.Core.Extensions {
     using System;
     using System.Diagnostics;
     using Unity.Assertions;
@@ -11,10 +10,8 @@ namespace BovineLabs.Core.Extensions
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
 
-    internal unsafe struct ComponentLookupInternal
-    {
-        [NativeDisableUnsafePtrRestriction]
-        public readonly EntityDataAccess* m_Access;
+    internal unsafe struct ComponentLookupInternal {
+        [NativeDisableUnsafePtrRestriction] public readonly EntityDataAccess* m_Access;
 
         public LookupCache m_Cache;
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -28,11 +25,9 @@ namespace BovineLabs.Core.Extensions
 #endif
     }
 
-    public static unsafe class ComponentLookupExtensions
-    {
+    public static unsafe class ComponentLookupExtensions {
         public static T* GetOptionalComponentDataRW<T>(ref this ComponentLookup<T> lookup, Entity entity)
-            where T : unmanaged, IComponentData
-        {
+            where T : unmanaged, IComponentData {
             ref var lookupInternal = ref UnsafeUtility.As<ComponentLookup<T>, ComponentLookupInternal>(ref lookup);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -43,13 +38,13 @@ namespace BovineLabs.Core.Extensions
             var ecs = lookupInternal.m_Access->EntityComponentStore;
             ecs->AssertEntitiesExist(&entity, 1);
 
-            return (T*)ecs->GetOptionalComponentDataWithTypeRW(entity, lookupInternal.m_TypeIndex, lookupInternal.m_GlobalSystemVersion,
+            return (T*)ecs->GetOptionalComponentDataWithTypeRW(entity, lookupInternal.m_TypeIndex,
+                lookupInternal.m_GlobalSystemVersion,
                 ref lookupInternal.m_Cache);
         }
 
         public static RefRW<T> GetRefRWNoChangeFilter<T>(ref this ComponentLookup<T> lookup, Entity entity)
-            where T : unmanaged, IComponentData
-        {
+            where T : unmanaged, IComponentData {
             ref var lookupInternal = ref UnsafeUtility.As<ComponentLookup<T>, ComponentLookupInternal>(ref lookup);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -58,8 +53,7 @@ namespace BovineLabs.Core.Extensions
             var ecs = lookupInternal.m_Access->EntityComponentStore;
             ecs->AssertEntityHasComponent(entity, lookupInternal.m_TypeIndex, ref lookupInternal.m_Cache);
 
-            if (lookupInternal.m_IsZeroSized != 0)
-            {
+            if (lookupInternal.m_IsZeroSized != 0) {
                 return default;
             }
 
@@ -73,8 +67,7 @@ namespace BovineLabs.Core.Extensions
         }
 
         public static EnabledRefRW<T> GetEnableRefRWNoChangeFilter<T>(ref this ComponentLookup<T> lookup, Entity entity)
-            where T : unmanaged, IComponentData, IEnableableComponent
-        {
+            where T : unmanaged, IComponentData, IEnableableComponent {
             ref var lookupInternal = ref UnsafeUtility.As<ComponentLookup<T>, ComponentLookupInternal>(ref lookup);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -85,14 +78,14 @@ namespace BovineLabs.Core.Extensions
 
             int indexInBitField;
             int* ptrChunkDisabledCount;
-            var ptr = ecs->GetEnabledRawRO(entity, lookupInternal.m_TypeIndex, ref lookupInternal.m_Cache, out indexInBitField, out ptrChunkDisabledCount);
+            var ptr = ecs->GetEnabledRawRO(entity, lookupInternal.m_TypeIndex, ref lookupInternal.m_Cache,
+                out indexInBitField, out ptrChunkDisabledCount);
 
             return new EnabledRefRW<T>(MakeSafeBitRef(lookup, ptr, indexInBitField), ptrChunkDisabledCount);
         }
 
         public static void SetChangeFilter<T>(ref this ComponentLookup<T> lookup, Entity entity)
-            where T : unmanaged, IComponentData
-        {
+            where T : unmanaged, IComponentData {
             ref var lookupInternal = ref UnsafeUtility.As<ComponentLookup<T>, ComponentLookupInternal>(ref lookup);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -104,8 +97,7 @@ namespace BovineLabs.Core.Extensions
             var chunk = ecs->GetChunk(entity);
             var archetype = ecs->GetArchetype(chunk);
 
-            if (Hint.Unlikely(archetype != lookupInternal.m_Cache.Archetype))
-            {
+            if (Hint.Unlikely(archetype != lookupInternal.m_Cache.Archetype)) {
                 lookupInternal.m_Cache.Update(archetype, lookupInternal.m_TypeIndex);
             }
 
@@ -113,37 +105,36 @@ namespace BovineLabs.Core.Extensions
             archetype->Chunks.SetChangeVersion(typeIndexInArchetype, chunk.ListIndex, lookup.GlobalSystemVersion);
 
 #if (UNITY_EDITOR || DEVELOPMENT_BUILD) && !DISABLE_ENTITIES_JOURNALING
-            if (Hint.Unlikely(lookupInternal.m_Access->EntityComponentStore->m_RecordToJournal != 0))
-            {
-                lookupInternal.m_Access->EntityComponentStore->GetComponentDataWithTypeRW(entity, lookupInternal.m_TypeIndex,
+            if (Hint.Unlikely(lookupInternal.m_Access->EntityComponentStore->m_RecordToJournal != 0)) {
+                lookupInternal.m_Access->EntityComponentStore->GetComponentDataWithTypeRW(entity,
+                    lookupInternal.m_TypeIndex,
                     lookupInternal.m_GlobalSystemVersion, ref lookupInternal.m_Cache);
             }
 #endif
         }
 
-        public static bool TryGetComponent<T>(ref this ComponentLookup<T> lookup, ref EntityCache cache, out T componentData)
-            where T : unmanaged, IComponentData
-        {
+        public static bool TryGetComponent<T>(ref this ComponentLookup<T> lookup,
+            ref EntityCache cache,
+            out T componentData)
+            where T : unmanaged, IComponentData {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckReadAndThrow(lookup.m_Safety);
 #endif
             ref var lookupInternal = ref UnsafeUtility.As<ComponentLookup<T>, ComponentLookupInternal>(ref lookup);
 
-            if (Hint.Unlikely(!cache.Exists))
-            {
+            if (Hint.Unlikely(!cache.Exists)) {
                 componentData = default;
                 return false;
             }
 
-            if (Hint.Unlikely(lookupInternal.m_IsZeroSized != 0))
-            {
+            if (Hint.Unlikely(lookupInternal.m_IsZeroSized != 0)) {
                 componentData = default;
                 return cache.HasComponent(ref lookupInternal.m_Cache, lookupInternal.m_TypeIndex);
             }
 
-            void* ptr = cache.GetOptionalComponentDataWithTypeRO(lookupInternal.m_TypeIndex, ref lookupInternal.m_Cache);
-            if (ptr == null)
-            {
+            void* ptr = cache.GetOptionalComponentDataWithTypeRO(lookupInternal.m_TypeIndex,
+                ref lookupInternal.m_Cache);
+            if (ptr == null) {
                 componentData = default;
                 return false;
             }
@@ -153,8 +144,7 @@ namespace BovineLabs.Core.Extensions
         }
 
         public static T GetComponentRequired<T>(ref this ComponentLookup<T> lookup, ref EntityCache cache)
-            where T : unmanaged, IComponentData
-        {
+            where T : unmanaged, IComponentData {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckReadAndThrow(lookup.m_Safety);
 #endif
@@ -165,8 +155,7 @@ namespace BovineLabs.Core.Extensions
             Assert.IsTrue(cache.HasComponent(ref lookupInternal.m_Cache, lookupInternal.m_TypeIndex));
 #endif
 
-            if (Hint.Unlikely(lookupInternal.m_IsZeroSized != 0))
-            {
+            if (Hint.Unlikely(lookupInternal.m_IsZeroSized != 0)) {
                 return default;
             }
 
@@ -176,14 +165,12 @@ namespace BovineLabs.Core.Extensions
         }
 
         public static T GetChunkComponent<T>(ref this ComponentLookup<T> lookup, Entity entity)
-            where T : unmanaged, IComponentData
-        {
+            where T : unmanaged, IComponentData {
             return GetChunkComponent(ref lookup, entity, out _);
         }
 
         public static T GetChunkComponent<T>(ref this ComponentLookup<T> lookup, Entity entity, out int indexInChunk)
-            where T : unmanaged, IComponentData
-        {
+            where T : unmanaged, IComponentData {
             ref var lookupInternal = ref UnsafeUtility.As<ComponentLookup<T>, ComponentLookupInternal>(ref lookup);
             var ecs = lookupInternal.m_Access->EntityComponentStore;
 
@@ -208,10 +195,8 @@ namespace BovineLabs.Core.Extensions
 #endif
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        private static void AssertExistsNotZeroSize(ref ComponentLookupInternal lookup)
-        {
-            if (lookup.m_IsZeroSized != 0)
-            {
+        private static void AssertExistsNotZeroSize(ref ComponentLookupInternal lookup) {
+            if (lookup.m_IsZeroSized != 0) {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 throw new ArgumentException("zero sized component");
 #endif

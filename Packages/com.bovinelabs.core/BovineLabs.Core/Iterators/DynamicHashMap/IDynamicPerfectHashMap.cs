@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Iterators
-{
+namespace BovineLabs.Core.Iterators {
     using System;
     using System.Diagnostics.CodeAnalysis;
     using Unity.Entities;
@@ -12,8 +11,7 @@ namespace BovineLabs.Core.Iterators
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Defines memory layout")]
     public interface IDynamicPerfectHashMap<TKey, TValue> : IBufferElementData
         where TKey : unmanaged, IEquatable<TKey>
-        where TValue : unmanaged
-    {
+        where TValue : unmanaged {
         byte Value { get; }
     }
 }

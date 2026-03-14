@@ -2,23 +2,19 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Extensions
-{
+namespace BovineLabs.Core.Tests.Extensions {
     using BovineLabs.Core.Extensions;
     using NUnit.Framework;
     using Unity.Mathematics;
     using Assert = UnityEngine.Assertions.Assert;
 
     /// <summary> Tests for <see cref="MathematicsExtensions" />. </summary>
-    public class MathematicsExtensionsTests
-    {
+    public class MathematicsExtensionsTests {
         /// <summary> Tests for the AABB extension methods. </summary>
-        public class AABBTests
-        {
+        public class AABBTests {
             /// <summary> Tests <see cref="MathematicsExtensions.Expand" />. </summary>
             [Test]
-            public void Expand()
-            {
+            public void Expand() {
                 var aabb = default(AABB);
                 aabb.Center = new float3(10, 15, 20);
                 aabb.Extents = new float3(1, 2, 3);
@@ -31,8 +27,7 @@ namespace BovineLabs.Core.Tests.Extensions
 
             /// <summary> Tests <see cref="MathematicsExtensions.IsDefault" />. </summary>
             [Test]
-            public void IsDefault()
-            {
+            public void IsDefault() {
                 var aabb = default(AABB);
 
                 Assert.IsTrue(aabb.IsDefault());
@@ -56,8 +51,7 @@ namespace BovineLabs.Core.Tests.Extensions
 
             /// <summary> Tests <see cref="MathematicsExtensions.Encapsulate" />. </summary>
             [Test]
-            public void Encapsulate()
-            {
+            public void Encapsulate() {
                 var aabb = default(AABB);
                 aabb.Center = new float3(10, 10, 10);
                 aabb.Extents = new float3(2, 2, 2);

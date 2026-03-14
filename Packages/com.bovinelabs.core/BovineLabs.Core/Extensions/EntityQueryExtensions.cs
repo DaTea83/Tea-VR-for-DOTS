@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Extensions
-{
+namespace BovineLabs.Core.Extensions {
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
@@ -13,20 +12,16 @@ namespace BovineLabs.Core.Extensions
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
 
-    public static unsafe class EntityQueryExtensions
-    {
+    public static unsafe class EntityQueryExtensions {
         public static bool QueryHasSharedFilter<T>(this EntityQuery query, out int scdIndex)
-            where T : unmanaged, ISharedComponentData
-        {
+            where T : unmanaged, ISharedComponentData {
             var filters = query.GetSharedFilters();
             var requiredType = TypeManager.GetTypeIndex<T>();
 
-            for (var i = 0; i < filters.Count; i++)
-            {
+            for (var i = 0; i < filters.Count; i++) {
                 var indexInEntityQuery = filters.IndexInEntityQuery[i];
                 var component = query.__impl->_QueryData->RequiredComponents[indexInEntityQuery].TypeIndex;
-                if (component == requiredType)
-                {
+                if (component == requiredType) {
                     scdIndex = filters.SharedComponentIndex[i];
                     return true;
                 }
@@ -37,8 +32,7 @@ namespace BovineLabs.Core.Extensions
         }
 
         public static bool QueryHasSharedFilter<T>(this EntityQuery query, int index)
-            where T : unmanaged, ISharedComponentData
-        {
+            where T : unmanaged, ISharedComponentData {
             var impl = query._GetImpl();
             var filters = query.GetSharedFilters();
             var requiredType = TypeManager.GetTypeIndex<T>();
@@ -47,8 +41,7 @@ namespace BovineLabs.Core.Extensions
 
             var indexInEntityQuery = filters.IndexInEntityQuery[index];
             var component = query.__impl->_QueryData->RequiredComponents[indexInEntityQuery].TypeIndex;
-            if (component == requiredType)
-            {
+            if (component == requiredType) {
                 return true;
             }
 
@@ -56,8 +49,7 @@ namespace BovineLabs.Core.Extensions
         }
 
         public static void ReplaceSharedComponentFilter<T>(this EntityQuery query, int index, T sharedComponent)
-            where T : unmanaged, ISharedComponentData
-        {
+            where T : unmanaged, ISharedComponentData {
             var impl = query._GetImpl();
 
             AssertRange(index, impl->_Filter.Shared.Count);
@@ -68,40 +60,43 @@ namespace BovineLabs.Core.Extensions
 
             // Replace with our new component - from AddSharedComponentFilter
             impl->_Filter.Shared.IndexInEntityQuery[index] = query.GetIndexInEntityQuery(TypeManager.GetTypeIndex<T>());
-            impl->_Filter.Shared.SharedComponentIndex[index] = impl->_Access->InsertSharedComponent_Unmanaged(sharedComponent);
+            impl->_Filter.Shared.SharedComponentIndex[index] =
+                impl->_Access->InsertSharedComponent_Unmanaged(sharedComponent);
         }
 
-        public static Entity GetFirstEntity(this EntityQuery query)
-        {
+        public static Entity GetFirstEntity(this EntityQuery query) {
             EntityQueryImpl* impl = query._GetImpl();
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS || UNITY_DOTS_DEBUG
             if (impl->_QueryData->HasEnableableComponents != 0)
-                throw new InvalidOperationException("Can't call GetFirstEntity() on queries containing enableable component types.");
+                throw new InvalidOperationException(
+                    "Can't call GetFirstEntity() on queries containing enableable component types.");
 #endif
-            impl->GetFirstChunkAndEntity(TypeManager.GetTypeIndex<Entity>(), out _, out var chunk, out var entityIndexInChunk);
+            impl->GetFirstChunkAndEntity(TypeManager.GetTypeIndex<Entity>(), out _, out var chunk,
+                out var entityIndexInChunk);
             var archetype = impl->_Access->EntityComponentStore->GetArchetype(chunk);
             Entity* chunkEntities = (Entity*)ChunkIterationUtility.GetChunkComponentDataROPtr(archetype, chunk, 0);
             return UnsafeUtility.AsRef<Entity>(chunkEntities + entityIndexInChunk);
         }
 
-        public static UntypedDynamicBuffer GetSingletonUntypedBuffer(this EntityQuery query, ComponentType componentType, bool isReadOnly)
-        {
+        public static UntypedDynamicBuffer GetSingletonUntypedBuffer(this EntityQuery query,
+            ComponentType componentType,
+            bool isReadOnly) {
             var impl = query._GetImpl();
 
             var typeIndex = componentType.TypeIndex;
 #if ENABLE_UNITY_COLLECTIONS_CHECKS || UNITY_DOTS_DEBUG
-            if (TypeManager.IsEnableable(typeIndex))
-            {
+            if (TypeManager.IsEnableable(typeIndex)) {
                 var typeName = typeIndex.ToFixedString();
-                throw new InvalidOperationException($"Can't call GetSingletonBuffer<{typeName}>() with enableable component type {typeName}.");
+                throw new InvalidOperationException(
+                    $"Can't call GetSingletonBuffer<{typeName}>() with enableable component type {typeName}.");
             }
 #endif
 
-            impl->GetSingletonChunkAndEntity(typeIndex, out var indexInArchetype, out var chunk, out var entityIndexInChunk);
+            impl->GetSingletonChunkAndEntity(typeIndex, out var indexInArchetype, out var chunk,
+                out var entityIndexInChunk);
 #if (UNITY_EDITOR || DEVELOPMENT_BUILD) && !DISABLE_ENTITIES_JOURNALING
-            if (Hint.Unlikely(impl->_Access->EntityComponentStore->m_RecordToJournal != 0) && !isReadOnly)
-            {
+            if (Hint.Unlikely(impl->_Access->EntityComponentStore->m_RecordToJournal != 0) && !isReadOnly) {
                 impl->RecordSingletonJournalRW(chunk, typeIndex, EntitiesJournaling.RecordType.GetBufferRW);
             }
 #endif
@@ -111,7 +106,8 @@ namespace BovineLabs.Core.Extensions
             var safetyHandles = &impl->_Access->DependencyManager->Safety;
 
             var bufferAccessor = GetChunkBufferAccessor(archetype, chunk, typeIndex, !isReadOnly, indexInArchetype,
-                impl->_Access->EntityComponentStore->GlobalSystemVersion, safetyHandles->GetSafetyHandle(typeIndex, isReadOnly),
+                impl->_Access->EntityComponentStore->GlobalSystemVersion,
+                safetyHandles->GetSafetyHandle(typeIndex, isReadOnly),
                 safetyHandles->GetBufferSafetyHandle(typeIndex));
 #else
             var bufferAccessor = GetChunkBufferAccessor(archetype, chunk, typeIndex, !isReadOnly, indexInArchetype,
@@ -122,23 +118,22 @@ namespace BovineLabs.Core.Extensions
         }
 
         public static DynamicBuffer<T> GetSingletonBufferNoSync<T>(this EntityQuery query, bool isReadOnly)
-            where T : unmanaged, IBufferElementData
-        {
+            where T : unmanaged, IBufferElementData {
             var impl = query._GetImpl();
 
             var typeIndex = TypeManager.GetTypeIndex<T>();
 #if ENABLE_UNITY_COLLECTIONS_CHECKS || UNITY_DOTS_DEBUG
-            if (TypeManager.IsEnableable(typeIndex))
-            {
+            if (TypeManager.IsEnableable(typeIndex)) {
                 var typeName = typeIndex.ToFixedString();
-                throw new InvalidOperationException($"Can't call GetSingletonBuffer<{typeName}>() with enableable component type {typeName}.");
+                throw new InvalidOperationException(
+                    $"Can't call GetSingletonBuffer<{typeName}>() with enableable component type {typeName}.");
             }
 #endif
 
-            impl->GetSingletonChunkAndEntity(typeIndex, out var indexInArchetype, out var chunk, out var entityIndexInChunk);
+            impl->GetSingletonChunkAndEntity(typeIndex, out var indexInArchetype, out var chunk,
+                out var entityIndexInChunk);
 #if (UNITY_EDITOR || DEVELOPMENT_BUILD) && !DISABLE_ENTITIES_JOURNALING
-            if (Hint.Unlikely(impl->_Access->EntityComponentStore->m_RecordToJournal != 0) && !isReadOnly)
-            {
+            if (Hint.Unlikely(impl->_Access->EntityComponentStore->m_RecordToJournal != 0) && !isReadOnly) {
                 impl->RecordSingletonJournalRW(chunk, typeIndex, EntitiesJournaling.RecordType.GetBufferRW);
             }
 #endif
@@ -146,20 +141,24 @@ namespace BovineLabs.Core.Extensions
             var archetype = impl->_Access->EntityComponentStore->GetArchetype(chunk);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             var safetyHandles = &impl->_Access->DependencyManager->Safety;
-            var bufferAccessor = ChunkIterationUtility.GetChunkBufferAccessor<T>(archetype, chunk, !isReadOnly, indexInArchetype,
-                impl->_Access->EntityComponentStore->GlobalSystemVersion, safetyHandles->GetSafetyHandle(typeIndex, isReadOnly),
+            var bufferAccessor = ChunkIterationUtility.GetChunkBufferAccessor<T>(archetype, chunk, !isReadOnly,
+                indexInArchetype,
+                impl->_Access->EntityComponentStore->GlobalSystemVersion,
+                safetyHandles->GetSafetyHandle(typeIndex, isReadOnly),
                 safetyHandles->GetBufferSafetyHandle(typeIndex));
 #else
-            var bufferAccessor = ChunkIterationUtility.GetChunkBufferAccessor<T>(archetype, chunk, !isReadOnly, indexInArchetype,
+            var bufferAccessor =
+ ChunkIterationUtility.GetChunkBufferAccessor<T>(archetype, chunk, !isReadOnly, indexInArchetype,
                 impl->_Access->EntityComponentStore->GlobalSystemVersion);
 #endif
 
             return bufferAccessor.GetUnsafe(entityIndexInChunk);
         }
 
-        public static bool TryGetSingletonBufferNoSync<T>(this EntityQuery query, out DynamicBuffer<T> buffer, bool isReadOnly)
-            where T : unmanaged, IBufferElementData
-        {
+        public static bool TryGetSingletonBufferNoSync<T>(this EntityQuery query,
+            out DynamicBuffer<T> buffer,
+            bool isReadOnly)
+            where T : unmanaged, IBufferElementData {
             var hasSingleton = query.HasSingleton<T>();
             buffer = hasSingleton ? query.GetSingletonBufferNoSync<T>(isReadOnly) : default;
             return hasSingleton;
@@ -167,16 +166,22 @@ namespace BovineLabs.Core.Extensions
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [Conditional("UNITY_DOTS_DEBUG")]
-        private static void AssertRange(int index, int count)
-        {
-            if (index < 0 || index >= count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index), "Trying to replace shared filter outside of range");
+        private static void AssertRange(int index, int count) {
+            if (index < 0 || index >= count) {
+                throw new ArgumentOutOfRangeException(nameof(index),
+                    "Trying to replace shared filter outside of range");
             }
         }
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-        private static DynamicBufferAccessor GetChunkBufferAccessor(Archetype* archetype, ChunkIndex chunk, TypeIndex typeIndex, bool isWriting, int typeIndexInArchetype, uint systemVersion, AtomicSafetyHandle safety0, AtomicSafetyHandle safety1)
+        private static DynamicBufferAccessor GetChunkBufferAccessor(Archetype* archetype,
+            ChunkIndex chunk,
+            TypeIndex typeIndex,
+            bool isWriting,
+            int typeIndexInArchetype,
+            uint systemVersion,
+            AtomicSafetyHandle safety0,
+            AtomicSafetyHandle safety1)
 #else
         private static DynamicBufferAccessor GetChunkBufferAccessor(Archetype* archetype, ChunkIndex chunk, TypeIndex typeIndex, bool isWriting, int typeIndexInArchetype, uint systemVersion)
 #endif
@@ -191,8 +196,7 @@ namespace BovineLabs.Core.Extensions
             int stride = archetype->SizeOfs[typeIndexInArchetype];
 
 #if (UNITY_EDITOR || DEVELOPMENT_BUILD) && !DISABLE_ENTITIES_JOURNALING
-            if (Hint.Unlikely(archetype->EntityComponentStore->m_RecordToJournal != 0) && isWriting)
-            {
+            if (Hint.Unlikely(archetype->EntityComponentStore->m_RecordToJournal != 0) && isWriting) {
                 EntitiesJournaling.AddRecord(
                     recordType: EntitiesJournaling.RecordType.GetBufferRW,
                     entityComponentStore: archetype->EntityComponentStore,
@@ -209,24 +213,28 @@ namespace BovineLabs.Core.Extensions
             var elementAlign = typeInfo.AlignmentInBytes;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            return new DynamicBufferAccessor(ptr, length, stride, elementSize, elementAlign, internalCapacity, !isWriting, safety0, safety1);
+            return new DynamicBufferAccessor(ptr, length, stride, elementSize, elementAlign, internalCapacity,
+                !isWriting, safety0, safety1);
 #else
             return new DynamicBufferAccessor(ptr, length, stride, elementSize, elementAlign, internalCapacity);
 #endif
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static void GetFirstChunkAndEntity(this EntityQueryImpl impl, TypeIndex typeIndex, out int outIndexInArchetype, out ChunkIndex outChunk, out int outEntityIndexInChunk)
-        {
+        private static void GetFirstChunkAndEntity(this EntityQueryImpl impl,
+            TypeIndex typeIndex,
+            out int outIndexInArchetype,
+            out ChunkIndex outChunk,
+            out int outEntityIndexInChunk) {
             if (!impl._Filter.RequiresMatchesFilter && impl._QueryData->HasEnableableComponents == 0 &&
-                impl._QueryData->RequiredComponentsCount <= 2 && impl._QueryData->RequiredComponents[1].TypeIndex == typeIndex)
-            {
+                impl._QueryData->RequiredComponentsCount <= 2 &&
+                impl._QueryData->RequiredComponents[1].TypeIndex == typeIndex) {
                 // Fast path with no filtering
                 var matchingChunkCache = impl.GetMatchingChunkCache();
 #if ENABLE_UNITY_COLLECTIONS_CHECKS || UNITY_DOTS_DEBUG
-                if (matchingChunkCache.Length == 0 || matchingChunkCache.ChunkIndices[0].Count == 0)
-                {
-                    throw new InvalidOperationException($"GetFirst() requires that exactly one entity exists that match this query, but there are none.");
+                if (matchingChunkCache.Length == 0 || matchingChunkCache.ChunkIndices[0].Count == 0) {
+                    throw new InvalidOperationException(
+                        $"GetFirst() requires that exactly one entity exists that match this query, but there are none.");
                 }
 #endif
                 outChunk = matchingChunkCache.ChunkIndices[0];
@@ -235,18 +243,18 @@ namespace BovineLabs.Core.Extensions
                 outIndexInArchetype = match->IndexInArchetype[1];
                 outEntityIndexInChunk = 0;
             }
-            else
-            {
+            else {
                 // Slow path with filtering, can't just use first matching archetype/chunk
                 impl.SyncFilterTypes();
-                int queryEntityCount = ChunkIterationUtility.CalculateEntityCountAndSingleton(impl.GetMatchingChunkCache(),
+                int queryEntityCount = ChunkIterationUtility.CalculateEntityCountAndSingleton(
+                    impl.GetMatchingChunkCache(),
                     ref impl._QueryData->MatchingArchetypes, ref impl._Filter, impl._QueryData->HasEnableableComponents,
                     out var firstMatchArchetype, out outChunk, out outEntityIndexInChunk);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS || UNITY_DOTS_DEBUG
-                if (queryEntityCount == 1)
-                {
+                if (queryEntityCount == 1) {
                     impl._QueryData->CheckChunkListCacheConsistency(false);
-                    throw new InvalidOperationException("GetFirst() requires at least one entity exists that matches this query, but there are none.");
+                    throw new InvalidOperationException(
+                        "GetFirst() requires at least one entity exists that matches this query, but there are none.");
                 }
 #endif
                 var indexInQuery = impl.GetIndexInEntityQuery(typeIndex);

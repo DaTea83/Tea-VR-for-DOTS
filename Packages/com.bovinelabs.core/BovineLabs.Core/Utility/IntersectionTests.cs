@@ -2,21 +2,18 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Utility
-{
+namespace BovineLabs.Core.Utility {
     using System;
     using Unity.Mathematics;
 
-    public static class IntersectionTests
-    {
+    public static class IntersectionTests {
         // https://github.com/juj/MathGeoLib/blob/master/src/Geometry/Triangle.cpp#L630
-        public static bool AABBTriangle(MinMaxAABB aabb, float3 a, float3 b, float3 c)
-        {
+        public static bool AABBTriangle(MinMaxAABB aabb, float3 a, float3 b, float3 c) {
             var tMin = math.min(a, math.min(b, c));
             var tMax = math.max(a, math.max(b, c));
 
-            if (tMin.x >= aabb.Max.x || tMax.x <= aabb.Min.x || tMin.y >= aabb.Max.y || tMax.y <= aabb.Min.y || tMin.z >= aabb.Max.z || tMax.z <= aabb.Min.z)
-            {
+            if (tMin.x >= aabb.Max.x || tMax.x <= aabb.Min.x || tMin.y >= aabb.Max.y || tMax.y <= aabb.Min.y ||
+                tMin.z >= aabb.Max.z || tMax.z <= aabb.Min.z) {
                 return false;
             }
 
@@ -31,8 +28,7 @@ namespace BovineLabs.Core.Utility
             var s = math.dot(n, ac);
             var r = math.abs(math.dot(h, math.abs(n)));
 
-            if (math.abs(s) >= r)
-            {
+            if (math.abs(s) >= r) {
                 return false;
             }
 
@@ -47,8 +43,7 @@ namespace BovineLabs.Core.Utility
             var tc = (d1 + d2) * 0.5f;
             r = math.abs((h.y * at[0].z) + (h.z * at[0].y));
 
-            if (r + math.abs(tc - d1) < math.abs(tc))
-            {
+            if (r + math.abs(tc - d1) < math.abs(tc)) {
                 return false;
             }
 
@@ -58,8 +53,7 @@ namespace BovineLabs.Core.Utility
             tc = (d1 + d2) * 0.5f;
             r = math.abs((h.y * at[1].z) + (h.z * at[1].y));
 
-            if (r + math.abs(tc - d1) < math.abs(tc))
-            {
+            if (r + math.abs(tc - d1) < math.abs(tc)) {
                 return false;
             }
 
@@ -69,8 +63,7 @@ namespace BovineLabs.Core.Utility
             tc = (d1 + d2) * 0.5f;
             r = math.abs((h.y * at[2].z) + (h.z * at[2].y));
 
-            if (r + math.abs(tc - d1) < math.abs(tc))
-            {
+            if (r + math.abs(tc - d1) < math.abs(tc)) {
                 return false;
             }
 
@@ -80,8 +73,7 @@ namespace BovineLabs.Core.Utility
             tc = (d1 + d2) * 0.5f;
             r = math.abs((h.x * at[0].z) + (h.z * at[0].x));
 
-            if (r + math.abs(tc - d1) < math.abs(tc))
-            {
+            if (r + math.abs(tc - d1) < math.abs(tc)) {
                 return false;
             }
 
@@ -91,8 +83,7 @@ namespace BovineLabs.Core.Utility
             tc = (d1 + d2) * 0.5f;
             r = math.abs((h.x * at[1].z) + (h.z * at[1].x));
 
-            if (r + math.abs(tc - d1) < math.abs(tc))
-            {
+            if (r + math.abs(tc - d1) < math.abs(tc)) {
                 return false;
             }
 
@@ -102,8 +93,7 @@ namespace BovineLabs.Core.Utility
             tc = (d1 + d2) * 0.5f;
             r = math.abs((h.x * at[2].z) + (h.z * at[2].x));
 
-            if (r + math.abs(tc - d1) < math.abs(tc))
-            {
+            if (r + math.abs(tc - d1) < math.abs(tc)) {
                 return false;
             }
 
@@ -113,8 +103,7 @@ namespace BovineLabs.Core.Utility
             tc = (d1 + d2) * 0.5f;
             r = math.abs((h.y * at[0].x) + (h.x * at[0].y));
 
-            if (r + math.abs(tc - d1) < math.abs(tc))
-            {
+            if (r + math.abs(tc - d1) < math.abs(tc)) {
                 return false;
             }
 
@@ -124,8 +113,7 @@ namespace BovineLabs.Core.Utility
             tc = (d1 + d2) * 0.5f;
             r = math.abs((h.y * at[1].x) + (h.x * at[1].y));
 
-            if (r + math.abs(tc - d1) < math.abs(tc))
-            {
+            if (r + math.abs(tc - d1) < math.abs(tc)) {
                 return false;
             }
 
@@ -135,8 +123,7 @@ namespace BovineLabs.Core.Utility
             tc = (d1 + d2) * 0.5f;
             r = math.abs((h.y * at[2].x) + (h.x * at[2].y));
 
-            if (r + math.abs(tc - d1) < math.abs(tc))
-            {
+            if (r + math.abs(tc - d1) < math.abs(tc)) {
                 return false;
             }
 

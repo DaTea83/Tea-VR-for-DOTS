@@ -2,28 +2,24 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.AssetWindow
-{
+namespace BovineLabs.Core.Editor.AssetWindow {
     using UnityEditor;
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    public class AssetWindow : EditorWindow
-    {
+    public class AssetWindow : EditorWindow {
         private TextField? textField;
         private Label? result;
 
         [MenuItem(EditorMenus.RootMenuTools + "Asset", priority = 1015)]
-        private static void ShowWindow()
-        {
+        private static void ShowWindow() {
             // Get existing open window or if none, make a new one:
             var window = GetWindow<AssetWindow>();
             window.titleContent = new GUIContent("BovineLabs");
             window.Show();
         }
 
-        public void CreateGUI()
-        {
+        public void CreateGUI() {
             this.textField = new TextField { label = "guid" };
             var button = new Button(this.Search) { text = "Find" };
             this.result = new Label();
@@ -33,13 +29,11 @@ namespace BovineLabs.Core.Editor.AssetWindow
             this.rootVisualElement.Add(this.result);
         }
 
-        private void Search()
-        {
+        private void Search() {
             var guid = this.textField!.value;
 
             var path = string.IsNullOrWhiteSpace(guid) ? string.Empty : AssetDatabase.GUIDToAssetPath(guid);
-            if (string.IsNullOrWhiteSpace(path))
-            {
+            if (string.IsNullOrWhiteSpace(path)) {
                 path = "Not Found";
             }
 

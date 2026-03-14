@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using Unity.Entities;
     using Unity.Entities.Editor;
     using Unity.Entities.Serialization;
@@ -15,15 +14,13 @@ namespace BovineLabs.Core.Editor.Inspectors
     using UnityEngine.UIElements;
     using InspectorUtility = BovineLabs.Core.Editor.Internal.InspectorUtility;
 
-    internal class EntitySceneReferenceInspector : PropertyInspector<EntitySceneReference>
-    {
+    internal class EntitySceneReferenceInspector : PropertyInspector<EntitySceneReference> {
         private PropertyElement? idField;
         private ObjectField? objectField;
         private Foldout? field;
 
         /// <inheritdoc/>
-        public override VisualElement Build()
-        {
+        public override VisualElement Build() {
             this.field = new Foldout { value = false };
 
             this.idField = PropertyElement.MakeWithValue(this.Target.Id);
@@ -39,8 +36,7 @@ namespace BovineLabs.Core.Editor.Inspectors
 
             this.Update();
 
-            this.objectField.RegisterValueChangedCallback(evt =>
-            {
+            this.objectField.RegisterValueChangedCallback(evt => {
                 this.Target = new EntitySceneReference((SceneAsset)evt.newValue);
             });
 
@@ -50,8 +46,7 @@ namespace BovineLabs.Core.Editor.Inspectors
         }
 
         /// <inheritdoc/>
-        public override void Update()
-        {
+        public override void Update() {
             var target = this.Target;
             var sceneAsset = this.GetSceneAsset(target);
 
@@ -61,20 +56,17 @@ namespace BovineLabs.Core.Editor.Inspectors
             this.field!.text = sceneAsset == null ? this.DisplayName : $"{this.DisplayName} : {sceneAsset.name}";
         }
 
-        private SceneAsset? GetSceneAsset(EntitySceneReference sceneReference)
-        {
-            if (!sceneReference.Id.IsValid)
-            {
+        private SceneAsset? GetSceneAsset(EntitySceneReference sceneReference) {
+            if (!sceneReference.Id.IsValid) {
                 return null;
             }
 
-            if (sceneReference.Id.GenerationType != WeakReferenceGenerationType.EntityScene)
-            {
+            if (sceneReference.Id.GenerationType != WeakReferenceGenerationType.EntityScene) {
                 return null;
             }
 
-            return AssetDatabase.LoadAssetAtPath<SceneAsset>(AssetDatabase.GUIDToAssetPath(sceneReference.Id.GlobalId.AssetGUID));
+            return AssetDatabase.LoadAssetAtPath<SceneAsset>(
+                AssetDatabase.GUIDToAssetPath(sceneReference.Id.GlobalId.AssetGUID));
         }
     }
 }
-

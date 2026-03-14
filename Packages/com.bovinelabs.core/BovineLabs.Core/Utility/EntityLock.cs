@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Utility
-{
+namespace BovineLabs.Core.Utility {
     using System;
     using System.Diagnostics;
     using BovineLabs.Core.Assertions;
@@ -13,46 +12,41 @@ namespace BovineLabs.Core.Utility
     using Unity.Entities;
     using Unity.Jobs.LowLevel.Unsafe;
 
-    public unsafe struct EntityLock : IDisposable
-    {
-        [NativeDisableUnsafePtrRestriction]
-        private readonly LockData* pairs;
+    public unsafe struct EntityLock : IDisposable {
+        [NativeDisableUnsafePtrRestriction] private readonly LockData* pairs;
         private readonly int length;
 
-        [NativeDisableUnsafePtrRestriction]
-        private readonly SpinLock* locksLock;
+        [NativeDisableUnsafePtrRestriction] private readonly SpinLock* locksLock;
 
         private readonly Allocator allocator;
 
-        public EntityLock(Allocator allocator)
-        {
+        public EntityLock(Allocator allocator) {
             this.allocator = allocator;
             this.length = JobsUtility.ThreadIndexCount;
-            this.pairs = (LockData*)UnsafeUtility.MallocTracked(sizeof(LockData) * this.length, UnsafeUtility.AlignOf<LockData>(), allocator, 0);
-            this.locksLock = (SpinLock*)UnsafeUtility.MallocTracked(sizeof(SpinLock), UnsafeUtility.AlignOf<SpinLock>(), allocator, 0);
+            this.pairs = (LockData*)UnsafeUtility.MallocTracked(sizeof(LockData) * this.length,
+                UnsafeUtility.AlignOf<LockData>(), allocator, 0);
+            this.locksLock =
+                (SpinLock*)UnsafeUtility.MallocTracked(sizeof(SpinLock), UnsafeUtility.AlignOf<SpinLock>(), allocator,
+                    0);
 
             UnsafeUtility.MemClear(this.pairs, sizeof(LockData) * this.length);
             *this.locksLock = default;
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             UnsafeUtility.FreeTracked(this.pairs, this.allocator);
             UnsafeUtility.FreeTracked(this.locksLock, this.allocator);
         }
 
-        public Lock Acquire(Entity entity)
-        {
+        public Lock Acquire(Entity entity) {
             AssertIsNotNull(entity);
 
             // LOCK ACQUIRE
             this.locksLock->Acquire();
 
             var index = -1;
-            for (var i = 0; i < this.length; i++)
-            {
-                if (Hint.Likely(this.pairs[i].Entity == entity.Index))
-                {
+            for (var i = 0; i < this.length; i++) {
+                if (Hint.Likely(this.pairs[i].Entity == entity.Index)) {
                     continue;
                 }
 
@@ -60,12 +54,9 @@ namespace BovineLabs.Core.Utility
                 break;
             }
 
-            if (Hint.Likely(index == -1))
-            {
-                for (var indexEmpty = 0; indexEmpty < this.length; indexEmpty++)
-                {
-                    if (this.pairs[indexEmpty].Ref == 0)
-                    {
+            if (Hint.Likely(index == -1)) {
+                for (var indexEmpty = 0; indexEmpty < this.length; indexEmpty++) {
+                    if (this.pairs[indexEmpty].Ref == 0) {
                         var p2 = this.pairs + indexEmpty;
                         p2->Entity = entity.Index;
                         index = indexEmpty;
@@ -87,45 +78,36 @@ namespace BovineLabs.Core.Utility
             return new Lock(this, index);
         }
 
-        public void Release(Lock @lock)
-        {
-            @lock.Dispose();
-        }
+        public void Release(Lock @lock) { @lock.Dispose(); }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        private static void AssertIsNotNull(Entity entity)
-        {
+        private static void AssertIsNotNull(Entity entity) {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            if (entity == Entity.Null)
-            {
+            if (entity == Entity.Null) {
                 throw new ArgumentException("Can't pass entity null to lock");
             }
 #endif
         }
 
-        private struct LockData
-        {
+        private struct LockData {
             public int Entity;
             public SpinLock EntityLock;
             public int Ref;
         }
 
-        public readonly struct Lock : IDisposable
-        {
+        public readonly struct Lock : IDisposable {
             private readonly LockData* pairs;
             private readonly SpinLock* locksLock;
 
             private readonly int index;
 
-            internal Lock(EntityLock entityLock, int index)
-            {
+            internal Lock(EntityLock entityLock, int index) {
                 this.pairs = entityLock.pairs;
                 this.locksLock = entityLock.locksLock;
                 this.index = index;
             }
 
-            public void Dispose()
-            {
+            public void Dispose() {
                 var p = this.pairs + this.index;
                 p->EntityLock.Release();
 

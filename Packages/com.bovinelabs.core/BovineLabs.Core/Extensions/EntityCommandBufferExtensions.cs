@@ -2,69 +2,92 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Extensions
-{
+namespace BovineLabs.Core.Extensions {
     using BovineLabs.Core.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
 
-    public static unsafe class EntityCommandBufferExtensions
-    {
+    public static unsafe class EntityCommandBufferExtensions {
         private const int Align64BIT = 8;
 
-        public static UntypedDynamicBuffer AddUntypedBuffer(this EntityCommandBuffer ecb, Entity e, ComponentType componentType)
-        {
+        public static UntypedDynamicBuffer AddUntypedBuffer(this EntityCommandBuffer ecb,
+            Entity e,
+            ComponentType componentType) {
             ecb.EnforceSingleThreadOwnership();
             ecb.AssertDidNotPlayback();
 
             // TODO try use the m_BufferSafety and m_ArrayInvalidationSafety but they are private
-            return ecb.m_Data->CreateUntypedBufferCommand(ECBCommand.AddBuffer, &ecb.m_Data->m_MainThreadChain, ecb.MainThreadSortKey, e, componentType);
+            return ecb.m_Data->CreateUntypedBufferCommand(ECBCommand.AddBuffer, &ecb.m_Data->m_MainThreadChain,
+                ecb.MainThreadSortKey, e, componentType);
         }
 
-        public static UntypedDynamicBuffer AddUntypedBuffer(this EntityCommandBuffer.ParallelWriter ecb, int sortKey, Entity e, ComponentType componentType)
-        {
-            return ecb.m_Data->CreateUntypedBufferCommand(ECBCommand.AddBuffer, &ecb.m_Data->m_MainThreadChain, sortKey, e, componentType);
+        public static UntypedDynamicBuffer AddUntypedBuffer(this EntityCommandBuffer.ParallelWriter ecb,
+            int sortKey,
+            Entity e,
+            ComponentType componentType) {
+            return ecb.m_Data->CreateUntypedBufferCommand(ECBCommand.AddBuffer, &ecb.m_Data->m_MainThreadChain, sortKey,
+                e, componentType);
         }
 
-        public static void UnsafeAddComponent(this EntityCommandBuffer ecb, Entity e, TypeIndex typeIndex, int typeSize, void* componentDataPtr)
-        {
+        public static void UnsafeAddComponent(this EntityCommandBuffer ecb,
+            Entity e,
+            TypeIndex typeIndex,
+            int typeSize,
+            void* componentDataPtr) {
             ecb.UnsafeAddComponent(e, typeIndex, typeSize, componentDataPtr);
         }
 
         public static void UnsafeAddComponent(
-            this EntityCommandBuffer.ParallelWriter ecb, int sortIndex, Entity e, ComponentType componentType, void* componentDataPtr)
-        {
+            this EntityCommandBuffer.ParallelWriter ecb,
+            int sortIndex,
+            Entity e,
+            ComponentType componentType,
+            void* componentDataPtr) {
             ref readonly var type = ref TypeManager.GetTypeInfo(componentType.TypeIndex);
             UnsafeAddComponent(ecb, sortIndex, e, componentType.TypeIndex, type.ElementSize, componentDataPtr);
         }
 
         public static void UnsafeAddComponent(
-            this EntityCommandBuffer.ParallelWriter ecb, int sortIndex, Entity e, TypeIndex typeIndex, int typeSize, void* componentDataPtr)
-        {
+            this EntityCommandBuffer.ParallelWriter ecb,
+            int sortIndex,
+            Entity e,
+            TypeIndex typeIndex,
+            int typeSize,
+            void* componentDataPtr) {
             ecb.UnsafeAddComponent(sortIndex, e, typeIndex, typeSize, componentDataPtr);
         }
 
         private static UntypedDynamicBuffer CreateUntypedBufferCommand(
-            ref this EntityCommandBufferData ecbd, ECBCommand commandType, EntityCommandBufferChain* chain, int sortKey, Entity e, ComponentType componentType)
-        {
+            ref this EntityCommandBufferData ecbd,
+            ECBCommand commandType,
+            EntityCommandBufferChain* chain,
+            int sortKey,
+            Entity e,
+            ComponentType componentType) {
             int internalCapacity;
-            var header = ecbd.AddEntityBufferCommandUntyped(chain, sortKey, commandType, e, componentType, out internalCapacity);
+            var header =
+                ecbd.AddEntityBufferCommandUntyped(chain, sortKey, commandType, e, componentType, out internalCapacity);
             ref readonly var type = ref TypeManager.GetTypeInfo(componentType.TypeIndex);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             var safety = AtomicSafetyHandle.GetTempMemoryHandle();
             AtomicSafetyHandle.UseSecondaryVersion(ref safety);
             var arraySafety = AtomicSafetyHandle.GetTempMemoryHandle();
-            return new UntypedDynamicBuffer(header, safety, arraySafety, false, false, 0, internalCapacity, type.ElementSize, UntypedDynamicBuffer.AlignOf);
+            return new UntypedDynamicBuffer(header, safety, arraySafety, false, false, 0, internalCapacity,
+                type.ElementSize, UntypedDynamicBuffer.AlignOf);
 #else
             return new UntypedDynamicBuffer(header, internalCapacity, type.ElementSize, UntypedDynamicBuffer.AlignOf);
 #endif
         }
 
         private static BufferHeader* AddEntityBufferCommandUntyped(
-            ref this EntityCommandBufferData ecbd, EntityCommandBufferChain* chain, int sortKey, ECBCommand op, Entity e, ComponentType componentType,
-            out int internalCapacity)
-        {
+            ref this EntityCommandBufferData ecbd,
+            EntityCommandBufferChain* chain,
+            int sortKey,
+            ECBCommand op,
+            Entity e,
+            ComponentType componentType,
+            out int internalCapacity) {
             var typeIndex = componentType.TypeIndex;
             ref readonly var type = ref TypeManager.GetTypeInfo(typeIndex);
             var sizeNeeded = EntityCommandBufferData.Align(sizeof(EntityBufferCommand) + type.SizeInChunk, Align64BIT);
@@ -98,8 +121,7 @@ namespace BovineLabs.Core.Extensions
 
             internalCapacity = type.BufferCapacity;
 
-            if (TypeManager.HasEntityReferences(typeIndex))
-            {
+            if (TypeManager.HasEntityReferences(typeIndex)) {
                 cmd->ValueRequiresEntityFixup = 1;
                 ecbd.m_BufferWithFixups.Add(1);
             }

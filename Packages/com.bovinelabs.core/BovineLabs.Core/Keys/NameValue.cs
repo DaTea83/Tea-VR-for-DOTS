@@ -2,22 +2,17 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Keys
-{
+namespace BovineLabs.Core.Keys {
     using System;
     using UnityEngine;
 
     [Serializable]
-    public struct NameValue<T>
-    {
-        [SerializeField]
-        private string name;
+    public struct NameValue<T> {
+        [SerializeField] private string name;
 
-        [SerializeField]
-        private T value;
+        [SerializeField] private T value;
 
-        public NameValue(string name, T value)
-        {
+        public NameValue(string name, T value) {
             this.name = name;
             this.value = value;
         }

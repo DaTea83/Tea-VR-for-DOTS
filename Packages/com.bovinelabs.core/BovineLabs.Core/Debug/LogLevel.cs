@@ -2,10 +2,8 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core
-{
-    public enum LogLevel : byte
-    {
+namespace BovineLabs.Core {
+    public enum LogLevel : byte {
         Disabled,
         Fatal,
         Error,

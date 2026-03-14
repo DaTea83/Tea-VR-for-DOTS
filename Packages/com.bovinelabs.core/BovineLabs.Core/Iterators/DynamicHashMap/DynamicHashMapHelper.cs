@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Iterators
-{
+namespace BovineLabs.Core.Iterators {
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
@@ -17,8 +16,7 @@ namespace BovineLabs.Core.Iterators
 
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct DynamicHashMapHelper<TKey>
-        where TKey : unmanaged, IEquatable<TKey>
-    {
+        where TKey : unmanaged, IEquatable<TKey> {
         internal int ValuesOffset;
         internal int KeysOffset;
         internal int NextOffset;
@@ -33,59 +31,45 @@ namespace BovineLabs.Core.Iterators
 
         internal int BucketCapacity => this.BucketCapacityMask + 1;
 
-        internal byte* Values
-        {
-            get
-            {
-                fixed (DynamicHashMapHelper<TKey>* data = &this)
-                {
+        internal byte* Values {
+            get {
+                fixed (DynamicHashMapHelper<TKey>* data = &this) {
                     return (byte*)data + data->ValuesOffset;
                 }
             }
         }
 
-        internal TKey* Keys
-        {
-            get
-            {
-                fixed (DynamicHashMapHelper<TKey>* data = &this)
-                {
+        internal TKey* Keys {
+            get {
+                fixed (DynamicHashMapHelper<TKey>* data = &this) {
                     return (TKey*)((byte*)data + data->KeysOffset);
                 }
             }
         }
 
-        internal int* Next
-        {
-            get
-            {
-                fixed (DynamicHashMapHelper<TKey>* data = &this)
-                {
+        internal int* Next {
+            get {
+                fixed (DynamicHashMapHelper<TKey>* data = &this) {
                     return (int*)((byte*)data + data->NextOffset);
                 }
             }
         }
 
-        internal int* Buckets
-        {
-            get
-            {
-                fixed (DynamicHashMapHelper<TKey>* data = &this)
-                {
+        internal int* Buckets {
+            get {
+                fixed (DynamicHashMapHelper<TKey>* data = &this) {
                     return (int*)((byte*)data + data->BucketsOffset);
                 }
             }
         }
 
-        internal readonly bool IsEmpty
-        {
+        internal readonly bool IsEmpty {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.Count == 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int CalcCapacityCeilPow2(int count, int capacity, int log2MinGrowth)
-        {
+        private static int CalcCapacityCeilPow2(int count, int capacity, int log2MinGrowth) {
             capacity = math.max(math.max(1, count), capacity);
             var newCapacity = math.max(capacity, 1 << log2MinGrowth);
             var result = math.ceilpow2(newCapacity);
@@ -93,20 +77,17 @@ namespace BovineLabs.Core.Iterators
             return result;
         }
 
-        private static int GetBucketSize(int capacity)
-        {
-            return capacity * 2;
-        }
+        private static int GetBucketSize(int capacity) { return capacity * 2; }
 
-        internal static void Init(DynamicBuffer<byte> buffer, int capacity, int sizeOfValueT, int minGrowth)
-        {
+        internal static void Init(DynamicBuffer<byte> buffer, int capacity, int sizeOfValueT, int minGrowth) {
             Check.Assume(buffer.Length == 0, "Buffer already assigned");
 
             var log2MinGrowth = (byte)(32 - math.lzcnt(math.max(1, minGrowth) - 1));
             capacity = CalcCapacityCeilPow2(0, capacity, log2MinGrowth);
 
             var bucketCapacity = GetBucketSize(capacity);
-            var totalSize = CalculateDataSize(capacity, bucketCapacity, sizeOfValueT, out var keyOffset, out var nextOffset, out var bucketOffset);
+            var totalSize = CalculateDataSize(capacity, bucketCapacity, sizeOfValueT, out var keyOffset,
+                out var nextOffset, out var bucketOffset);
 
             var hashMapDataSize = sizeof(DynamicHashMapHelper<TKey>);
             buffer.ResizeUninitialized(hashMapDataSize + totalSize);
@@ -126,27 +107,32 @@ namespace BovineLabs.Core.Iterators
             data->Clear(); // sets FirstFreeIdx, Count, AllocatedIndex
         }
 
-        internal static void Resize(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, int newCapacity)
-        {
+        internal static void Resize(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, int newCapacity) {
             newCapacity = math.max(newCapacity, data->Count);
             var newBucketCapacity = math.ceilpow2(GetBucketSize(newCapacity));
 
-            if (data->Capacity == newCapacity && data->BucketCapacity == newBucketCapacity)
-            {
+            if (data->Capacity == newCapacity && data->BucketCapacity == newBucketCapacity) {
                 return;
             }
 
             ResizeExact(buffer, ref data, newCapacity, newBucketCapacity);
         }
 
-        internal static void ResizeExact(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, int newCapacity, int newBucketCapacity)
-        {
-            var totalSize = CalculateDataSize(newCapacity, newBucketCapacity, data->SizeOfTValue, out var keyOffset, out var nextOffset, out var bucketOffset);
+        internal static void ResizeExact(DynamicBuffer<byte> buffer,
+            ref DynamicHashMapHelper<TKey>* data,
+            int newCapacity,
+            int newBucketCapacity) {
+            var totalSize = CalculateDataSize(newCapacity, newBucketCapacity, data->SizeOfTValue, out var keyOffset,
+                out var nextOffset, out var bucketOffset);
 
-            var oldValue = (byte*)UnsafeUtility.Malloc(data->Capacity * data->SizeOfTValue, UnsafeUtility.AlignOf<byte>(), Allocator.Temp);
-            var oldKeys = (TKey*)UnsafeUtility.Malloc(data->Capacity * sizeof(TKey), UnsafeUtility.AlignOf<TKey>(), Allocator.Temp);
-            var oldNext = (int*)UnsafeUtility.Malloc(data->Capacity * sizeof(int), UnsafeUtility.AlignOf<int>(), Allocator.Temp);
-            var oldBuckets = (int*)UnsafeUtility.Malloc(data->BucketCapacity * sizeof(int), UnsafeUtility.AlignOf<int>(), Allocator.Temp);
+            var oldValue = (byte*)UnsafeUtility.Malloc(data->Capacity * data->SizeOfTValue,
+                UnsafeUtility.AlignOf<byte>(), Allocator.Temp);
+            var oldKeys = (TKey*)UnsafeUtility.Malloc(data->Capacity * sizeof(TKey), UnsafeUtility.AlignOf<TKey>(),
+                Allocator.Temp);
+            var oldNext = (int*)UnsafeUtility.Malloc(data->Capacity * sizeof(int), UnsafeUtility.AlignOf<int>(),
+                Allocator.Temp);
+            var oldBuckets = (int*)UnsafeUtility.Malloc(data->BucketCapacity * sizeof(int),
+                UnsafeUtility.AlignOf<int>(), Allocator.Temp);
 
             UnsafeUtility.MemCpy(oldValue, data->Values, data->Capacity * data->SizeOfTValue);
             UnsafeUtility.MemCpy(oldKeys, data->Keys, data->Capacity * sizeof(TKey));
@@ -176,8 +162,7 @@ namespace BovineLabs.Core.Iterators
             data->NextOffset = hashMapDataSize + nextOffset;
             data->BucketsOffset = hashMapDataSize + bucketOffset;
 
-            if (newCapacity > oldCapacity)
-            {
+            if (newCapacity > oldCapacity) {
                 data->Count = oldCount;
                 data->FirstFreeIdx = oldFirstFreeIdx;
                 data->AllocatedIndex = oldAllocatedIndex;
@@ -193,30 +178,24 @@ namespace BovineLabs.Core.Iterators
                 UnsafeUtility.MemSet(next, 0xff, newCapacity * sizeof(int));
                 UnsafeUtility.MemSet(buckets, 0xff, newBucketCapacity * 4);
 
-                for (var i = 0; i < oldBucketCapacity; i++)
-                {
-                    for (var idx = oldBuckets[i]; idx != -1; idx = oldNext[idx])
-                    {
+                for (var i = 0; i < oldBucketCapacity; i++) {
+                    for (var idx = oldBuckets[i]; idx != -1; idx = oldNext[idx]) {
                         var bucket = data->GetBucket(oldKeys[idx]);
                         next[idx] = buckets[bucket];
                         buckets[bucket] = idx;
                     }
                 }
 
-                if (data->AllocatedIndex > data->Capacity)
-                {
+                if (data->AllocatedIndex > data->Capacity) {
                     data->AllocatedIndex = data->Capacity;
                 }
             }
-            else
-            {
+            else {
                 data->Clear();
 
                 // TODO can this be made faster?
-                for (var i = 0; i < oldBucketCapacity; ++i)
-                {
-                    for (var idx = oldBuckets[i]; idx != -1; idx = oldNext[idx])
-                    {
+                for (var i = 0; i < oldBucketCapacity; ++i) {
+                    for (var idx = oldBuckets[i]; idx != -1; idx = oldNext[idx]) {
                         var newIdx = data->AddNoCollideNoAlloc(oldKeys[idx]);
                         UnsafeUtility.MemCpy(data->Values + (sizeOfT * newIdx), oldValue + (sizeOfT * idx), sizeOfT);
                     }
@@ -225,10 +204,8 @@ namespace BovineLabs.Core.Iterators
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int TryAdd(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, in TKey key)
-        {
-            if (data->Find(key) == -1)
-            {
+        internal static int TryAdd(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, in TKey key) {
+            if (data->Find(key) == -1) {
                 return AddNewKey(buffer, ref data, key);
             }
 
@@ -236,32 +213,33 @@ namespace BovineLabs.Core.Iterators
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int AddWithKnownAbsence(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, in TKey key)
-        {
+        internal static int AddWithKnownAbsence(DynamicBuffer<byte> buffer,
+            ref DynamicHashMapHelper<TKey>* data,
+            in TKey key) {
             return AddNewKey(buffer, ref data, key);
         }
 
-        internal static int AddUnique(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, in TKey key)
-        {
+        internal static int AddUnique(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, in TKey key) {
             data->CheckDoesNotExist(key);
             return AddNewKey(buffer, ref data, key);
         }
 
-        internal static int AddMulti(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, in TKey key)
-        {
+        internal static int AddMulti(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, in TKey key) {
             return AddNewKey(buffer, ref data, key);
         }
 
         internal static void AddBatchUnsafe(
-            DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, [NoAlias] TKey* keys, [NoAlias] byte* values, int length)
-        {
+            DynamicBuffer<byte> buffer,
+            ref DynamicHashMapHelper<TKey>* data,
+            [NoAlias] TKey* keys,
+            [NoAlias] byte* values,
+            int length) {
             var helper = buffer.AsHelper<TKey>();
 
             var oldLength = helper->Count;
             var newLength = oldLength + length;
 
-            if (helper->Capacity < newLength)
-            {
+            if (helper->Capacity < newLength) {
                 Resize(buffer, ref data, newLength);
                 helper = buffer.AsHelper<TKey>();
             }
@@ -275,8 +253,7 @@ namespace BovineLabs.Core.Iterators
             var buckets = helper->Buckets;
             var nextPtrs = helper->Next + oldLength;
 
-            for (var idx = 0; idx < length; idx++)
-            {
+            for (var idx = 0; idx < length; idx++) {
                 var bucket = keys[idx].GetHashCode() & helper->BucketCapacityMask;
                 nextPtrs[idx] = buckets[bucket];
                 buckets[bucket] = oldLength + idx;
@@ -287,9 +264,11 @@ namespace BovineLabs.Core.Iterators
         }
 
         internal static void AddBatchUnsafe<TValue>(
-            DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, NativeSlice<TKey> keys, [NoAlias] NativeSlice<TValue> values)
-            where TValue : unmanaged
-        {
+            DynamicBuffer<byte> buffer,
+            ref DynamicHashMapHelper<TKey>* data,
+            NativeSlice<TKey> keys,
+            [NoAlias] NativeSlice<TValue> values)
+            where TValue : unmanaged {
             var helper = buffer.AsHelper<TKey>();
 
             Check.Assume(keys.Length == values.Length, "keys.Length != values.Length");
@@ -299,8 +278,7 @@ namespace BovineLabs.Core.Iterators
             var oldLength = helper->Count;
             var newLength = oldLength + length;
 
-            if (helper->Capacity < newLength)
-            {
+            if (helper->Capacity < newLength) {
                 Resize(buffer, ref data, newLength);
                 helper = buffer.AsHelper<TKey>();
             }
@@ -309,14 +287,15 @@ namespace BovineLabs.Core.Iterators
             var valuePtr = helper->Values + (oldLength * helper->SizeOfTValue);
 
             Check.Assume(helper->SizeOfTValue == UnsafeUtility.SizeOf<TValue>());
-            UnsafeUtility.MemCpyStride(keyPtr, UnsafeUtility.SizeOf<TKey>(), keys.GetUnsafeReadOnlyPtr(), keys.Stride, UnsafeUtility.SizeOf<TKey>(), length);
-            UnsafeUtility.MemCpyStride(valuePtr, helper->SizeOfTValue, values.GetUnsafeReadOnlyPtr(), values.Stride, helper->SizeOfTValue, length);
+            UnsafeUtility.MemCpyStride(keyPtr, UnsafeUtility.SizeOf<TKey>(), keys.GetUnsafeReadOnlyPtr(), keys.Stride,
+                UnsafeUtility.SizeOf<TKey>(), length);
+            UnsafeUtility.MemCpyStride(valuePtr, helper->SizeOfTValue, values.GetUnsafeReadOnlyPtr(), values.Stride,
+                helper->SizeOfTValue, length);
 
             var buckets = helper->Buckets;
             var nextPtrs = helper->Next + oldLength;
 
-            for (var idx = 0; idx < length; idx++)
-            {
+            for (var idx = 0; idx < length; idx++) {
                 var bucket = keys[idx].GetHashCode() & helper->BucketCapacityMask;
                 nextPtrs[idx] = buckets[bucket];
                 buckets[bucket] = oldLength + idx;
@@ -327,9 +306,11 @@ namespace BovineLabs.Core.Iterators
         }
 
         internal static void AddBatchUnsafe<TValue>(
-            DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, NativeSlice<TKey> keys, [NoAlias] NativeArray<TValue> values)
-            where TValue : unmanaged
-        {
+            DynamicBuffer<byte> buffer,
+            ref DynamicHashMapHelper<TKey>* data,
+            NativeSlice<TKey> keys,
+            [NoAlias] NativeArray<TValue> values)
+            where TValue : unmanaged {
             var helper = buffer.AsHelper<TKey>();
 
             Check.Assume(keys.Length == values.Length, "keys.Length != values.Length");
@@ -339,8 +320,7 @@ namespace BovineLabs.Core.Iterators
             var oldLength = helper->Count;
             var newLength = oldLength + length;
 
-            if (helper->Capacity < newLength)
-            {
+            if (helper->Capacity < newLength) {
                 Resize(buffer, ref data, newLength);
                 helper = buffer.AsHelper<TKey>();
             }
@@ -349,14 +329,14 @@ namespace BovineLabs.Core.Iterators
             var valuePtr = helper->Values + (oldLength * helper->SizeOfTValue);
 
             Check.Assume(helper->SizeOfTValue == UnsafeUtility.SizeOf<TValue>());
-            UnsafeUtility.MemCpyStride(keyPtr, UnsafeUtility.SizeOf<TKey>(), keys.GetUnsafeReadOnlyPtr(), keys.Stride, UnsafeUtility.SizeOf<TKey>(), length);
+            UnsafeUtility.MemCpyStride(keyPtr, UnsafeUtility.SizeOf<TKey>(), keys.GetUnsafeReadOnlyPtr(), keys.Stride,
+                UnsafeUtility.SizeOf<TKey>(), length);
             UnsafeUtility.MemCpy(valuePtr, values.GetUnsafeReadOnlyPtr(), helper->SizeOfTValue * length);
 
             var buckets = helper->Buckets;
             var nextPtrs = helper->Next + oldLength;
 
-            for (var idx = 0; idx < length; idx++)
-            {
+            for (var idx = 0; idx < length; idx++) {
                 var bucket = keys[idx].GetHashCode() & helper->BucketCapacityMask;
                 nextPtrs[idx] = buckets[bucket];
                 buckets[bucket] = oldLength + idx;
@@ -366,14 +346,12 @@ namespace BovineLabs.Core.Iterators
             helper->Count += length;
         }
 
-        internal static void Flatten(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data)
-        {
+        internal static void Flatten(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data) {
             var capacity = CalcCapacityCeilPow2(data->Count, data->Count, data->Log2MinGrowth);
             ResizeExact(buffer, ref data, capacity, GetBucketSize(capacity));
         }
 
-        internal void Clear()
-        {
+        internal void Clear() {
             UnsafeUtility.MemSet(this.Buckets, 0xff, this.BucketCapacity * sizeof(int));
             UnsafeUtility.MemSet(this.Next, 0xff, this.Capacity * sizeof(int));
 
@@ -383,29 +361,21 @@ namespace BovineLabs.Core.Iterators
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int GetBucket(in TKey key)
-        {
-            return (int)((uint)key.GetHashCode() & this.BucketCapacityMask);
-        }
+        internal int GetBucket(in TKey key) { return (int)((uint)key.GetHashCode() & this.BucketCapacityMask); }
 
-        internal int Find(TKey key)
-        {
-            if (this.AllocatedIndex > 0)
-            {
+        internal int Find(TKey key) {
+            if (this.AllocatedIndex > 0) {
                 // First find the slot based on the hash
                 var bucket = this.GetBucket(key);
                 var entryIdx = this.Buckets[bucket];
 
-                if ((uint)entryIdx < (uint)this.Capacity)
-                {
+                if ((uint)entryIdx < (uint)this.Capacity) {
                     var keys = this.Keys;
                     var next = this.Next;
 
-                    while (!UnsafeUtility.ReadArrayElement<TKey>(keys, entryIdx).Equals(key))
-                    {
+                    while (!UnsafeUtility.ReadArrayElement<TKey>(keys, entryIdx).Equals(key)) {
                         entryIdx = next[entryIdx];
-                        if ((uint)entryIdx >= (uint)this.Capacity)
-                        {
+                        if ((uint)entryIdx >= (uint)this.Capacity) {
                             return -1;
                         }
                     }
@@ -417,10 +387,8 @@ namespace BovineLabs.Core.Iterators
             return -1;
         }
 
-        internal int TryRemove(TKey key)
-        {
-            if (this.Capacity != 0)
-            {
+        internal int TryRemove(TKey key) {
+            if (this.Capacity != 0) {
                 var removed = 0;
 
                 // First find the slot based on the hash
@@ -433,19 +401,15 @@ namespace BovineLabs.Core.Iterators
                 var prevEntry = -1;
                 var entryIdx = buckets[bucket];
 
-                while (entryIdx >= 0 && entryIdx < this.Capacity)
-                {
-                    if (UnsafeUtility.ReadArrayElement<TKey>(keys, entryIdx).Equals(key))
-                    {
+                while (entryIdx >= 0 && entryIdx < this.Capacity) {
+                    if (UnsafeUtility.ReadArrayElement<TKey>(keys, entryIdx).Equals(key)) {
                         ++removed;
 
                         // Found matching element, remove it
-                        if (prevEntry < 0)
-                        {
+                        if (prevEntry < 0) {
                             buckets[bucket] = next[entryIdx];
                         }
-                        else
-                        {
+                        else {
                             next[prevEntry] = next[entryIdx];
                         }
 
@@ -466,10 +430,8 @@ namespace BovineLabs.Core.Iterators
             return -1;
         }
 
-        internal int Remove(TKey key)
-        {
-            if (this.Capacity == 0)
-            {
+        internal int Remove(TKey key) {
+            if (this.Capacity == 0) {
                 return 0;
             }
 
@@ -481,19 +443,15 @@ namespace BovineLabs.Core.Iterators
             var prevEntry = -1;
             var entryIdx = this.Buckets[bucket];
 
-            while (entryIdx >= 0 && entryIdx < this.Capacity)
-            {
-                if (UnsafeUtility.ReadArrayElement<TKey>(this.Keys, entryIdx).Equals(key))
-                {
+            while (entryIdx >= 0 && entryIdx < this.Capacity) {
+                if (UnsafeUtility.ReadArrayElement<TKey>(this.Keys, entryIdx).Equals(key)) {
                     ++removed;
 
                     // Found matching element, remove it
-                    if (prevEntry < 0)
-                    {
+                    if (prevEntry < 0) {
                         this.Buckets[bucket] = this.Next[entryIdx];
                     }
-                    else
-                    {
+                    else {
                         this.Next[prevEntry] = this.Next[entryIdx];
                     }
 
@@ -503,8 +461,7 @@ namespace BovineLabs.Core.Iterators
                     this.FirstFreeIdx = entryIdx;
                     entryIdx = nextIdx;
                 }
-                else
-                {
+                else {
                     prevEntry = entryIdx;
                     entryIdx = this.Next[entryIdx];
                 }
@@ -515,12 +472,10 @@ namespace BovineLabs.Core.Iterators
         }
 
         internal bool TryGetValue<TValue>(TKey key, out TValue item)
-            where TValue : unmanaged
-        {
+            where TValue : unmanaged {
             var idx = this.Find(key);
 
-            if (idx != -1)
-            {
+            if (idx != -1) {
                 item = UnsafeUtility.ReadArrayElement<TValue>(this.Values, idx);
                 return true;
             }
@@ -530,12 +485,10 @@ namespace BovineLabs.Core.Iterators
         }
 
         internal bool TryGetFirstValue<TValue>(TKey key, out TValue item, out HashMapIterator<TKey> it)
-            where TValue : unmanaged
-        {
+            where TValue : unmanaged {
             it.Key = key;
 
-            if (this.AllocatedIndex <= 0)
-            {
+            if (this.AllocatedIndex <= 0) {
                 it.EntryIndex = it.NextEntryIndex = -1;
                 item = default;
                 return false;
@@ -549,14 +502,12 @@ namespace BovineLabs.Core.Iterators
         }
 
         internal bool TryGetNextValue<TValue>(out TValue item, ref HashMapIterator<TKey> it)
-            where TValue : unmanaged
-        {
+            where TValue : unmanaged {
             var entryIdx = it.NextEntryIndex;
             it.NextEntryIndex = -1;
             it.EntryIndex = -1;
 
-            if (entryIdx < 0 || entryIdx >= this.Capacity)
-            {
+            if (entryIdx < 0 || entryIdx >= this.Capacity) {
                 item = default;
                 return false;
             }
@@ -564,11 +515,9 @@ namespace BovineLabs.Core.Iterators
             var next = this.Next;
             var keys = this.Keys;
 
-            while (!UnsafeUtility.ReadArrayElement<TKey>(keys, entryIdx).Equals(it.Key))
-            {
+            while (!UnsafeUtility.ReadArrayElement<TKey>(keys, entryIdx).Equals(it.Key)) {
                 entryIdx = next[entryIdx];
-                if ((uint)entryIdx >= (uint)this.Capacity)
-                {
+                if ((uint)entryIdx >= (uint)this.Capacity) {
                     item = default;
                     return false;
                 }
@@ -580,20 +529,20 @@ namespace BovineLabs.Core.Iterators
             return true;
         }
 
-        internal NativeArray<TKey> GetKeyArray(AllocatorManager.AllocatorHandle allocator)
-        {
-            var result = CollectionHelper.CreateNativeArray<TKey>(this.Count, allocator, NativeArrayOptions.UninitializedMemory);
+        internal NativeArray<TKey> GetKeyArray(AllocatorManager.AllocatorHandle allocator) {
+            var result =
+                CollectionHelper.CreateNativeArray<TKey>(this.Count, allocator, NativeArrayOptions.UninitializedMemory);
 
             var keys = this.Keys;
             var buckets = this.Buckets;
             var next = this.Next;
 
-            for (int i = 0, count = 0, max = result.Length, capacity = this.BucketCapacity; i < capacity && count < max; i++)
-            {
+            for (int i = 0, count = 0, max = result.Length, capacity = this.BucketCapacity;
+                 i < capacity && count < max;
+                 i++) {
                 var bucket = buckets[i];
 
-                while (bucket != -1)
-                {
+                while (bucket != -1) {
                     result[count++] = UnsafeUtility.ReadArrayElement<TKey>(keys, bucket);
                     bucket = next[bucket];
                 }
@@ -603,20 +552,21 @@ namespace BovineLabs.Core.Iterators
         }
 
         internal NativeArray<TValue> GetValueArray<TValue>(AllocatorManager.AllocatorHandle allocator)
-            where TValue : unmanaged
-        {
-            var result = CollectionHelper.CreateNativeArray<TValue>(this.Count, allocator, NativeArrayOptions.UninitializedMemory);
+            where TValue : unmanaged {
+            var result =
+                CollectionHelper.CreateNativeArray<TValue>(this.Count, allocator,
+                    NativeArrayOptions.UninitializedMemory);
 
             var values = this.Values;
             var buckets = this.Buckets;
             var next = this.Next;
 
-            for (int i = 0, count = 0, max = result.Length, capacity = this.BucketCapacity; i < capacity && count < max; ++i)
-            {
+            for (int i = 0, count = 0, max = result.Length, capacity = this.BucketCapacity;
+                 i < capacity && count < max;
+                 ++i) {
                 var bucket = buckets[i];
 
-                while (bucket != -1)
-                {
+                while (bucket != -1) {
                     result[count++] = UnsafeUtility.ReadArrayElement<TValue>(values, bucket);
                     bucket = next[bucket];
                 }
@@ -625,22 +575,23 @@ namespace BovineLabs.Core.Iterators
             return result;
         }
 
-        internal NativeKeyValueArrays<TKey, TValue> GetKeyValueArrays<TValue>(AllocatorManager.AllocatorHandle allocator)
-            where TValue : unmanaged
-        {
-            var result = new NativeKeyValueArrays<TKey, TValue>(this.Count, allocator, NativeArrayOptions.UninitializedMemory);
+        internal NativeKeyValueArrays<TKey, TValue> GetKeyValueArrays<TValue>(
+            AllocatorManager.AllocatorHandle allocator)
+            where TValue : unmanaged {
+            var result =
+                new NativeKeyValueArrays<TKey, TValue>(this.Count, allocator, NativeArrayOptions.UninitializedMemory);
 
             var keys = this.Keys;
             var values = this.Values;
             var buckets = this.Buckets;
             var next = this.Next;
 
-            for (int i = 0, count = 0, max = result.Length, capacity = this.BucketCapacity; i < capacity && count < max; ++i)
-            {
+            for (int i = 0, count = 0, max = result.Length, capacity = this.BucketCapacity;
+                 i < capacity && count < max;
+                 ++i) {
                 var bucket = buckets[i];
 
-                while (bucket != -1)
-                {
+                while (bucket != -1) {
                     result.Keys[count] = UnsafeUtility.ReadArrayElement<TKey>(keys, bucket);
                     result.Values[count] = UnsafeUtility.ReadArrayElement<TValue>(values, bucket);
                     count++;
@@ -651,14 +602,13 @@ namespace BovineLabs.Core.Iterators
             return result;
         }
 
-        internal void RemoveRangeShiftDown(int start, int length)
-        {
-            if (length == 0)
-            {
+        internal void RemoveRangeShiftDown(int start, int length) {
+            if (length == 0) {
                 return;
             }
 
-            Check.Assume(this.FirstFreeIdx == -1, "Trying to RemoveRangeShiftDown on map with holes. Call Flatten() first.");
+            Check.Assume(this.FirstFreeIdx == -1,
+                "Trying to RemoveRangeShiftDown on map with holes. Call Flatten() first.");
             Check.Assume(start >= 0 && start < this.Count);
             Check.Assume(length >= 0 && start + length <= this.Count);
 
@@ -669,10 +619,12 @@ namespace BovineLabs.Core.Iterators
 
             // var shift = count - le
             UnsafeUtility.MemMove(keys + start, keys + start + length, UnsafeUtility.SizeOf<TKey>() * shift);
-            UnsafeUtility.MemMove(values + (start * this.SizeOfTValue), values + ((start + length) * this.SizeOfTValue), shift * this.SizeOfTValue);
+            UnsafeUtility.MemMove(values + (start * this.SizeOfTValue), values + ((start + length) * this.SizeOfTValue),
+                shift * this.SizeOfTValue);
 
             UnsafeUtility.MemSet(this.Buckets, 0xff, this.BucketCapacity * sizeof(int));
-            UnsafeUtility.MemSet((this.Next + this.Count) - length, 0xff, length * sizeof(int)); // only need to clear replaced elements
+            UnsafeUtility.MemSet((this.Next + this.Count) - length, 0xff,
+                length * sizeof(int)); // only need to clear replaced elements
 
             this.AllocatedIndex -= length;
             this.Count -= length;
@@ -680,26 +632,22 @@ namespace BovineLabs.Core.Iterators
             var buckets = this.Buckets;
             var next = this.Next;
 
-            for (var idx = 0; idx < this.Count; idx++)
-            {
+            for (var idx = 0; idx < this.Count; idx++) {
                 var bucket = keys[idx].GetHashCode() & this.BucketCapacityMask;
                 next[idx] = buckets[bucket];
                 buckets[bucket] = idx;
             }
         }
 
-        private int AddNoCollideNoAlloc(in TKey key)
-        {
+        private int AddNoCollideNoAlloc(in TKey key) {
             Check.Assume(this.AllocatedIndex < this.Capacity || this.FirstFreeIdx >= 0);
 
             var idx = this.FirstFreeIdx;
 
-            if (idx >= 0)
-            {
+            if (idx >= 0) {
                 this.FirstFreeIdx = this.Next[idx];
             }
-            else
-            {
+            else {
                 idx = this.AllocatedIndex++;
             }
 
@@ -716,23 +664,20 @@ namespace BovineLabs.Core.Iterators
             return idx;
         }
 
-        private static int AddNewKey(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, in TKey key)
-        {
+        private static int AddNewKey(DynamicBuffer<byte> buffer, ref DynamicHashMapHelper<TKey>* data, in TKey key) {
             // Allocate an entry from the free list
-            if (data->AllocatedIndex >= data->Capacity && data->FirstFreeIdx < 0)
-            {
-                var newCap = CalcCapacityCeilPow2(data->Count, data->Capacity + (1 << data->Log2MinGrowth), data->Log2MinGrowth);
+            if (data->AllocatedIndex >= data->Capacity && data->FirstFreeIdx < 0) {
+                var newCap = CalcCapacityCeilPow2(data->Count, data->Capacity + (1 << data->Log2MinGrowth),
+                    data->Log2MinGrowth);
                 Resize(buffer, ref data, newCap);
             }
 
             var idx = data->FirstFreeIdx;
 
-            if (idx >= 0)
-            {
+            if (idx >= 0) {
                 data->FirstFreeIdx = data->Next[idx];
             }
-            else
-            {
+            else {
                 idx = data->AllocatedIndex++;
             }
 
@@ -751,8 +696,12 @@ namespace BovineLabs.Core.Iterators
         }
 
         private static int CalculateDataSize(
-            int capacity, int bucketCapacity, int sizeOfTValue, out int outKeyOffset, out int outNextOffset, out int outBucketOffset)
-        {
+            int capacity,
+            int bucketCapacity,
+            int sizeOfTValue,
+            out int outKeyOffset,
+            out int outNextOffset,
+            out int outBucketOffset) {
             var sizeOfTKey = sizeof(TKey);
             var sizeOfInt = sizeof(int);
 
@@ -772,10 +721,8 @@ namespace BovineLabs.Core.Iterators
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [Conditional("UNITY_DOTS_DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void CheckDoesNotExist(TKey key)
-        {
-            if (this.Find(key) != -1)
-            {
+        private void CheckDoesNotExist(TKey key) {
+            if (this.Find(key) != -1) {
                 throw new ArgumentException($"An item with the same key has already been added: {key}");
             }
         }
@@ -783,24 +730,19 @@ namespace BovineLabs.Core.Iterators
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [Conditional("UNITY_DOTS_DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void CheckIndexOutOfBounds(int idx)
-        {
-            if ((uint)idx >= (uint)this.Capacity)
-            {
+        private void CheckIndexOutOfBounds(int idx) {
+            if ((uint)idx >= (uint)this.Capacity) {
                 throw new InvalidOperationException($"Internal HashMap error. idx {idx}");
             }
         }
 
-        internal struct Enumerator
-        {
-            [NativeDisableUnsafePtrRestriction]
-            internal DynamicHashMapHelper<TKey>* Data;
+        internal struct Enumerator {
+            [NativeDisableUnsafePtrRestriction] internal DynamicHashMapHelper<TKey>* Data;
             internal int Index;
             internal int BucketIndex;
             internal int NextIndex;
 
-            internal Enumerator(DynamicHashMapHelper<TKey>* data)
-            {
+            internal Enumerator(DynamicHashMapHelper<TKey>* data) {
                 this.Data = data;
                 this.Index = -1;
                 this.BucketIndex = 0;
@@ -808,12 +750,10 @@ namespace BovineLabs.Core.Iterators
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal bool MoveNext()
-            {
+            internal bool MoveNext() {
                 var next = this.Data->Next;
 
-                if (this.NextIndex != -1)
-                {
+                if (this.NextIndex != -1) {
                     this.Index = this.NextIndex;
                     this.NextIndex = next[this.NextIndex];
                     return true;
@@ -821,12 +761,10 @@ namespace BovineLabs.Core.Iterators
 
                 var buckets = this.Data->Buckets;
 
-                for (int i = this.BucketIndex, num = this.Data->BucketCapacity; i < num; ++i)
-                {
+                for (int i = this.BucketIndex, num = this.Data->BucketCapacity; i < num; ++i) {
                     var idx = buckets[i];
 
-                    if (idx != -1)
-                    {
+                    if (idx != -1) {
                         this.Index = idx;
                         this.BucketIndex = i + 1;
                         this.NextIndex = next[idx];
@@ -841,8 +779,7 @@ namespace BovineLabs.Core.Iterators
                 return false;
             }
 
-            internal void Reset()
-            {
+            internal void Reset() {
                 this.Index = -1;
                 this.BucketIndex = 0;
                 this.NextIndex = -1;
@@ -850,20 +787,16 @@ namespace BovineLabs.Core.Iterators
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal KVPair<TKey, TValue> GetCurrent<TValue>()
-                where TValue : unmanaged
-            {
-                return new KVPair<TKey, TValue>
-                {
+                where TValue : unmanaged {
+                return new KVPair<TKey, TValue> {
                     Data = this.Data,
                     Index = this.Index,
                 };
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal TKey GetCurrentKey()
-            {
-                if (this.Index != -1)
-                {
+            internal TKey GetCurrentKey() {
+                if (this.Index != -1) {
                     return this.Data->Keys[this.Index];
                 }
 

@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Iterators
-{
+namespace BovineLabs.Core.Iterators {
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -20,19 +19,15 @@ namespace BovineLabs.Core.Iterators
     [NativeContainer]
     [NativeContainerIsReadOnly]
     public struct DynamicHashSetEnumerator<T> : IEnumerator<T>
-        where T : unmanaged, IEquatable<T>
-    {
-        [NativeDisableUnsafePtrRestriction]
-        private DynamicHashMapHelper<T>.Enumerator enumerator;
+        where T : unmanaged, IEquatable<T> {
+        [NativeDisableUnsafePtrRestriction] private DynamicHashMapHelper<T>.Enumerator enumerator;
 
-        internal unsafe DynamicHashSetEnumerator(DynamicHashMapHelper<T>* data)
-        {
+        internal unsafe DynamicHashSetEnumerator(DynamicHashMapHelper<T>* data) {
             this.enumerator = new DynamicHashMapHelper<T>.Enumerator(data);
         }
 
         /// <summary> The current value. </summary>
-        public T Current
-        {
+        public T Current {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.enumerator.GetCurrentKey();
         }
@@ -45,22 +40,14 @@ namespace BovineLabs.Core.Iterators
         /// <summary> Advances the enumerator to the next value. </summary>
         /// <returns> True if `Current` is valid to read after the call. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool MoveNext()
-        {
-            return this.enumerator.MoveNext();
-        }
+        public bool MoveNext() { return this.enumerator.MoveNext(); }
 
         /// <summary>
         /// Resets the enumerator to its initial state.
         /// </summary>
-        public void Reset()
-        {
-            this.enumerator.Reset();
-        }
+        public void Reset() { this.enumerator.Reset(); }
 
         /// <summary> Does nothing. </summary>
-        public void Dispose()
-        {
-        }
+        public void Dispose() { }
     }
 }

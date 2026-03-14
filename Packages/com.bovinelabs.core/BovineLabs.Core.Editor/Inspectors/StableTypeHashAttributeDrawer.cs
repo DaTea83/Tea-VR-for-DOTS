@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using System.Collections.Generic;
     using System.Linq;
     using BovineLabs.Core.Editor.SearchWindow;
@@ -13,86 +12,69 @@ namespace BovineLabs.Core.Editor.Inspectors
     using UnityEditor;
 
     [CustomPropertyDrawer(typeof(StableTypeHashAttribute))]
-    public sealed class StableTypeHashAttributeDrawer : StableTypeHashAttributeBaseDrawer<StableTypeHashAttribute>
-    {
+    public sealed class StableTypeHashAttributeDrawer : StableTypeHashAttributeBaseDrawer<StableTypeHashAttribute> {
         /// <inheritdoc/>
-        protected override List<SearchView.Item> GenerateItems(StableTypeHashAttribute att)
-        {
-            var componentTypes = new List<SearchView.Item>
-            {
-                new()
-                {
+        protected override List<SearchView.Item> GenerateItems(StableTypeHashAttribute att) {
+            var componentTypes = new List<SearchView.Item> {
+                new() {
                     Path = "None",
                     Data = 0UL,
                 },
             };
 
-            if (att.OnlyZeroSize)
-            {
-                if (att.OnlySize)
-                {
+            if (att.OnlyZeroSize) {
+                if (att.OnlySize) {
                     BLGlobalLogger.LogErrorString("OnlyZeroSize && OnlySize will return no results");
                     return componentTypes;
                 }
 
-                if (att.Category == StableTypeHashAttribute.TypeCategory.BufferData)
-                {
+                if (att.Category == StableTypeHashAttribute.TypeCategory.BufferData) {
                     BLGlobalLogger.LogErrorString("OnlyZeroSize && Buffer category will return no results");
                     return componentTypes;
                 }
             }
 
-            foreach (var t in TypeManager.AllTypes)
-            {
-                if (att.OnlyZeroSize && !t.IsZeroSized)
-                {
+            foreach (var t in TypeManager.AllTypes) {
+                if (att.OnlyZeroSize && !t.IsZeroSized) {
                     continue;
                 }
 
-                if (att.OnlySize && t.IsZeroSized)
-                {
+                if (att.OnlySize && t.IsZeroSized) {
                     continue;
                 }
 
-                if (att.OnlyEnableable && !t.TypeIndex.IsEnableable)
-                {
+                if (att.OnlyEnableable && !t.TypeIndex.IsEnableable) {
                     continue;
                 }
 
-                if (t.TypeIndex.IsManagedComponent)
-                {
+                if (t.TypeIndex.IsManagedComponent) {
                     continue;
                 }
 
                 var type = t.Type;
 
-                if (type == null)
-                {
+                if (type == null) {
                     continue;
                 }
 
-                if (!CategoryMatch(t.Category, att.Category))
-                {
+                if (!CategoryMatch(t.Category, att.Category)) {
                     continue;
                 }
 
-                if (!att.AllowEditorAssemblies && (type.Assembly.IsAssemblyEditorAssembly() || type.Assembly.IsTestEditorAssembly()))
-                {
+                if (!att.AllowEditorAssemblies &&
+                    (type.Assembly.IsAssemblyEditorAssembly() || type.Assembly.IsTestEditorAssembly())) {
                     continue;
                 }
 
-                if (!att.AllowUnityNamespace && type.Namespace != null && type.Namespace.StartsWith("Unity"))
-                {
+                if (!att.AllowUnityNamespace && type.Namespace != null && type.Namespace.StartsWith("Unity")) {
                     continue;
                 }
 
-                if (att.BaseType != null && att.BaseType.Any(baseType => !baseType.IsAssignableFrom(type)))
-                {
+                if (att.BaseType != null && att.BaseType.Any(baseType => !baseType.IsAssignableFrom(type))) {
                     continue;
                 }
 
-                componentTypes.Add(new SearchView.Item
-                {
+                componentTypes.Add(new SearchView.Item {
                     Path = SearchView.Item.ConvertTypeToPath(t.DebugTypeName.ToString()),
                     Data = t.StableTypeHash,
                 });

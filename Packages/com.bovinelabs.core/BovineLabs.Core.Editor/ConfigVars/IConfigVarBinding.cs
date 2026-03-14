@@ -2,12 +2,10 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.ConfigVars
-{
+namespace BovineLabs.Core.Editor.ConfigVars {
     using UnityEngine.UIElements;
 
-    public interface IConfigVarBinding<T> : IBinding
-    {
+    public interface IConfigVarBinding<T> : IBinding {
         T Value { get; }
     }
 }

@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.UI
-{
+namespace BovineLabs.Core.Editor.UI {
     using UnityEditor;
     using UnityEngine.UIElements;
 
@@ -11,8 +10,7 @@ namespace BovineLabs.Core.Editor.UI
     /// Manages loading a pair of uxml/uss files in the same folder.
     /// Roughly based off Unity.Entities.Editor.UITemplate but quite stripped down for own uses.
     /// </summary>
-    public readonly struct UITemplate
-    {
+    public readonly struct UITemplate {
         private readonly string uxmlPath;
         private readonly string ussPath;
 
@@ -21,8 +19,7 @@ namespace BovineLabs.Core.Editor.UI
 
         public static string SkinSuffix => EditorGUIUtility.isProSkin ? k_ProSuffix : k_PersonalSuffix;
 
-        public UITemplate(string path)
-        {
+        public UITemplate(string path) {
             this.uxmlPath = $"{path}.uxml";
             this.ussPath = $"{path}.uss";
         }
@@ -34,17 +31,14 @@ namespace BovineLabs.Core.Editor.UI
         /// <summary> Clones the template into the given root element and applies the style sheets from the template. </summary>
         /// <param name="root"> The element that will serve as the root for cloning the template. </param>
         /// <returns> Returns the updated root for convenience. </returns>
-        public VisualElement Clone(VisualElement? root = null)
-        {
+        public VisualElement Clone(VisualElement? root = null) {
             root = this.CloneTemplate(root);
             this.AddStyleSheetSkinVariant(root);
             return root;
         }
 
-        private VisualElement CloneTemplate(VisualElement? element = null)
-        {
-            if (element == null)
-            {
+        private VisualElement CloneTemplate(VisualElement? element = null) {
+            if (element == null) {
                 return this.Template.CloneTree();
             }
 
@@ -52,28 +46,23 @@ namespace BovineLabs.Core.Editor.UI
             return element;
         }
 
-        private void AddStyleSheetSkinVariant(VisualElement? element)
-        {
-            if (this.StyleSheet == null)
-            {
+        private void AddStyleSheetSkinVariant(VisualElement? element) {
+            if (this.StyleSheet == null) {
                 return;
             }
 
-            if (element == null)
-            {
+            if (element == null) {
                 return;
             }
 
             element.styleSheets.Add(this.StyleSheet);
             var assetPath = AssetDatabase.GetAssetPath(this.StyleSheet);
             assetPath = assetPath.Insert(assetPath.LastIndexOf('.'), SkinSuffix);
-            if (string.IsNullOrEmpty(assetPath))
-            {
+            if (string.IsNullOrEmpty(assetPath)) {
                 return;
             }
 
-            if (AssetDatabase.LoadAssetAtPath<StyleSheet>(assetPath) is var skin && skin != null)
-            {
+            if (AssetDatabase.LoadAssetAtPath<StyleSheet>(assetPath) is var skin && skin != null) {
                 element.styleSheets.Add(skin);
             }
         }

@@ -2,20 +2,16 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Utility
-{
+namespace BovineLabs.Core.Utility {
     using Unity.Collections;
     using Unity.Mathematics;
 
-    public static class PolygonUtility
-    {
+    public static class PolygonUtility {
         /// <summary> Calculates the signed area of a polygon. </summary>
         /// <param name="points"> Polygon array. </param>
         /// <returns> </returns>
-        public static float SignedArea(NativeArray<float2> points)
-        {
-            if (points.Length <= 1)
-            {
+        public static float SignedArea(NativeArray<float2> points) {
+            if (points.Length <= 1) {
                 return 0;
             }
 
@@ -25,8 +21,7 @@ namespace BovineLabs.Core.Utility
             // (The result is twice the enclosed area, with a +/- convention.)
             float sum = 0;
 
-            for (var i = 0; i < points.Length - 1; i++)
-            {
+            for (var i = 0; i < points.Length - 1; i++) {
                 var p1 = points[i];
                 var p2 = points[i + 1];
 
@@ -46,10 +41,8 @@ namespace BovineLabs.Core.Utility
         /// <summary> Calculates the signed area of a polygon. </summary>
         /// <param name="points"> Polygon array. </param>
         /// <returns> </returns>
-        public static float SignedArea(NativeArray<float3> points)
-        {
-            if (points.Length <= 1)
-            {
+        public static float SignedArea(NativeArray<float3> points) {
+            if (points.Length <= 1) {
                 return 0;
             }
 
@@ -59,8 +52,7 @@ namespace BovineLabs.Core.Utility
             // (The result is twice the enclosed area, with a +/- convention.)
             float sum = 0;
 
-            for (var i = 0; i < points.Length - 1; i++)
-            {
+            for (var i = 0; i < points.Length - 1; i++) {
                 var p1 = points[i];
                 var p2 = points[i + 1];
 
@@ -77,26 +69,22 @@ namespace BovineLabs.Core.Utility
             return sum;
         }
 
-        public static bool IsClockwise(NativeArray<float2> points)
-        {
+        public static bool IsClockwise(NativeArray<float2> points) {
             // Positive value is clockwise, negative value is not
             return SignedArea(points) > 0;
         }
 
-        public static bool IsCounterClockwise(NativeArray<float2> points)
-        {
+        public static bool IsCounterClockwise(NativeArray<float2> points) {
             // Positive value is clockwise, negative value is not
             return SignedArea(points) < 0;
         }
 
-        public static bool IsClockwise(NativeArray<float3> points)
-        {
+        public static bool IsClockwise(NativeArray<float3> points) {
             // Positive value is clockwise, negative value is not
             return SignedArea(points) > 0;
         }
 
-        public static bool IsCounterClockwise(NativeArray<float3> points)
-        {
+        public static bool IsCounterClockwise(NativeArray<float3> points) {
             // Positive value is clockwise, negative value is not
             return SignedArea(points) < 0;
         }

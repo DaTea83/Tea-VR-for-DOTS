@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Iterators
-{
+namespace BovineLabs.Core.Iterators {
     using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Core.Collections;
@@ -18,10 +17,8 @@ namespace BovineLabs.Core.Iterators
     /// <typeparam name="T"> The type of <see cref="IBufferElementData" /> to access. </typeparam>
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct UnsafeBufferLookup<T>
-        where T : unmanaged, IBufferElementData
-    {
-        [NativeDisableUnsafePtrRestriction]
-        private readonly EntityDataAccess* access;
+        where T : unmanaged, IBufferElementData {
+        [NativeDisableUnsafePtrRestriction] private readonly EntityDataAccess* access;
 
         private readonly TypeIndex typeIndex;
         private readonly byte isReadOnly;
@@ -30,8 +27,7 @@ namespace BovineLabs.Core.Iterators
         private uint globalSystemVersion;
         private int internalCapacity;
 
-        internal UnsafeBufferLookup(TypeIndex typeIndex, EntityDataAccess* access, bool isReadOnly)
-        {
+        internal UnsafeBufferLookup(TypeIndex typeIndex, EntityDataAccess* access, bool isReadOnly) {
             this.typeIndex = typeIndex;
             this.access = access;
             this.isReadOnly = isReadOnly ? (byte)1 : (byte)0;
@@ -57,10 +53,8 @@ namespace BovineLabs.Core.Iterators
         /// Thrown if <paramref name="entity" /> does not have a buffer
         /// component of type <typeparamref name="T" />.
         /// </exception>
-        public UnsafeDynamicBuffer<T> this[Entity entity]
-        {
-            get
-            {
+        public UnsafeDynamicBuffer<T> this[Entity entity] {
+            get {
                 var ecs = this.access->EntityComponentStore;
 #if ENABLE_UNITY_COLLECTIONS_CHECKS || UNITY_DOTS_DEBUG
                 ecs->AssertEntityHasComponent(entity, this.typeIndex, ref this.cache);
@@ -68,7 +62,8 @@ namespace BovineLabs.Core.Iterators
 
                 var header = this.isReadOnly != 0
                     ? (BufferHeader*)ecs->GetComponentDataWithTypeRO(entity, this.typeIndex, ref this.cache)
-                    : (BufferHeader*)ecs->GetComponentDataWithTypeRW(entity, this.typeIndex, this.globalSystemVersion, ref this.cache);
+                    : (BufferHeader*)ecs->GetComponentDataWithTypeRW(entity, this.typeIndex, this.globalSystemVersion,
+                        ref this.cache);
 
                 return new UnsafeDynamicBuffer<T>(header, this.internalCapacity);
             }
@@ -81,21 +76,19 @@ namespace BovineLabs.Core.Iterators
         /// <param name="entity"> The entity. </param>
         /// <param name="bufferData"> The buffer component of type T for the given entity, if it exists. </param>
         /// <returns> True if the entity has a buffer component of type T, and false if it does not. </returns>
-        public bool TryGetBuffer(Entity entity, out UnsafeDynamicBuffer<T> bufferData)
-        {
+        public bool TryGetBuffer(Entity entity, out UnsafeDynamicBuffer<T> bufferData) {
             var ecs = this.access->EntityComponentStore;
-            if (Hint.Unlikely(!ecs->Exists(entity)))
-            {
+            if (Hint.Unlikely(!ecs->Exists(entity))) {
                 bufferData = default;
                 return false;
             }
 
             var header = this.isReadOnly != 0
                 ? (BufferHeader*)ecs->GetOptionalComponentDataWithTypeRO(entity, this.typeIndex, ref this.cache)
-                : (BufferHeader*)ecs->GetOptionalComponentDataWithTypeRW(entity, this.typeIndex, this.globalSystemVersion, ref this.cache);
+                : (BufferHeader*)ecs->GetOptionalComponentDataWithTypeRW(entity, this.typeIndex,
+                    this.globalSystemVersion, ref this.cache);
 
-            if (header != null)
-            {
+            if (header != null) {
                 bufferData = new UnsafeDynamicBuffer<T>(header, this.internalCapacity);
                 return true;
             }
@@ -113,8 +106,7 @@ namespace BovineLabs.Core.Iterators
         /// True if the entity has a buffer component of type T, and false if it does not. Also returns false if
         /// the Entity instance refers to an entity that has been destroyed.
         /// </returns>
-        public bool HasBuffer(Entity entity)
-        {
+        public bool HasBuffer(Entity entity) {
             var ecs = this.access->EntityComponentStore;
             return ecs->HasComponent(entity, this.typeIndex, ref this.cache, out _);
         }
@@ -138,19 +130,16 @@ namespace BovineLabs.Core.Iterators
         /// True, if the version number stored in the chunk for this component is more recent than the version
         /// passed to the <paramref name="version" /> parameter.
         /// </returns>
-        public bool DidChange(Entity entity, uint version)
-        {
+        public bool DidChange(Entity entity, uint version) {
             var ecs = this.access->EntityComponentStore;
             var chunk = ecs->GetChunk(entity);
             var archetype = ecs->GetArchetype(chunk);
-            if (Hint.Unlikely(archetype != this.cache.Archetype))
-            {
+            if (Hint.Unlikely(archetype != this.cache.Archetype)) {
                 this.cache.Update(archetype, this.typeIndex);
             }
 
             var typeIndexInArchetype = this.cache.IndexInArchetype;
-            if (typeIndexInArchetype == -1)
-            {
+            if (typeIndexInArchetype == -1) {
                 return false;
             }
 
@@ -168,8 +157,7 @@ namespace BovineLabs.Core.Iterators
         /// <param name="entity"> The entity whose component should be checked. </param>
         /// <returns> True if the specified component is enabled, or false if it is disabled. </returns>
         /// <seealso cref="SetBufferEnabled" />
-        public bool IsBufferEnabled(Entity entity)
-        {
+        public bool IsBufferEnabled(Entity entity) {
             return this.access->IsComponentEnabled(entity, this.typeIndex, ref this.cache);
         }
 
@@ -183,8 +171,7 @@ namespace BovineLabs.Core.Iterators
         /// <param name="entity"> The entity whose component should be enabled or disabled. </param>
         /// <param name="value"> True if the specified component should be enabled, or false if it should be disabled. </param>
         /// <seealso cref="IsBufferEnabled" />
-        public void SetBufferEnabled(Entity entity, bool value)
-        {
+        public void SetBufferEnabled(Entity entity, bool value) {
             this.access->SetComponentEnabled(entity, this.typeIndex, value, ref this.cache);
         }
 
@@ -194,10 +181,7 @@ namespace BovineLabs.Core.Iterators
         /// type handle safe to use.
         /// </summary>
         /// <param name="system"> The system on which this type handle is cached. </param>
-        public void Update(SystemBase system)
-        {
-            this.Update(ref *system.m_StatePtr);
-        }
+        public void Update(SystemBase system) { this.Update(ref *system.m_StatePtr); }
 
         /// <summary>
         /// When a BufferLookup is cached by a system across multiple system updates, calling this function
@@ -205,8 +189,7 @@ namespace BovineLabs.Core.Iterators
         /// type handle safe to use.
         /// </summary>
         /// <param name="systemState"> The SystemState of the system on which this type handle is cached. </param>
-        public void Update(ref SystemState systemState)
-        {
+        public void Update(ref SystemState systemState) {
             // NOTE: We could in theory fetch all this data from m_Access.EntityComponentStore and void the SystemState from being passed in.
             //       That would unfortunately allow this API to be called from a job. So we use the required system parameter as a way of signifying to the user that this can only be invoked from main thread system code.
             //       Additionally this makes the API symmetric to ComponentTypeHandle.

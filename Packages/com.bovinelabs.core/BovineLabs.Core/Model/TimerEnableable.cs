@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Model
-{
+namespace BovineLabs.Core.Model {
     using BovineLabs.Core.Assertions;
     using BovineLabs.Core.Extensions;
     using Unity.Burst;
@@ -17,16 +16,14 @@ namespace BovineLabs.Core.Model
         where TOn : unmanaged, IComponentData, IEnableableComponent
         where TRemaining : unmanaged, IComponentData
         where TActive : unmanaged, IComponentData, IEnableableComponent
-        where TDuration : unmanaged, IComponentData
-    {
+        where TDuration : unmanaged, IComponentData {
         private ComponentTypeHandle<TOn> onHandle;
         private ComponentTypeHandle<TRemaining> remainingHandle;
         private ComponentTypeHandle<TActive> activeHandle;
         private ComponentTypeHandle<TDuration> durationHandle;
         private EntityQuery query;
 
-        public void OnCreate(ref SystemState state)
-        {
+        public void OnCreate(ref SystemState state) {
             Check.Assume(UnsafeUtility.SizeOf<float>() == UnsafeUtility.SizeOf<TRemaining>());
             Check.Assume(UnsafeUtility.SizeOf<float>() == UnsafeUtility.SizeOf<TDuration>());
 
@@ -42,8 +39,7 @@ namespace BovineLabs.Core.Model
                 .Build(ref state);
         }
 
-        public void OnUpdate(ref SystemState state, UpdateTimeJob job = default)
-        {
+        public void OnUpdate(ref SystemState state, UpdateTimeJob job = default) {
             this.onHandle.Update(ref state);
             this.remainingHandle.Update(ref state);
             this.activeHandle.Update(ref state);
@@ -61,27 +57,25 @@ namespace BovineLabs.Core.Model
 
         [NoAlias]
         [BurstCompile]
-        public unsafe struct UpdateTimeJob : IJobChunk
-        {
+        public unsafe struct UpdateTimeJob : IJobChunk {
             public ComponentTypeHandle<TOn> OnHandle;
             public ComponentTypeHandle<TRemaining> RemainingHandle;
 
-            [ReadOnly]
-            public ComponentTypeHandle<TActive> ActiveHandle;
+            [ReadOnly] public ComponentTypeHandle<TActive> ActiveHandle;
 
-            [ReadOnly]
-            public ComponentTypeHandle<TDuration> DurationHandle;
+            [ReadOnly] public ComponentTypeHandle<TDuration> DurationHandle;
 
             public float DeltaTime;
             public uint SystemVersion;
 
             /// <inheritdoc />
-            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
-            {
+            public void Execute(in ArchetypeChunk chunk,
+                int unfilteredChunkIndex,
+                bool useEnabledMask,
+                in v128 chunkEnabledMask) {
                 var activeChanged = chunk.DidChange(ref this.ActiveHandle, this.SystemVersion);
 
-                if (activeChanged)
-                {
+                if (activeChanged) {
                     var remainings = (float*)chunk.GetRequiredComponentDataPtrRW(ref this.RemainingHandle);
                     var durations = (float*)chunk.GetRequiredComponentDataPtrRO(ref this.DurationHandle);
                     var durationOnBits = chunk.GetRequiredEnabledBitsRO(ref this.OnHandle);
@@ -89,17 +83,14 @@ namespace BovineLabs.Core.Model
                     var durationOns = (ulong*)&durationOnBits;
                     var triggers = (ulong*)&triggerBits;
 
-                    for (var i = 0; i < chunk.Count; i++)
-                    {
-                        if (Bitwise.IsSet(triggers, i) && !Bitwise.IsSet(durationOns, i))
-                        {
+                    for (var i = 0; i < chunk.Count; i++) {
+                        if (Bitwise.IsSet(triggers, i) && !Bitwise.IsSet(durationOns, i)) {
                             remainings[i] = durations[i];
                         }
                     }
                 }
 
-                if (activeChanged || chunk.DidChange(ref this.RemainingHandle, this.SystemVersion))
-                {
+                if (activeChanged || chunk.DidChange(ref this.RemainingHandle, this.SystemVersion)) {
                     // We open RO to avoid change filter trigger unless it has changed
                     ref readonly var original = ref chunk.GetRequiredEnabledBitsRO(ref this.OnHandle);
                     var updated = original;
@@ -109,8 +100,7 @@ namespace BovineLabs.Core.Model
 
                     var hasChanged = updated.ULong0 != original.ULong0 || updated.ULong1 != original.ULong1;
 
-                    if (hasChanged)
-                    {
+                    if (hasChanged) {
                         ref var enabledBits = ref chunk.GetRequiredEnabledBitsRW(ref this.OnHandle, out var count);
                         enabledBits = updated;
 
@@ -119,13 +109,14 @@ namespace BovineLabs.Core.Model
                 }
             }
 
-            private static void CalculateOn([NoAlias] float* remainings, [NoAlias] ulong* isOn, int length, float deltaTime)
-            {
+            private static void CalculateOn([NoAlias] float* remainings,
+                [NoAlias] ulong* isOn,
+                int length,
+                float deltaTime) {
                 var u0 = isOn;
                 var length0 = math.min(64, length);
 
-                for (var i = 0; i < length0; i++)
-                {
+                for (var i = 0; i < length0; i++) {
                     remainings[i] = math.max(0, remainings[i] - deltaTime);
                     UnsafeBitArray.Set(u0, i, remainings[i] != 0);
                 }
@@ -133,8 +124,7 @@ namespace BovineLabs.Core.Model
                 var u1 = isOn + 1;
                 var length1 = math.min(64, length - 64);
 
-                for (var i = 0; i < length1; i++)
-                {
+                for (var i = 0; i < length1; i++) {
                     remainings[i + 64] = math.max(0, remainings[i + 64] - deltaTime);
                     UnsafeBitArray.Set(u1, i, remainings[i + 64] != 0);
                 }

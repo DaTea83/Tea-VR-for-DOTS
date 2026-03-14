@@ -28,7 +28,8 @@ namespace BovineLabs.Core.Editor.Utility
         {
             var icon = (Texture2D)EditorGUIUtility.IconContent("Refresh").image;
             var content = new MainToolbarContent(icon, "Reload");
-            dropDown = new MainToolbarDropdown(content, ClickEvent) { enabled = !EditorApplication.isPlayingOrWillChangePlaymode };
+            dropDown = new MainToolbarDropdown(content, ClickEvent) { enabled =
+ !EditorApplication.isPlayingOrWillChangePlaymode };
             return dropDown;
         }
 

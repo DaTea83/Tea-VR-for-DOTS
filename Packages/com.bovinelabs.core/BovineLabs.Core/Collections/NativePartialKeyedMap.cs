@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System.Runtime.InteropServices;
     using Unity.Burst;
     using Unity.Collections;
@@ -12,12 +11,14 @@ namespace BovineLabs.Core.Collections
 
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct NativePartialKeyedMap<TValue> : INativeDisposable
-        where TValue : unmanaged
-    {
+        where TValue : unmanaged {
         private UnsafePartialKeyedMap<TValue>* map;
 
-        public NativePartialKeyedMap(int* keys, TValue* values, int length, int bucketCapacity, AllocatorManager.AllocatorHandle allocator)
-        {
+        public NativePartialKeyedMap(int* keys,
+            TValue* values,
+            int length,
+            int bucketCapacity,
+            AllocatorManager.AllocatorHandle allocator) {
             this.map = UnsafePartialKeyedMap<TValue>.Create(keys, values, length, bucketCapacity, allocator);
         }
 
@@ -25,8 +26,7 @@ namespace BovineLabs.Core.Collections
 
         public TValue this[int i] => (*this.map)[i];
 
-        public void Dispose()
-        {
+        public void Dispose() {
             UnsafePartialKeyedMap<TValue>.Destroy(this.map);
             this.map = null;
         }
@@ -36,10 +36,8 @@ namespace BovineLabs.Core.Collections
         /// </summary>
         /// <param name="inputDeps"> A job handle. The newly scheduled job will depend upon this handle. </param>
         /// <returns> The handle of a new job that will dispose this hash map. </returns>
-        public JobHandle Dispose(JobHandle inputDeps)
-        {
-            var jobHandle = new NativePartialKeyedMapDisposeJob
-            {
+        public JobHandle Dispose(JobHandle inputDeps) {
+            var jobHandle = new NativePartialKeyedMapDisposeJob {
                 Map = this.map,
                 Next = this.map->Next,
                 Buckets = this.map->Buckets,
@@ -51,8 +49,7 @@ namespace BovineLabs.Core.Collections
             return jobHandle;
         }
 
-        public void Update(int* newKeys, TValue* newValues, int newLength)
-        {
+        public void Update(int* newKeys, TValue* newValues, int newLength) {
             this.map->Update(newKeys, newValues, newLength);
         }
 
@@ -63,8 +60,7 @@ namespace BovineLabs.Core.Collections
         /// <param name="item"> Outputs the associated value represented by the iterator. </param>
         /// <param name="it"> Outputs an iterator. </param>
         /// <returns> True if the key was present. </returns>
-        public bool TryGetFirstValue(int key, out TValue item, out UnsafeKeyedMapIterator it)
-        {
+        public bool TryGetFirstValue(int key, out TValue item, out UnsafeKeyedMapIterator it) {
             return this.map->TryGetFirstValue(key, out item, out it);
         }
 
@@ -72,28 +68,22 @@ namespace BovineLabs.Core.Collections
         /// <param name="item"> Outputs the next value. </param>
         /// <param name="it"> A reference to the iterator to advance. </param>
         /// <returns> True if the key was present and had another value. </returns>
-        public bool TryGetNextValue(out TValue item, ref UnsafeKeyedMapIterator it)
-        {
+        public bool TryGetNextValue(out TValue item, ref UnsafeKeyedMapIterator it) {
             return this.map->TryGetNextValue(out item, ref it);
         }
     }
 
     [BurstCompile]
-    internal unsafe struct NativePartialKeyedMapDisposeJob : IJob
-    {
-        [NativeDisableUnsafePtrRestriction]
-        public void* Map;
+    internal unsafe struct NativePartialKeyedMapDisposeJob : IJob {
+        [NativeDisableUnsafePtrRestriction] public void* Map;
 
-        [NativeDisableUnsafePtrRestriction]
-        public int* Next;
+        [NativeDisableUnsafePtrRestriction] public int* Next;
 
-        [NativeDisableUnsafePtrRestriction]
-        public int* Buckets;
+        [NativeDisableUnsafePtrRestriction] public int* Buckets;
 
         public AllocatorManager.AllocatorHandle Allocator;
 
-        public void Execute()
-        {
+        public void Execute() {
             Memory.Unmanaged.Free(this.Buckets, this.Allocator);
             Memory.Unmanaged.Free(this.Next, this.Allocator);
             Memory.Unmanaged.Free(this.Map, this.Allocator);

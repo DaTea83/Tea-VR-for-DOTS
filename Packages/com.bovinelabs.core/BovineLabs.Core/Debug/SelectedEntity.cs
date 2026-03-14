@@ -2,12 +2,10 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core
-{
+namespace BovineLabs.Core {
     using Unity.Entities;
 
-    public struct SelectedEntity : IComponentData
-    {
+    public struct SelectedEntity : IComponentData {
         public Entity Value;
     }
 }

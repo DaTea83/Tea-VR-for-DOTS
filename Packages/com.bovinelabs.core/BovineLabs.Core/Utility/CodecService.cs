@@ -2,29 +2,24 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Utility
-{
+namespace BovineLabs.Core.Utility {
     using System;
     using System.Runtime.InteropServices;
     using Unity.Collections;
 
-    public enum Codec : byte
-    {
+    public enum Codec : byte {
         LZ4,
     }
 
-    public static unsafe class CodecService
-    {
+    public static unsafe class CodecService {
         private const string DllName = "liblz4";
 
         /// <summary> Return the maximum size that a codec may output in a "worst case" scenario when compressing data. </summary>
         /// <param name="codec"> The codec to use. </param>
         /// <param name="srcSize"> The source size. </param>
         /// <returns> The maximum bound. </returns>
-        public static int GetBoundedSize(Codec codec, int srcSize)
-        {
-            switch (codec)
-            {
+        public static int GetBoundedSize(Codec codec, int srcSize) {
+            switch (codec) {
                 case Codec.LZ4:
                     return CompressBoundLZ4(srcSize);
                 default:
@@ -39,10 +34,8 @@ namespace BovineLabs.Core.Utility
         /// <param name="dst"> The destination buffer. </param>
         /// <param name="boundedSize"> The destination buffer size. </param>
         /// <returns> The compressed length. </returns>
-        public static int Compress(Codec codec, byte* src, int srcSize, byte* dst, int boundedSize)
-        {
-            switch (codec)
-            {
+        public static int Compress(Codec codec, byte* src, int srcSize, byte* dst, int boundedSize) {
+            switch (codec) {
                 case Codec.LZ4:
                     return CompressLZ4(src, dst, srcSize, boundedSize);
                 default:
@@ -50,8 +43,11 @@ namespace BovineLabs.Core.Utility
             }
         }
 
-        public static int Compress(Codec codec, byte* src, int srcSize, out byte* dst, Allocator allocator = Allocator.Temp)
-        {
+        public static int Compress(Codec codec,
+            byte* src,
+            int srcSize,
+            out byte* dst,
+            Allocator allocator = Allocator.Temp) {
             return Compress(codec, src, srcSize, out dst, (AllocatorManager.AllocatorHandle)allocator);
         }
 
@@ -64,15 +60,17 @@ namespace BovineLabs.Core.Utility
         /// <param name="dst"> The destination buffer. </param>
         /// <param name="allocator"> The allocator to use. </param>
         /// <returns> The compressed length. </returns>
-        public static int Compress(Codec codec, byte* src, int srcSize, out byte* dst, AllocatorManager.AllocatorHandle allocator)
-        {
+        public static int Compress(Codec codec,
+            byte* src,
+            int srcSize,
+            out byte* dst,
+            AllocatorManager.AllocatorHandle allocator) {
             var boundedSize = GetBoundedSize(codec, srcSize);
             dst = (byte*)Memory.Unmanaged.Allocate(boundedSize, 16, allocator);
 
             var compressedSize = Compress(codec, src, srcSize, dst, boundedSize);
 
-            if (compressedSize < 0)
-            {
+            if (compressedSize < 0) {
                 Memory.Unmanaged.Free(dst, allocator);
                 dst = null;
             }
@@ -91,10 +89,12 @@ namespace BovineLabs.Core.Utility
         /// <param name="decompressedData"> The destination buffer to store the uncompressed data. </param>
         /// <param name="decompressedSize"> The decompressed size. </param>
         /// <returns> True if decompression was successful. </returns>
-        public static bool Decompress(Codec codec, in byte* compressedData, int compressedSize, byte* decompressedData, int decompressedSize)
-        {
-            switch (codec)
-            {
+        public static bool Decompress(Codec codec,
+            in byte* compressedData,
+            int compressedSize,
+            byte* decompressedData,
+            int decompressedSize) {
+            switch (codec) {
                 case Codec.LZ4:
                     return DecompressLZ4(compressedData, decompressedData, compressedSize, decompressedSize) > 0;
                 default:

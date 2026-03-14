@@ -2,17 +2,14 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Collections
-{
+namespace BovineLabs.Core.Tests.Collections {
     using BovineLabs.Core.Collections;
     using NUnit.Framework;
     using Unity.Collections;
 
-    public class NativeKeyedMapTests
-    {
+    public class NativeKeyedMapTests {
         [Test]
-        public void Add()
-        {
+        public void Add() {
             var map = new NativeKeyedMap<int>(0, 4, Allocator.Temp);
             map.Add(1, 1);
             map.Add(1, 2);
@@ -32,17 +29,13 @@ namespace BovineLabs.Core.Tests.Collections
             ExpectCount(map, 3, 0);
         }
 
-        private static void ExpectCount(NativeKeyedMap<int> map, int key, int expected)
-        {
+        private static void ExpectCount(NativeKeyedMap<int> map, int key, int expected) {
             var count = 0;
 
-            if (map.TryGetFirstValue(key, out _, out var it))
-            {
-                do
-                {
+            if (map.TryGetFirstValue(key, out _, out var it)) {
+                do {
                     count++;
-                }
-                while (map.TryGetNextValue(out _, ref it));
+                } while (map.TryGetNextValue(out _, ref it));
             }
 
             Assert.AreEqual(expected, count);

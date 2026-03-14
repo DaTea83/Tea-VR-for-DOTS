@@ -7,8 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit.Inputs;
 using UnityEngine.XR.Hands;
 #endif
 
-namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
-{
+namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands {
     /// <summary>
     /// Behavior that provides events for when the system gesture starts and ends and when the
     /// menu palm pinch gesture occurs while hand tracking is in use.
@@ -17,14 +16,12 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
     /// See <see href="https://docs.unity3d.com/Packages/com.unity.xr.hands@1.1/manual/features/metahandtrackingaim.html">Meta Hand Tracking Aim</see>.
     /// </remarks>
     /// <seealso cref="MetaAimHand"/>
-    public class MetaSystemGestureDetector : MonoBehaviour
-    {
+    public class MetaSystemGestureDetector : MonoBehaviour {
         /// <summary>
         /// The state of the system gesture.
         /// </summary>
         /// <seealso cref="systemGestureState"/>
-        public enum SystemGestureState
-        {
+        public enum SystemGestureState {
             /// <summary>
             /// The system gesture has fully ended.
             /// </summary>
@@ -37,8 +34,8 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             Started,
         }
 
-        [SerializeField]
-        InputActionProperty m_AimFlagsAction = new InputActionProperty(new InputAction(expectedControlType: "Integer"));
+        [SerializeField] InputActionProperty m_AimFlagsAction =
+            new InputActionProperty(new InputAction(expectedControlType: "Integer"));
 
         /// <summary>
         /// The Input System action to read the Aim Flags.
@@ -54,11 +51,9 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// </item>
         /// </list>
         /// </remarks>
-        public InputActionProperty aimFlagsAction
-        {
+        public InputActionProperty aimFlagsAction {
             get => m_AimFlagsAction;
-            set
-            {
+            set {
                 if (Application.isPlaying)
                     UnbindAimFlags();
 
@@ -69,8 +64,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             }
         }
 
-        [SerializeField]
-        UnityEvent m_SystemGestureStarted;
+        [SerializeField] UnityEvent m_SystemGestureStarted;
 
         /// <summary>
         /// Calls the methods in its invocation list when the system gesture starts, which typically occurs when
@@ -78,14 +72,9 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// </summary>
         /// <seealso cref="systemGestureEnded"/>
         /// <seealso cref="MetaAimFlags.SystemGesture"/>
-        public UnityEvent systemGestureStarted
-        {
-            get => m_SystemGestureStarted;
-            set => m_SystemGestureStarted = value;
-        }
+        public UnityEvent systemGestureStarted { get => m_SystemGestureStarted; set => m_SystemGestureStarted = value; }
 
-        [SerializeField]
-        UnityEvent m_SystemGestureEnded;
+        [SerializeField] UnityEvent m_SystemGestureEnded;
 
         /// <summary>
         /// Calls the methods in its invocation list when the system gesture ends.
@@ -97,14 +86,9 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// </remarks>
         /// <seealso cref="systemGestureStarted"/>
         /// <seealso cref="MetaAimFlags.SystemGesture"/>
-        public UnityEvent systemGestureEnded
-        {
-            get => m_SystemGestureEnded;
-            set => m_SystemGestureEnded = value;
-        }
+        public UnityEvent systemGestureEnded { get => m_SystemGestureEnded; set => m_SystemGestureEnded = value; }
 
-        [SerializeField]
-        UnityEvent m_MenuPressed;
+        [SerializeField] UnityEvent m_MenuPressed;
 
         /// <summary>
         /// Calls the methods in its invocation list when the menu button is triggered by a palm pinch gesture.
@@ -114,11 +98,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// The universal menu (Oculus icon) on the dominant hand does not trigger this event.
         /// </remarks>
         /// <seealso cref="MetaAimFlags.MenuPressed"/>
-        public UnityEvent menuPressed
-        {
-            get => m_MenuPressed;
-            set => m_MenuPressed = value;
-        }
+        public UnityEvent menuPressed { get => m_MenuPressed; set => m_MenuPressed = value; }
 
         /// <summary>
         /// The state of the system gesture.
@@ -128,7 +108,8 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <seealso cref="systemGestureEnded"/>
         public IReadOnlyBindableVariable<SystemGestureState> systemGestureState => m_SystemGestureState;
 
-        readonly BindableEnum<SystemGestureState> m_SystemGestureState = new BindableEnum<SystemGestureState>(checkEquality: false);
+        readonly BindableEnum<SystemGestureState> m_SystemGestureState =
+            new BindableEnum<SystemGestureState>(checkEquality: false);
 
 #if XR_HANDS_1_1_OR_NEWER && (ENABLE_VR || UNITY_GAMECORE)
         [NonSerialized] // NonSerialized is required to avoid an "Unsupported enum base type" error about the Flags enum being ulong
@@ -140,8 +121,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        protected void OnEnable()
-        {
+        protected void OnEnable() {
             BindAimFlags();
 
 #if XR_HANDS_1_1_OR_NEWER
@@ -160,13 +140,9 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        protected void OnDisable()
-        {
-            UnbindAimFlags();
-        }
+        protected void OnDisable() { UnbindAimFlags(); }
 
-        void BindAimFlags()
-        {
+        void BindAimFlags() {
             if (m_AimFlagsBound)
                 return;
 
@@ -181,8 +157,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             m_AimFlagsAction.EnableDirectAction();
         }
 
-        void UnbindAimFlags()
-        {
+        void UnbindAimFlags() {
             if (!m_AimFlagsBound)
                 return;
 
@@ -197,14 +172,12 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             m_AimFlagsBound = false;
         }
 
-        void SetGestureState(SystemGestureState state, bool forceInvoke)
-        {
+        void SetGestureState(SystemGestureState state, bool forceInvoke) {
             if (!forceInvoke && m_SystemGestureState.Value == state)
                 return;
 
             m_SystemGestureState.Value = state;
-            switch (state)
-            {
+            switch (state) {
                 case SystemGestureState.Ended:
                     m_SystemGestureEnded?.Invoke();
                     break;
@@ -215,8 +188,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         }
 
 #if XR_HANDS_1_1_OR_NEWER && (ENABLE_VR || UNITY_GAMECORE)
-        void UpdateAimFlags(MetaAimFlags value, bool forceInvoke = false)
-        {
+        void UpdateAimFlags(MetaAimFlags value, bool forceInvoke = false) {
             var hadMenuPressed = (m_AimFlags & MetaAimFlags.MenuPressed) != 0;
             m_AimFlags = value;
             var hasSystemGesture = (m_AimFlags & MetaAimFlags.SystemGesture) != 0;
@@ -224,27 +196,23 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             var hasValid = (m_AimFlags & MetaAimFlags.Valid) != 0;
             var hasIndexPinching = (m_AimFlags & MetaAimFlags.IndexPinching) != 0;
 
-            if (!hadMenuPressed && hasMenuPressed)
-            {
+            if (!hadMenuPressed && hasMenuPressed) {
                 m_MenuPressed?.Invoke();
             }
 
-            if (hasSystemGesture || hasMenuPressed)
-            {
+            if (hasSystemGesture || hasMenuPressed) {
                 SetGestureState(SystemGestureState.Started, forceInvoke);
                 return;
             }
 
-            if (hasValid)
-            {
+            if (hasValid) {
                 SetGestureState(SystemGestureState.Ended, forceInvoke);
                 return;
             }
 
             // We want to keep the system gesture going when the user is still index pinching
             // even though the SystemGesture flag is no longer set.
-            if (hasIndexPinching && m_SystemGestureState.Value != SystemGestureState.Ended)
-            {
+            if (hasIndexPinching && m_SystemGestureState.Value != SystemGestureState.Ended) {
                 SetGestureState(SystemGestureState.Started, forceInvoke);
                 return;
             }
@@ -253,8 +221,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         }
 #endif
 
-        void OnAimFlagsActionPerformedOrCanceled(InputAction.CallbackContext context)
-        {
+        void OnAimFlagsActionPerformedOrCanceled(InputAction.CallbackContext context) {
 #if XR_HANDS_1_1_OR_NEWER && (ENABLE_VR || UNITY_GAMECORE)
             UpdateAimFlags((MetaAimFlags)context.ReadValue<int>());
 #endif

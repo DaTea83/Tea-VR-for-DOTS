@@ -2,10 +2,8 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
-    public unsafe interface INativeStreamReader
-    {
+namespace BovineLabs.Core.Collections {
+    public unsafe interface INativeStreamReader {
         int ForEachCount { get; }
 
         int RemainingItemCount { get; }

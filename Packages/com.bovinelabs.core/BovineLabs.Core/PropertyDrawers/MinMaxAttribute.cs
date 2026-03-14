@@ -2,16 +2,13 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.PropertyDrawers
-{
+namespace BovineLabs.Core.PropertyDrawers {
     using System;
     using UnityEngine;
 
     [AttributeUsage(AttributeTargets.Field)]
-    public class MinMaxAttribute : PropertyAttribute
-    {
-        public MinMaxAttribute(float min, float max)
-        {
+    public class MinMaxAttribute : PropertyAttribute {
+        public MinMaxAttribute(float min, float max) {
             this.Min = min;
             this.Max = max;
         }

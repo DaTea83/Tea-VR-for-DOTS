@@ -6,8 +6,7 @@
 #define BL_DEBUG_UPDATE
 #endif
 
-namespace BovineLabs.Core
-{
+namespace BovineLabs.Core {
     using BovineLabs.Core.ConfigVars;
     using BovineLabs.Core.Extensions;
     using BovineLabs.Core.Utility;
@@ -17,16 +16,16 @@ namespace BovineLabs.Core
     using Unity.Mathematics;
 
     [Configurable]
-    [WorldSystemFilter(WorldSystemFilterFlags.Default | WorldSystemFilterFlags.ThinClientSimulation | WorldSystemFilterFlags.Editor)]
-    public partial class BLDebugSystem : InitSystemBase
-    {
+    [WorldSystemFilter(WorldSystemFilterFlags.Default | WorldSystemFilterFlags.ThinClientSimulation |
+                       WorldSystemFilterFlags.Editor)]
+    public partial class BLDebugSystem : InitSystemBase {
         private const int DefaultMinLength = 0;
 
-        [ConfigVar("debug.loglevel.min-world-length", DefaultMinLength, "The min length of the world name, useful for alignment.")]
+        [ConfigVar("debug.loglevel.min-world-length", DefaultMinLength,
+            "The min length of the world name, useful for alignment.")]
         private static readonly SharedStatic<int> MinWorldLength = SharedStatic<int>.GetOrCreate<BLDebugSystem>();
 
-        internal static void Create(World world)
-        {
+        internal static void Create(World world) {
             var netDebugEntity = world.EntityManager.CreateSingleton<BLLogger>();
             world.EntityManager.SetName(netDebugEntity, "DBDebug");
 
@@ -43,14 +42,10 @@ namespace BovineLabs.Core
         }
 
         /// <inheritdoc />
-        protected override void OnCreate()
-        {
-            Create(this.World);
-        }
+        protected override void OnCreate() { Create(this.World); }
 
         /// <inheritdoc/>
-        protected override void OnUpdate()
-        {
+        protected override void OnUpdate() {
             var frameCount = UnityEngine.Time.frameCount;
             this.World.EntityManager.GetSingletonRW<BLLogger>().ValueRW.Frame = frameCount;
             BLGlobalLogger.Frame.Data = frameCount;

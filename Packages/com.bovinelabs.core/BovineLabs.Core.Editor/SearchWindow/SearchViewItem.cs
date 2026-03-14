@@ -3,21 +3,18 @@
 // </copyright>
 
 #nullable disable
-namespace BovineLabs.Core.Editor.SearchWindow
-{
+namespace BovineLabs.Core.Editor.SearchWindow {
     using BovineLabs.Core.Editor.UI;
     using UnityEngine.UIElements;
 
-    internal class SearchViewItem : VisualElement
-    {
+    internal class SearchViewItem : VisualElement {
         private static readonly UITemplate SearchItemTemplate = new(SearchWindow.RootUIPath + "SearchItem");
 
         private readonly VisualElement icon;
         private readonly Label label;
         private readonly VisualElement nextIcon;
 
-        public SearchViewItem()
-        {
+        public SearchViewItem() {
             this.AddToClassList("SearchItem");
 
             SearchItemTemplate.Clone(this);
@@ -30,11 +27,9 @@ namespace BovineLabs.Core.Editor.SearchWindow
 
         public string Name { get; private set; }
 
-        public TreeNode<SearchView.Item> Item
-        {
+        public TreeNode<SearchView.Item> Item {
             get => this.userData as TreeNode<SearchView.Item>;
-            set
-            {
+            set {
                 this.userData = value;
                 this.icon.style.backgroundImage = value.Value.Icon;
                 this.Name = value.Value.Name;

@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System;
     using System.Threading;
     using Unity.Burst;
@@ -11,10 +10,8 @@ namespace BovineLabs.Core.Collections
     using Unity.Collections.LowLevel.Unsafe;
 
     [NativeContainer]
-    public unsafe struct NativeCounter : IDisposable
-    {
-        [NativeDisableUnsafePtrRestriction]
-        private int* count;
+    public unsafe struct NativeCounter : IDisposable {
+        [NativeDisableUnsafePtrRestriction] private int* count;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
         private AtomicSafetyHandle m_Safety;
@@ -23,8 +20,7 @@ namespace BovineLabs.Core.Collections
 
         private readonly AllocatorManager.AllocatorHandle allocator;
 
-        public NativeCounter(AllocatorManager.AllocatorHandle allocator)
-        {
+        public NativeCounter(AllocatorManager.AllocatorHandle allocator) {
             this.allocator = allocator;
 
             this.count = Memory.Unmanaged.Allocate<int>(allocator);
@@ -38,8 +34,7 @@ namespace BovineLabs.Core.Collections
 #endif
         }
 
-        public int Increment()
-        {
+        public int Increment() {
             // Verify that the caller has write permission on this data.
             // This is the race condition protection, without these checks the AtomicSafetyHandle is useless
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -50,18 +45,14 @@ namespace BovineLabs.Core.Collections
             return *this.count;
         }
 
-        public int Count
-        {
-            get
-            {
+        public int Count {
+            get {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 AtomicSafetyHandle.CheckReadAndThrow(this.m_Safety);
 #endif
                 return *this.count;
             }
-
-            set
-            {
+            set {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 AtomicSafetyHandle.CheckWriteAndThrow(this.m_Safety);
 #endif
@@ -72,8 +63,7 @@ namespace BovineLabs.Core.Collections
         public bool IsCreated => this.count != null;
 
         /// <inheritdoc />
-        public void Dispose()
-        {
+        public void Dispose() {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CollectionHelper.DisposeSafetyHandle(ref this.m_Safety);
 #endif
@@ -82,24 +72,18 @@ namespace BovineLabs.Core.Collections
             this.count = null;
         }
 
-        public ParallelWriter AsParallelWriter()
-        {
-            return new ParallelWriter(this);
-        }
+        public ParallelWriter AsParallelWriter() { return new ParallelWriter(this); }
 
         [NativeContainer]
         [NativeContainerIsAtomicWriteOnly]
-        public struct ParallelWriter
-        {
-            [NativeDisableUnsafePtrRestriction]
-            private readonly int* count;
+        public struct ParallelWriter {
+            [NativeDisableUnsafePtrRestriction] private readonly int* count;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             private readonly AtomicSafetyHandle m_Safety;
 #endif
 
-            internal ParallelWriter(NativeCounter counter)
-            {
+            internal ParallelWriter(NativeCounter counter) {
                 this.count = counter.count;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -109,8 +93,7 @@ namespace BovineLabs.Core.Collections
 #endif
             }
 
-            public int Increment()
-            {
+            public int Increment() {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 AtomicSafetyHandle.CheckWriteAndThrow(this.m_Safety);
 #endif

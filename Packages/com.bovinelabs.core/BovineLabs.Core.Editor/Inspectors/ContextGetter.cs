@@ -2,16 +2,14 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using System;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
     using Unity.Entities.Editor;
     using Unity.Entities.UI;
 
-    public interface IEntityContext
-    {
+    public interface IEntityContext {
         public Entity Entity { get; }
 
         public World World { get; }
@@ -19,29 +17,23 @@ namespace BovineLabs.Core.Editor.Inspectors
         public EntityManager EntityManager { get; }
     }
 
-    internal interface IContextGetter : IEntityContext
-    {
+    internal interface IContextGetter : IEntityContext {
         public InspectionContext Context { get; }
 
         public bool IsReadOnly { get; }
     }
 
-    internal static class ContextGetter
-    {
-        public static IContextGetter Create<T>(object inspector)
-        {
-            if (inspector is not IInspector)
-            {
+    internal static class ContextGetter {
+        public static IContextGetter Create<T>(object inspector) {
+            if (inspector is not IInspector) {
                 throw new ArgumentException($"Inspector is not {nameof(IInspector)}", nameof(inspector));
             }
 
-            if (!UnsafeUtility.IsUnmanaged<T>())
-            {
+            if (!UnsafeUtility.IsUnmanaged<T>()) {
                 throw new ArgumentException($"{typeof(T)} is not unmanaged", nameof(T));
             }
 
-            if (typeof(IBufferElementData).IsAssignableFrom(typeof(T)))
-            {
+            if (typeof(IBufferElementData).IsAssignableFrom(typeof(T))) {
                 var db = typeof(DynamicBuffer<>).MakeGenericType(typeof(T));
                 var context = typeof(ContextGetter<>).MakeGenericType(db);
                 return (IContextGetter)Activator.CreateInstance(context, inspector);
@@ -54,14 +46,11 @@ namespace BovineLabs.Core.Editor.Inspectors
         }
     }
 
-    internal class ContextGetter<T> : IContextGetter
-    {
+    internal class ContextGetter<T> : IContextGetter {
         private readonly EntityInspectorContext context;
 
-        public ContextGetter(object inspector)
-        {
-            if (inspector is not InspectorBase<T> propertyInspector)
-            {
+        public ContextGetter(object inspector) {
+            if (inspector is not InspectorBase<T> propertyInspector) {
                 throw new ArgumentException($"Inspector is not {nameof(InspectorBase<T>)}", nameof(inspector));
             }
 

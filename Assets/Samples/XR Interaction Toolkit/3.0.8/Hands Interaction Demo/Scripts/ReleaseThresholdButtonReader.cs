@@ -1,30 +1,27 @@
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Readers;
 
-namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
-{
+namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands {
     /// <summary>
     /// An input button reader based on another <see cref="XRInputButtonReader"/> and holds it true until falling below a lower release threshold.
     /// Useful with hand interaction because the bool select value can bounce when the hand is near the tight internal threshold,
     /// so using this will keep the pinch true until moving the fingers much further away than the pinch activation threshold.
     /// </summary>
     [DefaultExecutionOrder(XRInteractionUpdateOrder.k_XRInputDeviceButtonReader)]
-    public class ReleaseThresholdButtonReader : MonoBehaviour, IXRInputButtonReader
-    {
-        [SerializeField]
-        [Tooltip("The source input that this component reads to create a processed button value.")]
+    public class ReleaseThresholdButtonReader : MonoBehaviour, IXRInputButtonReader {
+        [SerializeField] [Tooltip("The source input that this component reads to create a processed button value.")]
         XRInputButtonReader m_ValueInput = new XRInputButtonReader("Value");
 
         /// <summary>
         /// The source input that this component reads to create a processed button value.
         /// </summary>
-        public XRInputButtonReader valueInput
-        {
+        public XRInputButtonReader valueInput {
             get => m_ValueInput;
             set => XRInputReaderUtility.SetInputProperty(ref m_ValueInput, value, this);
         }
 
         [SerializeField]
-        [Tooltip("The threshold value to use to determine when the button is pressed. Considered pressed equal to or greater than this value.")]
+        [Tooltip(
+            "The threshold value to use to determine when the button is pressed. Considered pressed equal to or greater than this value.")]
         [Range(0f, 1f)]
         float m_PressThreshold = 0.8f;
 
@@ -34,14 +31,11 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <remarks>
         /// This reader will also be considered performed if the source input is performed.
         /// </remarks>
-        public float pressThreshold
-        {
-            get => m_PressThreshold;
-            set => m_PressThreshold = value;
-        }
+        public float pressThreshold { get => m_PressThreshold; set => m_PressThreshold = value; }
 
         [SerializeField]
-        [Tooltip("The threshold value to use to determine when the button is released when it was previously pressed. Keeps being pressed until falls back to a value of or below this value.")]
+        [Tooltip(
+            "The threshold value to use to determine when the button is released when it was previously pressed. Keeps being pressed until falls back to a value of or below this value.")]
         [Range(0f, 1f)]
         float m_ReleaseThreshold = 0.25f;
 
@@ -53,11 +47,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// This reader will still be considered performed if the source input is still performed
         /// when this threshold is reached.
         /// </remarks>
-        public float releaseThreshold
-        {
-            get => m_ReleaseThreshold;
-            set => m_ReleaseThreshold = value;
-        }
+        public float releaseThreshold { get => m_ReleaseThreshold; set => m_ReleaseThreshold = value; }
 
         bool m_IsPerformed;
         bool m_WasPerformedThisFrame;
@@ -66,24 +56,17 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void OnEnable()
-        {
-            m_ValueInput?.EnableDirectActionIfModeUsed();
-        }
+        void OnEnable() { m_ValueInput?.EnableDirectActionIfModeUsed(); }
 
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void OnDisable()
-        {
-            m_ValueInput?.DisableDirectActionIfModeUsed();
-        }
+        void OnDisable() { m_ValueInput?.DisableDirectActionIfModeUsed(); }
 
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void Update()
-        {
+        void Update() {
             // Go true when either the press threshold is reached or the bool is already performed.
             // Only drop back to false when the release threshold is reached and the bool is no longer performed.
             var prevPerformed = m_IsPerformed;
@@ -101,33 +84,18 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         }
 
         /// <inheritdoc />
-        public bool ReadIsPerformed()
-        {
-            return m_IsPerformed;
-        }
+        public bool ReadIsPerformed() { return m_IsPerformed; }
 
         /// <inheritdoc />
-        public bool ReadWasPerformedThisFrame()
-        {
-            return m_WasPerformedThisFrame;
-        }
+        public bool ReadWasPerformedThisFrame() { return m_WasPerformedThisFrame; }
 
         /// <inheritdoc />
-        public bool ReadWasCompletedThisFrame()
-        {
-            return m_WasCompletedThisFrame;
-        }
+        public bool ReadWasCompletedThisFrame() { return m_WasCompletedThisFrame; }
 
         /// <inheritdoc />
-        public float ReadValue()
-        {
-            return m_ValueInput.ReadValue();
-        }
+        public float ReadValue() { return m_ValueInput.ReadValue(); }
 
         /// <inheritdoc />
-        public bool TryReadValue(out float value)
-        {
-            return m_ValueInput.TryReadValue(out value);
-        }
+        public bool TryReadValue(out float value) { return m_ValueInput.TryReadValue(out value); }
     }
 }

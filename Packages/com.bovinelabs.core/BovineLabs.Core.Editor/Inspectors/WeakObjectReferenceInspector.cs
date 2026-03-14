@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using BovineLabs.Core.Editor.Extensions;
     using BovineLabs.Core.Editor.Internal;
     using JetBrains.Annotations;
@@ -15,14 +14,12 @@ namespace BovineLabs.Core.Editor.Inspectors
     using Object = UnityEngine.Object;
 
     internal abstract class WeakObjectReferenceInspector<T> : PropertyInspector<WeakObjectReference<T>>
-        where T : Object
-    {
+        where T : Object {
         private Foldout? field;
         private ObjectField? objectField;
 
         /// <inheritdoc/>
-        public override VisualElement Build()
-        {
+        public override VisualElement Build() {
             this.field = new Foldout { value = false };
 
             this.objectField = new ObjectField { enabledSelf = !this.IsReadOnly };
@@ -32,8 +29,7 @@ namespace BovineLabs.Core.Editor.Inspectors
 
             this.Update();
 
-            this.objectField.RegisterValueChangedCallback(evt =>
-            {
+            this.objectField.RegisterValueChangedCallback(evt => {
                 this.Target = new WeakObjectReference<T>((T)evt.newValue);
             });
 
@@ -41,8 +37,7 @@ namespace BovineLabs.Core.Editor.Inspectors
         }
 
         /// <inheritdoc/>
-        public override void Update()
-        {
+        public override void Update() {
             var target = this.Target;
 
             var asset = target.GetEditorObject();
@@ -52,27 +47,17 @@ namespace BovineLabs.Core.Editor.Inspectors
     }
 
     [UsedImplicitly]
-    internal class GameObjectWeakObjectReferenceInspector : WeakObjectReferenceInspector<GameObject>
-    {
-    }
+    internal class GameObjectWeakObjectReferenceInspector : WeakObjectReferenceInspector<GameObject> { }
 
     [UsedImplicitly]
-    internal class TransformWeakObjectReferenceInspector : WeakObjectReferenceInspector<Transform>
-    {
-    }
+    internal class TransformWeakObjectReferenceInspector : WeakObjectReferenceInspector<Transform> { }
 
     [UsedImplicitly]
-    internal class MaterialWeakObjectReferenceInspector : WeakObjectReferenceInspector<Material>
-    {
-    }
+    internal class MaterialWeakObjectReferenceInspector : WeakObjectReferenceInspector<Material> { }
 
     [UsedImplicitly]
-    internal class MeshWeakObjectReferenceInspector : WeakObjectReferenceInspector<Mesh>
-    {
-    }
+    internal class MeshWeakObjectReferenceInspector : WeakObjectReferenceInspector<Mesh> { }
 
     [UsedImplicitly]
-    internal class Texture2DArrayWeakObjectReferenceInspector : WeakObjectReferenceInspector<Texture2DArray>
-    {
-    }
+    internal class Texture2DArrayWeakObjectReferenceInspector : WeakObjectReferenceInspector<Texture2DArray> { }
 }

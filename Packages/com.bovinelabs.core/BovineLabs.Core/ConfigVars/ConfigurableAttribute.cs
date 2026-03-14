@@ -2,12 +2,9 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.ConfigVars
-{
+namespace BovineLabs.Core.ConfigVars {
     using System;
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class ConfigurableAttribute : Attribute
-    {
-    }
+    public class ConfigurableAttribute : Attribute { }
 }

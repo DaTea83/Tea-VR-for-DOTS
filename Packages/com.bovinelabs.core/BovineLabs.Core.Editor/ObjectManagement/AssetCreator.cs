@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.ObjectManagement
-{
+namespace BovineLabs.Core.Editor.ObjectManagement {
     using System;
     using System.Linq;
     using System.Reflection;
@@ -14,8 +13,7 @@ namespace BovineLabs.Core.Editor.ObjectManagement
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    public class AssetCreator
-    {
+    public class AssetCreator {
         private readonly string? path;
         private readonly SerializedObject serializedObject;
         private readonly SerializedProperty serializedProperty;
@@ -25,8 +23,7 @@ namespace BovineLabs.Core.Editor.ObjectManagement
 
         private AutoRefAttribute? attribute;
 
-        public AssetCreator(SerializedObject serializedObject, SerializedProperty serializedProperty, Type type)
-        {
+        public AssetCreator(SerializedObject serializedObject, SerializedProperty serializedProperty, Type type) {
             this.attribute = TryGetAttribute(serializedObject, serializedProperty, type);
 
             this.serializedObject = serializedObject;
@@ -36,30 +33,29 @@ namespace BovineLabs.Core.Editor.ObjectManagement
 
             this.Element = PropertyUtil.CreateProperty(serializedProperty, this.serializedObject);
 
-            if (this.attribute != null)
-            {
+            if (this.attribute != null) {
                 this.Element.RegisterCallback<GeometryChangedEvent>(this.Init);
                 this.Element.AddManipulator(new ContextualMenuManipulator(this.MenuBuilder));
                 this.path = OMUtility.GetDefaultPath(this.attribute);
             }
         }
 
-        private static AutoRefAttribute? TryGetAttribute(SerializedObject serializedObject, SerializedProperty serializedProperty, Type type)
-        {
+        private static AutoRefAttribute? TryGetAttribute(SerializedObject serializedObject,
+            SerializedProperty serializedProperty,
+            Type type) {
             var attribute = type.GetCustomAttribute<AutoRefAttribute>();
 
-            if (attribute == null)
-            {
+            if (attribute == null) {
                 BLGlobalLogger.LogErrorString(
                     $"Type {type} is using AssetCreator but without {nameof(AutoRefAttribute)} so the item will not be added to the object.");
             }
-            else if (attribute.ManagerType != serializedObject.targetObject.name)
-            {
-                BLGlobalLogger.LogErrorString($"Type {type} is using AssetCreator but the {nameof(AutoRefAttribute)} targets a different manager.");
+            else if (attribute.ManagerType != serializedObject.targetObject.name) {
+                BLGlobalLogger.LogErrorString(
+                    $"Type {type} is using AssetCreator but the {nameof(AutoRefAttribute)} targets a different manager.");
             }
-            else if (attribute.FieldName != serializedProperty.name)
-            {
-                BLGlobalLogger.LogErrorString($"Type {type} is using AssetCreator but the {nameof(AutoRefAttribute)} targets a different field.");
+            else if (attribute.FieldName != serializedProperty.name) {
+                BLGlobalLogger.LogErrorString(
+                    $"Type {type} is using AssetCreator but the {nameof(AutoRefAttribute)} targets a different field.");
             }
 
             return attribute;
@@ -67,11 +63,9 @@ namespace BovineLabs.Core.Editor.ObjectManagement
 
         public PropertyField Element { get; }
 
-        private void Init(GeometryChangedEvent evt)
-        {
+        private void Init(GeometryChangedEvent evt) {
             this.listView = this.Element.Q<ListView>();
-            if (this.listView == null)
-            {
+            if (this.listView == null) {
                 return;
             }
 
@@ -82,11 +76,9 @@ namespace BovineLabs.Core.Editor.ObjectManagement
 
             this.listView.showBoundCollectionSize = false;
 
-            this.listView.itemsAdded += ints =>
-            {
+            this.listView.itemsAdded += ints => {
                 var count = ints.Count();
-                for (var i = 0; i < count; i++)
-                {
+                for (var i = 0; i < count; i++) {
                     OMUtility.CreateInstance(this.type, this.path!);
                 }
             };
@@ -94,14 +86,10 @@ namespace BovineLabs.Core.Editor.ObjectManagement
             this.listView.Q<VisualElement>("unity-content-container").SetEnabled(false);
         }
 
-        private void MenuBuilder(ContextualMenuPopulateEvent evt)
-        {
-            evt.menu.AppendAction("Remove Missing", _ =>
-            {
-                for (var i = this.serializedProperty.arraySize - 1; i >= 0; i--)
-                {
-                    if (this.serializedProperty.GetArrayElementAtIndex(i).objectReferenceValue == null)
-                    {
+        private void MenuBuilder(ContextualMenuPopulateEvent evt) {
+            evt.menu.AppendAction("Remove Missing", _ => {
+                for (var i = this.serializedProperty.arraySize - 1; i >= 0; i--) {
+                    if (this.serializedProperty.GetArrayElementAtIndex(i).objectReferenceValue == null) {
                         this.serializedProperty.DeleteArrayElementAtIndex(i);
                     }
                 }
@@ -112,12 +100,10 @@ namespace BovineLabs.Core.Editor.ObjectManagement
     }
 
     public class AssetCreator<T> : AssetCreator
-        where T : ScriptableObject
-    {
+        where T : ScriptableObject {
         public AssetCreator(
-            SerializedObject serializedObject, SerializedProperty serializedProperty)
-            : base(serializedObject, serializedProperty, typeof(T))
-        {
-        }
+            SerializedObject serializedObject,
+            SerializedProperty serializedProperty)
+            : base(serializedObject, serializedProperty, typeof(T)) { }
     }
 }

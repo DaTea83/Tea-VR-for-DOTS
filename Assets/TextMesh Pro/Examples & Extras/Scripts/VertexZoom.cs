@@ -4,11 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-namespace TMPro.Examples
-{
-
-    public class VertexZoom : MonoBehaviour
-    {
+namespace TMPro.Examples {
+    public class VertexZoom : MonoBehaviour {
         public float AngleMultiplier = 1.0f;
         public float SpeedMultiplier = 1.0f;
         public float CurveScale = 1.0f;
@@ -17,32 +14,23 @@ namespace TMPro.Examples
         private bool hasTextChanged;
 
 
-        void Awake()
-        {
-            m_TextComponent = GetComponent<TMP_Text>();
-        }
+        void Awake() { m_TextComponent = GetComponent<TMP_Text>(); }
 
-        void OnEnable()
-        {
+        void OnEnable() {
             // Subscribe to event fired when text object has been regenerated.
             TMPro_EventManager.TEXT_CHANGED_EVENT.Add(ON_TEXT_CHANGED);
         }
 
-        void OnDisable()
-        {
+        void OnDisable() {
             // UnSubscribe to event fired when text object has been regenerated.
             TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(ON_TEXT_CHANGED);
         }
 
 
-        void Start()
-        {
-            StartCoroutine(AnimateVertexColors());
-        }
+        void Start() { StartCoroutine(AnimateVertexColors()); }
 
 
-        void ON_TEXT_CHANGED(Object obj)
-        {
+        void ON_TEXT_CHANGED(Object obj) {
             if (obj == m_TextComponent)
                 hasTextChanged = true;
         }
@@ -51,9 +39,7 @@ namespace TMPro.Examples
         /// Method to animate vertex colors of a TMP Text object.
         /// </summary>
         /// <returns></returns>
-        IEnumerator AnimateVertexColors()
-        {
-
+        IEnumerator AnimateVertexColors() {
             // We force an update of the text object since it would only be updated at the end of the frame. Ie. before this code is executed on the first frame.
             // Alternatively, we could yield and wait until the end of the frame when the text object will be generated.
             m_TextComponent.ForceMeshUpdate();
@@ -69,11 +55,9 @@ namespace TMPro.Examples
 
             hasTextChanged = true;
 
-            while (true)
-            {
+            while (true) {
                 // Allocate new vertices
-                if (hasTextChanged)
-                {
+                if (hasTextChanged) {
                     // Get updated vertex data
                     cachedMeshInfoVertexData = textInfo.CopyMeshInfoVertexData();
 
@@ -83,8 +67,7 @@ namespace TMPro.Examples
                 int characterCount = textInfo.characterCount;
 
                 // If No Characters then just yield and wait for some text to be added
-                if (characterCount == 0)
-                {
+                if (characterCount == 0) {
                     yield return new WaitForSeconds(0.25f);
                     continue;
                 }
@@ -93,8 +76,7 @@ namespace TMPro.Examples
                 modifiedCharScale.Clear();
                 scaleSortingOrder.Clear();
 
-                for (int i = 0; i < characterCount; i++)
-                {
+                for (int i = 0; i < characterCount; i++) {
                     TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
 
                     // Skip characters that are not visible and thus have no geometry to manipulate.
@@ -139,10 +121,14 @@ namespace TMPro.Examples
                     //matrix = Matrix4x4.TRS(jitterOffset, Quaternion.Euler(0, 0, Random.Range(-5f, 5f)), Vector3.one * randomScale);
                     matrix = Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.identity, Vector3.one * randomScale);
 
-                    destinationVertices[vertexIndex + 0] = matrix.MultiplyPoint3x4(destinationVertices[vertexIndex + 0]);
-                    destinationVertices[vertexIndex + 1] = matrix.MultiplyPoint3x4(destinationVertices[vertexIndex + 1]);
-                    destinationVertices[vertexIndex + 2] = matrix.MultiplyPoint3x4(destinationVertices[vertexIndex + 2]);
-                    destinationVertices[vertexIndex + 3] = matrix.MultiplyPoint3x4(destinationVertices[vertexIndex + 3]);
+                    destinationVertices[vertexIndex + 0] =
+                        matrix.MultiplyPoint3x4(destinationVertices[vertexIndex + 0]);
+                    destinationVertices[vertexIndex + 1] =
+                        matrix.MultiplyPoint3x4(destinationVertices[vertexIndex + 1]);
+                    destinationVertices[vertexIndex + 2] =
+                        matrix.MultiplyPoint3x4(destinationVertices[vertexIndex + 2]);
+                    destinationVertices[vertexIndex + 3] =
+                        matrix.MultiplyPoint3x4(destinationVertices[vertexIndex + 3]);
 
                     destinationVertices[vertexIndex + 0] += offset;
                     destinationVertices[vertexIndex + 1] += offset;
@@ -169,8 +155,7 @@ namespace TMPro.Examples
                 }
 
                 // Push changes into meshes
-                for (int i = 0; i < textInfo.meshInfo.Length; i++)
-                {
+                for (int i = 0; i < textInfo.meshInfo.Length; i++) {
                     //// Sort Quads based modified scale
                     scaleSortingOrder.Sort((a, b) => modifiedCharScale[a].CompareTo(modifiedCharScale[b]));
 
@@ -187,6 +172,5 @@ namespace TMPro.Examples
                 yield return new WaitForSeconds(0.1f);
             }
         }
-
     }
 }

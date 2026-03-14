@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System;
     using BovineLabs.Core.Utility;
     using Unity.Collections.LowLevel.Unsafe;
@@ -13,8 +12,7 @@ namespace BovineLabs.Core.Collections
     [MayOnlyLiveInBlobStorage]
     public struct BlobMultiHashMap<TKey, TValue>
         where TKey : unmanaged, IEquatable<TKey>
-        where TValue : unmanaged
-    {
+        where TValue : unmanaged {
         internal BlobHashMapData<TKey, TValue> Data;
 
         /// <summary> The current number of items in the container. </summary>
@@ -25,8 +23,7 @@ namespace BovineLabs.Core.Collections
         /// <param name="item"> Output value. </param>
         /// <param name="it"> Iterator. </param>
         /// <returns> Returns true if the container contains the key. </returns>
-        public bool TryGetFirstValue(TKey key, out Ptr<TValue> item, out BlobMultiHashMapIterator<TKey> it)
-        {
+        public bool TryGetFirstValue(TKey key, out Ptr<TValue> item, out BlobMultiHashMapIterator<TKey> it) {
             return this.Data.TryGetFirstValue(key, out item, out it);
         }
 
@@ -34,24 +31,20 @@ namespace BovineLabs.Core.Collections
         /// <param name="item"> Output value. </param>
         /// <param name="it"> Iterator. </param>
         /// <returns> Returns true if next value for the key is found. </returns>
-        public bool TryGetNextValue(out Ptr<TValue> item, ref BlobMultiHashMapIterator<TKey> it)
-        {
+        public bool TryGetNextValue(out Ptr<TValue> item, ref BlobMultiHashMapIterator<TKey> it) {
             return this.Data.TryGetNextValue(out item, ref it);
         }
 
         /// <summary> Determines whether an key is in the container. </summary>
         /// <param name="key"> The key to locate in the container. </param>
         /// <returns> Returns true if the container contains the key. </returns>
-        public bool ContainsKey(TKey key)
-        {
-            return this.Data.TryGetFirstValue(key, out _, out _);
-        }
+        public bool ContainsKey(TKey key) { return this.Data.TryGetFirstValue(key, out _, out _); }
 
         /// <summary> Returns an enumerator over the key-value pairs of this hash map. </summary>
         /// <returns> An enumerator over the key-value pairs of this hash map. </returns>
-        public unsafe BlobHashMapEnumerator<TKey, TValue> GetEnumerator()
-        {
-            return new BlobHashMapEnumerator<TKey, TValue>(ref UnsafeUtility.AsRef<BlobHashMapData<TKey, TValue>>(UnsafeUtility.AddressOf(ref this)));
+        public unsafe BlobHashMapEnumerator<TKey, TValue> GetEnumerator() {
+            return new BlobHashMapEnumerator<TKey, TValue>(
+                ref UnsafeUtility.AsRef<BlobHashMapData<TKey, TValue>>(UnsafeUtility.AddressOf(ref this)));
         }
     }
 }

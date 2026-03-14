@@ -2,14 +2,12 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System;
 
     public unsafe struct UnsafeHashMapBucketData<TKey, TValue>
         where TKey : unmanaged, IEquatable<TKey>
-        where TValue : unmanaged
-    {
+        where TValue : unmanaged {
         public readonly TValue* Values;
 
         public readonly TKey* Keys;
@@ -18,8 +16,7 @@ namespace BovineLabs.Core.Collections
 
         public readonly int* Buckets;
 
-        internal UnsafeHashMapBucketData(TValue* v, TKey* k, int* n, int* b)
-        {
+        internal UnsafeHashMapBucketData(TValue* v, TKey* k, int* n, int* b) {
             this.Values = v;
             this.Keys = k;
             this.Next = n;

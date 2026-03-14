@@ -1,18 +1,15 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace TeaFramework
-{
-    public struct HeadInputIData : IComponentData
-    {
+namespace TeaFramework {
+    public struct HeadInputIData : IComponentData {
         public float IsTracked;
         public int TrackingState;
         public float3 HeadPos;
         public float3 HeadRot;
     }
 
-    public struct LHandInputIData : IComponentData
-    {
+    public struct LHandInputIData : IComponentData {
         public float IsTracked;
         public int TrackingState;
         public float3 LHandPos;
@@ -25,8 +22,7 @@ namespace TeaFramework
         public float Menu;
     }
 
-    public struct RHandInputIData : IComponentData
-    {
+    public struct RHandInputIData : IComponentData {
         public float IsTracked;
         public int TrackingState;
         public float3 RHandPos;
@@ -37,9 +33,8 @@ namespace TeaFramework
         public float RHandPrimary;
         public float RHandSecondary;
     }
-    
-    public struct UIInputIData : IComponentData
-    {
+
+    public struct UIInputIData : IComponentData {
         public float2 Navigate;
         public float Click;
         public float Submit;

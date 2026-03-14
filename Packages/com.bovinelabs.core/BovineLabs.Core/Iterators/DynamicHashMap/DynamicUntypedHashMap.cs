@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Iterators
-{
+namespace BovineLabs.Core.Iterators {
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
@@ -12,15 +11,12 @@ namespace BovineLabs.Core.Iterators
     using Unity.Entities;
 
     public unsafe struct DynamicUntypedHashMap<TKey>
-        where TKey : unmanaged, IEquatable<TKey>
-    {
+        where TKey : unmanaged, IEquatable<TKey> {
         private readonly DynamicBuffer<byte> buffer;
 
-        [NativeDisableUnsafePtrRestriction]
-        private DynamicUntypedHashMapHelper<TKey>* helper;
+        [NativeDisableUnsafePtrRestriction] private DynamicUntypedHashMapHelper<TKey>* helper;
 
-        internal DynamicUntypedHashMap(DynamicBuffer<byte> buffer)
-        {
+        internal DynamicUntypedHashMap(DynamicBuffer<byte> buffer) {
             CheckSize(buffer);
 
             this.buffer = buffer;
@@ -33,10 +29,8 @@ namespace BovineLabs.Core.Iterators
 
         /// <summary> Gets a value indicating whether this hash map is empty. </summary>
         /// <value> True if this hash map is empty or if the map has not been constructed. </value>
-        public readonly bool IsEmpty
-        {
-            get
-            {
+        public readonly bool IsEmpty {
+            get {
                 this.buffer.CheckReadAccess();
                 this.RefCheck();
                 return !this.IsCreated || this.helper->IsEmpty;
@@ -45,11 +39,9 @@ namespace BovineLabs.Core.Iterators
 
         /// <summary> Gets the current number of key-value pairs in this hash map. </summary>
         /// <returns> The current number of key-value pairs in this hash map. </returns>
-        public readonly int Count
-        {
+        public readonly int Count {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+            get {
                 this.buffer.CheckReadAccess();
                 this.RefCheck();
                 return this.helper->Count;
@@ -59,18 +51,15 @@ namespace BovineLabs.Core.Iterators
         /// <summary> Gets or sets the number of key-value pairs that fit in the current allocation. </summary>
         /// <value> The number of key-value pairs that fit in the current allocation. </value>
         /// <param name="value"> A new capacity. Must be larger than the current capacity. </param>
-        public int Capacity
-        {
+        public int Capacity {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            readonly get
-            {
+            readonly get {
                 this.buffer.CheckReadAccess();
                 this.RefCheck();
                 return this.helper->Capacity;
             }
 
-            set
-            {
+            set {
                 this.buffer.CheckWriteAccess();
                 this.RefCheck();
                 DynamicUntypedHashMapHelper<TKey>.Resize(this.buffer, ref this.helper, value);
@@ -84,8 +73,7 @@ namespace BovineLabs.Core.Iterators
         /// <param name="item"> The value to add. </param>
         /// <typeparam name="TValue"> The type of value. </typeparam>
         public void AddOrSet<TValue>(TKey key, TValue item)
-            where TValue : unmanaged
-        {
+            where TValue : unmanaged {
             this.buffer.CheckWriteAccess();
             this.RefCheck();
             DynamicUntypedHashMapHelper<TKey>.AddOrSet(this.buffer, ref this.helper, key, item);
@@ -97,14 +85,12 @@ namespace BovineLabs.Core.Iterators
         /// <typeparam name="TValue"> The type of value. </typeparam>
         /// <returns> The value in the map. </returns>
         public ref TValue GetOrAddRef<TValue>(TKey key, TValue defaultValue = default)
-            where TValue : unmanaged
-        {
+            where TValue : unmanaged {
             this.buffer.CheckWriteAccess();
             this.RefCheck();
 
             var idx = this.helper->Find(key);
-            if (idx == -1)
-            {
+            if (idx == -1) {
                 idx = DynamicUntypedHashMapHelper<TKey>.AddUnique(this.buffer, ref this.helper, key, defaultValue);
             }
 
@@ -117,15 +103,13 @@ namespace BovineLabs.Core.Iterators
         /// <returns> True if the key was present. </returns>
         /// <typeparam name="TValue"> The type of value. </typeparam>
         public readonly bool TryGetValue<TValue>(TKey key, out TValue item)
-            where TValue : unmanaged
-        {
+            where TValue : unmanaged {
             this.buffer.CheckReadAccess();
             this.RefCheck();
             return this.helper->TryGetValue(key, out item);
         }
 
-        public readonly bool ContainsKey(TKey key)
-        {
+        public readonly bool ContainsKey(TKey key) {
             this.buffer.CheckReadAccess();
             this.RefCheck();
 
@@ -135,24 +119,20 @@ namespace BovineLabs.Core.Iterators
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [Conditional("UNITY_DOTS_DEBUG")]
-        private readonly void RefCheck()
-        {
-            if (this.helper != this.buffer.GetPtr())
-            {
-                throw new ArgumentException("DynamicUntypedHashMap was not passed by ref when doing a resize and is now invalid");
+        private readonly void RefCheck() {
+            if (this.helper != this.buffer.GetPtr()) {
+                throw new ArgumentException(
+                    "DynamicUntypedHashMap was not passed by ref when doing a resize and is now invalid");
             }
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        private static void CheckSize(DynamicBuffer<byte> buffer)
-        {
-            if (buffer.Length == 0)
-            {
+        private static void CheckSize(DynamicBuffer<byte> buffer) {
+            if (buffer.Length == 0) {
                 throw new InvalidOperationException("Buffer not initialized");
             }
 
-            if (buffer.Length < UnsafeUtility.SizeOf<DynamicUntypedHashMapHelper<TKey>>())
-            {
+            if (buffer.Length < UnsafeUtility.SizeOf<DynamicUntypedHashMapHelper<TKey>>()) {
                 throw new InvalidOperationException("Buffer has data but is too small to be a header.");
             }
         }

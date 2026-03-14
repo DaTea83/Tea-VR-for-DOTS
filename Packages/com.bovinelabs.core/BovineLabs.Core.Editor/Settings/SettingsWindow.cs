@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Settings
-{
+namespace BovineLabs.Core.Editor.Settings {
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -13,47 +12,37 @@ namespace BovineLabs.Core.Editor.Settings
     using UnityEngine;
 
     /// <summary> The settings editor window. </summary>
-    internal class SettingsWindow : SettingsBaseWindow<SettingsWindow>
-    {
+    internal class SettingsWindow : SettingsBaseWindow<SettingsWindow> {
         private readonly Dictionary<Type, Type> settingsPanelMap = new();
 
         /// <inheritdoc />
         protected override string TitleText => "Settings";
 
         [MenuItem(EditorMenus.RootMenu + "Settings", priority = -30)]
-        internal static void OpenSettings()
-        {
-            Open();
-        }
+        internal static void OpenSettings() { Open(); }
 
         /// <inheritdoc/>
-        protected override void GetPanels(List<ISettingsPanel> settingPanels)
-        {
+        protected override void GetPanels(List<ISettingsPanel> settingPanels) {
             this.settingsPanelMap.Clear();
 
-            if (EditorApplication.isCompiling)
-            {
+            if (EditorApplication.isCompiling) {
                 return;
             }
 
-            foreach (var (settings, panel) in GetAllSettingsBasePanels())
-            {
-                try
-                {
+            foreach (var (settings, panel) in GetAllSettingsBasePanels()) {
+                try {
                     this.settingsPanelMap.Add(settings, panel);
                 }
-                catch (ArgumentException)
-                {
+                catch (ArgumentException) {
                     BLGlobalLogger.LogErrorString($"Multiple panels found for {settings}");
                 }
             }
 
             // Get all custom panel implementations
-            foreach (var settingsType in ReflectionUtility.GetAllImplementationsRootOnly<ISettings, ScriptableObject>())
-            {
+            foreach (var settingsType in
+                     ReflectionUtility.GetAllImplementationsRootOnly<ISettings, ScriptableObject>()) {
                 // Custom implementation
-                if (this.settingsPanelMap.ContainsKey(settingsType))
-                {
+                if (this.settingsPanelMap.ContainsKey(settingsType)) {
                     continue;
                 }
 
@@ -64,15 +53,12 @@ namespace BovineLabs.Core.Editor.Settings
             }
 
             // Create an implementations for all settings without a custom implementation
-            foreach (var s in this.settingsPanelMap)
-            {
+            foreach (var s in this.settingsPanelMap) {
                 ISettingsPanel panel;
-                try
-                {
+                try {
                     panel = (ISettingsPanel)Activator.CreateInstance(s.Value);
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
                     Debug.LogException(ex);
 
                     continue;
@@ -82,8 +68,7 @@ namespace BovineLabs.Core.Editor.Settings
             }
         }
 
-        private static IEnumerable<(Type Settings, Type Panel)> GetAllSettingsBasePanels()
-        {
+        private static IEnumerable<(Type Settings, Type Panel)> GetAllSettingsBasePanels() {
             return from t in AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
                 where !t.IsAbstract && !t.IsInterface && !t.IsGenericType
                 let i = t.BaseType

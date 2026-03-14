@@ -2,16 +2,14 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Dependency
-{
+namespace BovineLabs.Core.Editor.Dependency {
     using System.Collections.Generic;
     using BovineLabs.Core.Editor.SearchWindow;
     using Unity.Entities;
     using UnityEditor;
     using UnityEngine.UIElements;
 
-    internal class ComponentDependencyWindow : DOTSSearchWindow
-    {
+    internal class ComponentDependencyWindow : DOTSSearchWindow {
         private readonly List<string> output = new();
         private bool isReaders;
 
@@ -24,28 +22,21 @@ namespace BovineLabs.Core.Editor.Dependency
         protected override string DefaultButtonText => "Components";
 
         [MenuItem(EditorMenus.RootMenuTools + "Component Dependencies")]
-        public static void OpenWindow()
-        {
-            GetWindow<ComponentDependencyWindow>().Show();
-        }
+        public static void OpenWindow() { GetWindow<ComponentDependencyWindow>().Show(); }
 
         /// <inheritdoc/>
-        protected override void PopulateItems(List<SearchView.Item> items)
-        {
-            foreach (var t in TypeManager.AllTypes)
-            {
-                if (t.Category != TypeManager.TypeCategory.ComponentData && t.Category != TypeManager.TypeCategory.BufferData)
-                {
+        protected override void PopulateItems(List<SearchView.Item> items) {
+            foreach (var t in TypeManager.AllTypes) {
+                if (t.Category != TypeManager.TypeCategory.ComponentData &&
+                    t.Category != TypeManager.TypeCategory.BufferData) {
                     continue;
                 }
 
-                if (t.TypeIndex.IsManagedComponent || t.Type == null)
-                {
+                if (t.TypeIndex.IsManagedComponent || t.Type == null) {
                     continue;
                 }
 
-                items.Add(new SearchView.Item
-                {
+                items.Add(new SearchView.Item {
                     Path = SearchView.Item.ConvertTypeToPath(t.DebugTypeName.ToString()),
                     Data = t,
                 });
@@ -53,8 +44,7 @@ namespace BovineLabs.Core.Editor.Dependency
         }
 
         /// <inheritdoc/>
-        protected override void SearchWindowOnOnSelection(SearchView.Item item)
-        {
+        protected override void SearchWindowOnOnSelection(SearchView.Item item) {
             var typeInfo = (TypeManager.TypeInfo)item.Data;
 
             this.typeIndex = typeInfo.TypeIndex;
@@ -64,25 +54,21 @@ namespace BovineLabs.Core.Editor.Dependency
         }
 
         /// <inheritdoc/>
-        protected override void Rebuild()
-        {
+        protected override void Rebuild() {
             this.View.Clear();
 
             var initialization = this.World!.GetExistingSystemManaged<InitializationSystemGroup>();
-            if (initialization != null)
-            {
+            if (initialization != null) {
                 this.FindAllDependencies(initialization);
             }
 
             var simulation = this.World.GetExistingSystemManaged<SimulationSystemGroup>();
-            if (simulation != null)
-            {
+            if (simulation != null) {
                 this.FindAllDependencies(simulation);
             }
 
             var presentation = this.World.GetExistingSystemManaged<PresentationSystemGroup>();
-            if (presentation != null)
-            {
+            if (presentation != null) {
                 this.FindAllDependencies(presentation);
             }
 
@@ -90,45 +76,33 @@ namespace BovineLabs.Core.Editor.Dependency
         }
 
         /// <inheritdoc />
-        protected override VisualElement CreateView()
-        {
-            return new ScrollView();
-        }
+        protected override VisualElement CreateView() { return new ScrollView(); }
 
-        private unsafe void FindAllDependencies(ComponentSystemGroup systemGroup)
-        {
+        private unsafe void FindAllDependencies(ComponentSystemGroup systemGroup) {
             var masterUpdateList = systemGroup.m_MasterUpdateList;
             var updateListLength = masterUpdateList.Length;
-            for (var i = 0; i < updateListLength; ++i)
-            {
+            for (var i = 0; i < updateListLength; ++i) {
                 var index = masterUpdateList[i];
 
-                if (!index.IsManaged)
-                {
+                if (!index.IsManaged) {
                     var handle = systemGroup.m_UnmanagedSystemsToUpdate[index.Index];
                     ref var state = ref systemGroup.World.Unmanaged.ResolveSystemStateRef(handle);
                     GetDependencies(ref state);
                 }
-                else
-                {
+                else {
                     var sys = systemGroup.m_managedSystemsToUpdate[index.Index];
                     GetDependencies(ref *sys.CheckedState());
 
-                    if (sys is ComponentSystemGroup subSystemGroup)
-                    {
+                    if (sys is ComponentSystemGroup subSystemGroup) {
                         this.FindAllDependencies(subSystemGroup);
                     }
                 }
             }
 
-            void GetDependencies(ref SystemState state)
-            {
-                for (var i = 0; i < state.m_JobDependencyForWritingSystems.Length; i++)
-                {
-                    if (state.m_JobDependencyForWritingSystems[i] == this.typeIndex)
-                    {
-                        if (this.isReaders)
-                        {
+            void GetDependencies(ref SystemState state) {
+                for (var i = 0; i < state.m_JobDependencyForWritingSystems.Length; i++) {
+                    if (state.m_JobDependencyForWritingSystems[i] == this.typeIndex) {
+                        if (this.isReaders) {
                             this.Write();
                             this.isReaders = false;
                         }
@@ -138,12 +112,9 @@ namespace BovineLabs.Core.Editor.Dependency
                     }
                 }
 
-                for (var i = 0; i < state.m_JobDependencyForReadingSystems.Length; i++)
-                {
-                    if (state.m_JobDependencyForReadingSystems[i] == this.typeIndex)
-                    {
-                        if (!this.isReaders)
-                        {
+                for (var i = 0; i < state.m_JobDependencyForReadingSystems.Length; i++) {
+                    if (state.m_JobDependencyForReadingSystems[i] == this.typeIndex) {
+                        if (!this.isReaders) {
                             this.Write();
                             this.isReaders = true;
                         }
@@ -155,10 +126,8 @@ namespace BovineLabs.Core.Editor.Dependency
             }
         }
 
-        private void Write()
-        {
-            if (this.output.Count <= 0)
-            {
+        private void Write() {
+            if (this.output.Count <= 0) {
                 return;
             }
 

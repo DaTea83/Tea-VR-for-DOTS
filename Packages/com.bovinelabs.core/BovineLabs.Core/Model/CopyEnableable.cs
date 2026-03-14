@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Model
-{
+namespace BovineLabs.Core.Model {
     using BovineLabs.Core.Extensions;
     using Unity.Burst;
     using Unity.Burst.Intrinsics;
@@ -12,15 +11,14 @@ namespace BovineLabs.Core.Model
 
     public struct CopyEnableable<TTo, TFrom>
         where TTo : unmanaged, IComponentData, IEnableableComponent
-        where TFrom : unmanaged, IComponentData, IEnableableComponent
-    {
+        where TFrom : unmanaged, IComponentData, IEnableableComponent {
         private EntityQuery query;
         private ComponentTypeHandle<TTo> toHandle;
         private ComponentTypeHandle<TFrom> fromHandle;
 
-        public void OnCreate(ref SystemState state)
-        {
-            this.query = new EntityQueryBuilder(Allocator.Temp).WithPresentRW<TTo>().WithPresent<TFrom>().Build(ref state);
+        public void OnCreate(ref SystemState state) {
+            this.query = new EntityQueryBuilder(Allocator.Temp).WithPresentRW<TTo>().WithPresent<TFrom>()
+                .Build(ref state);
 
             this.query.AddChangedVersionFilter(ComponentType.ReadOnly<TFrom>());
 
@@ -28,8 +26,7 @@ namespace BovineLabs.Core.Model
             this.fromHandle = state.GetComponentTypeHandle<TFrom>(true);
         }
 
-        public void OnUpdate(ref SystemState state, SetPreviousJob job = default)
-        {
+        public void OnUpdate(ref SystemState state, SetPreviousJob job = default) {
             this.toHandle.Update(ref state);
             this.fromHandle.Update(ref state);
 
@@ -40,16 +37,16 @@ namespace BovineLabs.Core.Model
         }
 
         [BurstCompile]
-        public struct SetPreviousJob : IJobChunk
-        {
+        public struct SetPreviousJob : IJobChunk {
             public ComponentTypeHandle<TTo> ToHandle;
 
-            [ReadOnly]
-            public ComponentTypeHandle<TFrom> FromHandle;
+            [ReadOnly] public ComponentTypeHandle<TFrom> FromHandle;
 
             /// <inheritdoc />
-            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
-            {
+            public void Execute(in ArchetypeChunk chunk,
+                int unfilteredChunkIndex,
+                bool useEnabledMask,
+                in v128 chunkEnabledMask) {
                 chunk.CopyEnableMaskFrom(ref this.ToHandle, ref this.FromHandle);
             }
         }

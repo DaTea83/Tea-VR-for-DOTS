@@ -2,24 +2,17 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.UI
-{
+namespace BovineLabs.Core.Editor.UI {
     using UnityEditor;
     using UnityEngine;
 
-    public class ObjectSelectionProxy : ScriptableObject, ISerializationCallbackReceiver
-    {
+    public class ObjectSelectionProxy : ScriptableObject, ISerializationCallbackReceiver {
         // [SerializeReference]
         private object? obj;
 
-        public object? Obj
-        {
-            get => this.obj;
-            set => this.obj = value;
-        }
+        public object? Obj { get => this.obj; set => this.obj = value; }
 
-        public static ObjectSelectionProxy CreateInstance(object obj)
-        {
+        public static ObjectSelectionProxy CreateInstance(object obj) {
             var proxy = CreateInstance<ObjectSelectionProxy>();
             proxy.hideFlags = HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor | HideFlags.NotEditable;
 
@@ -32,12 +25,8 @@ namespace BovineLabs.Core.Editor.UI
             return proxy;
         }
 
-        public void OnBeforeSerialize()
-        {
-        }
+        public void OnBeforeSerialize() { }
 
-        public void OnAfterDeserialize()
-        {
-        }
+        public void OnAfterDeserialize() { }
     }
 }

@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Windows.Base
-{
+namespace BovineLabs.Core.Editor.Windows.Base {
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -23,8 +22,7 @@ namespace BovineLabs.Core.Editor.Windows.Base
     public abstract class BaseObjectWindow<TItem, TService, TPreferences> : EditorWindow, IDisposable
         where TItem : BaseObjectItem
         where TService : BaseObjectService<TItem, TPreferences>
-        where TPreferences : BaseDisplayPreferences, new()
-    {
+        where TPreferences : BaseDisplayPreferences, new() {
         private double lastClickTime;
         private TItem? lastClickedItem;
 
@@ -65,10 +63,8 @@ namespace BovineLabs.Core.Editor.Windows.Base
         /// <summary>Gets the window title content.</summary>
         protected abstract GUIContent WindowTitle { get; }
 
-        public void CreateGUI()
-        {
-            if (this.Disposed)
-            {
+        public void CreateGUI() {
+            if (this.Disposed) {
                 return;
             }
 
@@ -88,16 +84,11 @@ namespace BovineLabs.Core.Editor.Windows.Base
             Selection.selectionChanged += this.OnSelectionChanged;
         }
 
-        public void OnDestroy()
-        {
-            this.Dispose();
-        }
+        public void OnDestroy() { this.Dispose(); }
 
         /// <inheritdoc/>
-        public void Dispose()
-        {
-            if (this.Disposed)
-            {
+        public void Dispose() {
+            if (this.Disposed) {
                 return;
             }
 
@@ -117,8 +108,7 @@ namespace BovineLabs.Core.Editor.Windows.Base
 
         protected abstract void CreateCustomToolbarElements(Toolbar toolbar);
 
-        protected virtual VisualElement MakeListItem()
-        {
+        protected virtual VisualElement MakeListItem() {
             var container = new VisualElement();
             container.AddToClassList("object-item-container");
             container.style.minHeight = this.Service.ItemHeight;
@@ -133,25 +123,20 @@ namespace BovineLabs.Core.Editor.Windows.Base
             container.Add(label);
 
             var actionButton = this.CreateListItemActionButton();
-            if (actionButton != null)
-            {
+            if (actionButton != null) {
                 container.Add(actionButton);
             }
 
             return container;
         }
 
-        protected virtual Button? CreateListItemActionButton()
-        {
-            return null;
-        }
+        protected virtual Button? CreateListItemActionButton() { return null; }
 
         protected abstract void BindListItem(VisualElement element, int index);
 
         protected abstract void OnListItemClicked(TItem item);
 
-        protected virtual void OnListItemDoubleClicked(TItem item)
-        {
+        protected virtual void OnListItemDoubleClicked(TItem item) {
             // Default implementation does nothing - derived classes can override
         }
 
@@ -161,70 +146,53 @@ namespace BovineLabs.Core.Editor.Windows.Base
 
         protected abstract void CreateCustomSettingsMenuItems(DropdownMenu menu);
 
-        protected virtual VisualElement? MakeNoneElement()
-        {
-            return null;
-        }
+        protected virtual VisualElement? MakeNoneElement() { return null; }
 
         protected virtual bool IsReorderable() => false;
 
-        protected virtual void SetupListViewCallbacks()
-        {
-        }
+        protected virtual void SetupListViewCallbacks() { }
 
-        protected void RefreshItemsList(bool rebuild = false)
-        {
+        protected void RefreshItemsList(bool rebuild = false) {
             this.FilteredItems.Clear();
 
-            foreach (var item in this.AllItems)
-            {
-                if (this.ShouldShowItem(item))
-                {
+            foreach (var item in this.AllItems) {
+                if (this.ShouldShowItem(item)) {
                     this.FilteredItems.Add(item);
                 }
             }
 
             this.PostProcessFilteredItems();
 
-            if (rebuild)
-            {
+            if (rebuild) {
                 this.MainListView.Rebuild();
             }
-            else
-            {
+            else {
                 this.MainListView.RefreshItems();
             }
 
             this.UpdateStatusLabel();
         }
 
-        protected virtual void PostProcessFilteredItems()
-        {
-        }
+        protected virtual void PostProcessFilteredItems() { }
 
-        protected void UpdateStatusBarVisibility()
-        {
-            if (this.StatusBar == null)
-            {
+        protected void UpdateStatusBarVisibility() {
+            if (this.StatusBar == null) {
                 return;
             }
 
             this.StatusBar.style.display = this.Service.ShowStatusBar ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
-        protected virtual void RefreshPreferencesDependentUI()
-        {
+        protected virtual void RefreshPreferencesDependentUI() {
             this.MainListView.fixedItemHeight = this.Service.ItemHeight;
             this.MainListView.Rebuild();
 
             this.UpdateStatusBarVisibility();
         }
 
-        protected TItem? GetItemAtPosition(Vector2 listLocalPosition)
-        {
+        protected TItem? GetItemAtPosition(Vector2 listLocalPosition) {
             var scrollView = this.MainListView.Q<ScrollView>();
-            if (scrollView == null)
-            {
+            if (scrollView == null) {
                 return null;
             }
 
@@ -232,8 +200,7 @@ namespace BovineLabs.Core.Editor.Windows.Base
             var world = this.MainListView.LocalToWorld(listLocalPosition);
 
             // Ignore clicks outside the content viewport (e.g., on scrollbars)
-            if (!scrollView.contentViewport.worldBound.Contains(world))
-            {
+            if (!scrollView.contentViewport.worldBound.Contains(world)) {
                 return null;
             }
 
@@ -241,23 +208,17 @@ namespace BovineLabs.Core.Editor.Windows.Base
             var itemHeight = this.Service.ItemHeight;
             var index = Mathf.FloorToInt(contentLocal.y / itemHeight);
 
-            if (index >= 0 && index < this.FilteredItems.Count)
-            {
+            if (index >= 0 && index < this.FilteredItems.Count) {
                 return this.FilteredItems[index];
             }
 
             return null;
         }
 
-        protected virtual void UpdateItemsVisualState()
-        {
-            this.MainListView.RefreshItems();
-        }
+        protected virtual void UpdateItemsVisualState() { this.MainListView.RefreshItems(); }
 
-        protected void OnItemsChangedInternal(IReadOnlyList<TItem> items)
-        {
-            if (this.Disposed)
-            {
+        protected void OnItemsChangedInternal(IReadOnlyList<TItem> items) {
+            if (this.Disposed) {
                 return;
             }
 
@@ -267,8 +228,7 @@ namespace BovineLabs.Core.Editor.Windows.Base
             this.OnItemsChanged(items);
         }
 
-        protected void BindListItemCommon(VisualElement element, TItem item)
-        {
+        protected void BindListItemCommon(VisualElement element, TItem item) {
             var itemHeight = this.Service.ItemHeight;
 
             // Attach item to element for hit-testing (context menus, etc.)
@@ -279,44 +239,38 @@ namespace BovineLabs.Core.Editor.Windows.Base
             var icon = element.Q<Image>();
             var label = element.Q<Label>();
 
-            if (icon != null && label != null)
-            {
+            if (icon != null && label != null) {
                 var scaleFactor = itemHeight / 24f;
                 var fontSize = Mathf.RoundToInt(11 * scaleFactor);
                 label.style.fontSize = fontSize;
 
-                if (this.Service.UseMonospaceFont)
-                {
+                if (this.Service.UseMonospaceFont) {
                     label.AddToClassList("monospace-font");
                 }
-                else
-                {
+                else {
                     label.RemoveFromClassList("monospace-font");
                 }
 
                 var iconSize = Mathf.RoundToInt(16 * scaleFactor);
 
-                if (this.Service.ShowIcons && item.Icon != null)
-                {
+                if (this.Service.ShowIcons && item.Icon != null) {
                     icon.image = item.Icon;
                     icon.style.display = DisplayStyle.Flex;
                     icon.style.width = iconSize;
                     icon.style.height = iconSize;
                 }
-                else
-                {
+                else {
                     icon.style.display = DisplayStyle.None;
                 }
 
-                label.text = item.GetDisplayText(this.Service.ShowTimestamps, this.Service.ShowAssetPaths, this.Service.ShowTypeNames,
+                label.text = item.GetDisplayText(this.Service.ShowTimestamps, this.Service.ShowAssetPaths,
+                    this.Service.ShowTypeNames,
                     this.GetTimestampFormat());
 
-                if (!item.IsAlive && this.Service.GreyOutMissingObjects)
-                {
+                if (!item.IsAlive && this.Service.GreyOutMissingObjects) {
                     label.AddToClassList("missing-object");
                 }
-                else
-                {
+                else {
                     label.RemoveFromClassList("missing-object");
                 }
 
@@ -330,10 +284,8 @@ namespace BovineLabs.Core.Editor.Windows.Base
         /// Creates the standard settings menu with common display options.
         /// </summary>
         /// /// <param name="preferencesName">The name used for UserSettings.</param>
-        protected void CreateStandardSettingsMenu(string preferencesName)
-        {
-            if (this.SettingsMenu == null)
-            {
+        protected void CreateStandardSettingsMenu(string preferencesName) {
+            if (this.SettingsMenu == null) {
                 return;
             }
 
@@ -342,38 +294,35 @@ namespace BovineLabs.Core.Editor.Windows.Base
             var preferences = UserSettings<TPreferences>.GetOrCreate(preferencesName);
 
             // Standard display options
-            this.SettingsMenu.menu.AppendAction("Use Monospace Font", _ =>
-            {
-                preferences.UseMonospaceFont = !preferences.UseMonospaceFont;
-                this.RefreshItemsList();
-            }, _ => this.Service.UseMonospaceFont ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
+            this.SettingsMenu.menu.AppendAction("Use Monospace Font", _ => {
+                    preferences.UseMonospaceFont = !preferences.UseMonospaceFont;
+                    this.RefreshItemsList();
+                },
+                _ => this.Service.UseMonospaceFont
+                    ? DropdownMenuAction.Status.Checked
+                    : DropdownMenuAction.Status.Normal);
 
-            this.SettingsMenu.menu.AppendAction("Show Icons", _ =>
-            {
+            this.SettingsMenu.menu.AppendAction("Show Icons", _ => {
                 preferences.ShowIcons = !preferences.ShowIcons;
                 this.RefreshItemsList();
             }, _ => this.Service.ShowIcons ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
 
-            this.SettingsMenu.menu.AppendAction("Show Timestamps", _ =>
-            {
+            this.SettingsMenu.menu.AppendAction("Show Timestamps", _ => {
                 preferences.ShowTimestamps = !preferences.ShowTimestamps;
                 this.RefreshItemsList();
             }, _ => this.Service.ShowTimestamps ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
 
-            this.SettingsMenu.menu.AppendAction("Show Asset Paths", _ =>
-            {
+            this.SettingsMenu.menu.AppendAction("Show Asset Paths", _ => {
                 preferences.ShowAssetPaths = !preferences.ShowAssetPaths;
                 this.RefreshItemsList();
             }, _ => this.Service.ShowAssetPaths ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
 
-            this.SettingsMenu.menu.AppendAction("Show Type Names", _ =>
-            {
+            this.SettingsMenu.menu.AppendAction("Show Type Names", _ => {
                 preferences.ShowTypeNames = !preferences.ShowTypeNames;
                 this.RefreshItemsList();
             }, _ => this.Service.ShowTypeNames ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
 
-            this.SettingsMenu.menu.AppendAction("Show Status Bar", _ =>
-            {
+            this.SettingsMenu.menu.AppendAction("Show Status Bar", _ => {
                 preferences.ShowStatusBar = !preferences.ShowStatusBar;
                 this.UpdateStatusBarVisibility();
             }, _ => this.Service.ShowStatusBar ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
@@ -381,17 +330,21 @@ namespace BovineLabs.Core.Editor.Windows.Base
             this.SettingsMenu.menu.AppendSeparator();
 
             // Advanced display options
-            this.SettingsMenu.menu.AppendAction("Highlight Current Selection", _ =>
-            {
-                preferences.HighlightCurrentSelection = !preferences.HighlightCurrentSelection;
-                this.RefreshItemsList();
-            }, _ => this.Service.HighlightCurrentSelection ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
+            this.SettingsMenu.menu.AppendAction("Highlight Current Selection", _ => {
+                    preferences.HighlightCurrentSelection = !preferences.HighlightCurrentSelection;
+                    this.RefreshItemsList();
+                },
+                _ => this.Service.HighlightCurrentSelection
+                    ? DropdownMenuAction.Status.Checked
+                    : DropdownMenuAction.Status.Normal);
 
-            this.SettingsMenu.menu.AppendAction("Grey Out Unloaded Objects", _ =>
-            {
-                preferences.GreyOutUnloadedObjects = !preferences.GreyOutUnloadedObjects;
-                this.RefreshItemsList();
-            }, _ => this.Service.GreyOutMissingObjects ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
+            this.SettingsMenu.menu.AppendAction("Grey Out Unloaded Objects", _ => {
+                    preferences.GreyOutUnloadedObjects = !preferences.GreyOutUnloadedObjects;
+                    this.RefreshItemsList();
+                },
+                _ => this.Service.GreyOutMissingObjects
+                    ? DropdownMenuAction.Status.Checked
+                    : DropdownMenuAction.Status.Normal);
 
             this.SettingsMenu.menu.AppendSeparator();
 
@@ -401,48 +354,42 @@ namespace BovineLabs.Core.Editor.Windows.Base
             this.SettingsMenu.menu.AppendSeparator();
 
             // Preferences link
-            this.SettingsMenu.menu.AppendAction("Preferences", _ =>
-            {
-                SettingsService.OpenUserPreferences("Preferences/" + CoreEditorPreferencesProvider.PreferencesPath);
-            });
+            this.SettingsMenu.menu.AppendAction("Preferences",
+                _ => {
+                    SettingsService.OpenUserPreferences("Preferences/" + CoreEditorPreferencesProvider.PreferencesPath);
+                });
         }
 
         protected abstract void CreateSettingsMenu();
 
-        private void LoadStylesheet(VisualElement root)
-        {
+        private void LoadStylesheet(VisualElement root) {
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(this.StylesheetPath);
-            if (styleSheet != null)
-            {
+            if (styleSheet != null) {
                 root.styleSheets.Add(styleSheet);
             }
         }
 
-        private void CreateToolbar(VisualElement root)
-        {
+        private void CreateToolbar(VisualElement root) {
             this.Toolbar = new Toolbar();
             this.Toolbar.AddToClassList("action-toolbar");
 
             this.CreateCustomToolbarElements(this.Toolbar);
 
-            this.SearchField = new ToolbarSearchField
-            {
+            this.SearchField = new ToolbarSearchField {
                 value = this.CurrentSearchText,
                 tooltip = "Search by object name or type",
             };
 
             this.SearchField.AddToClassList("toolbar-search-field");
 
-            this.SearchField.RegisterValueChangedCallback(evt =>
-            {
+            this.SearchField.RegisterValueChangedCallback(evt => {
                 this.CurrentSearchText = evt.newValue;
                 this.RefreshItemsList();
             });
 
             this.Toolbar.Add(this.SearchField);
 
-            this.TypeFilterMenu = new ToolbarMenu
-            {
+            this.TypeFilterMenu = new ToolbarMenu {
                 text = "All",
                 tooltip = "Filter by object type",
             };
@@ -452,8 +399,7 @@ namespace BovineLabs.Core.Editor.Windows.Base
             this.RefreshTypeFilterMenu();
             this.Toolbar.Add(this.TypeFilterMenu);
 
-            this.SettingsMenu = new ToolbarMenu
-            {
+            this.SettingsMenu = new ToolbarMenu {
                 tooltip = "Settings",
                 variant = ToolbarMenu.Variant.Popup,
             };
@@ -466,10 +412,8 @@ namespace BovineLabs.Core.Editor.Windows.Base
             root.Add(this.Toolbar);
         }
 
-        private void CreateMainContent(VisualElement root)
-        {
-            this.MainListView = new ListView
-            {
+        private void CreateMainContent(VisualElement root) {
+            this.MainListView = new ListView {
                 itemsSource = this.FilteredItems,
                 fixedItemHeight = this.Service.ItemHeight,
                 selectionType = SelectionType.None,
@@ -478,8 +422,7 @@ namespace BovineLabs.Core.Editor.Windows.Base
                 makeNoneElement = this.MakeNoneElement,
             };
 
-            if (this.IsReorderable())
-            {
+            if (this.IsReorderable()) {
                 this.MainListView.reorderable = true;
                 this.MainListView.reorderMode = ListViewReorderMode.Animated;
             }
@@ -494,8 +437,7 @@ namespace BovineLabs.Core.Editor.Windows.Base
             root.Add(this.MainListView);
         }
 
-        private void CreateStatusBar(VisualElement root)
-        {
+        private void CreateStatusBar(VisualElement root) {
             this.StatusBar = new VisualElement();
             this.StatusBar.AddToClassList($"{this.RootClassName.Replace("-window", string.Empty)}-status-bar");
 
@@ -508,10 +450,8 @@ namespace BovineLabs.Core.Editor.Windows.Base
             this.UpdateStatusLabel();
         }
 
-        private void RefreshTypeFilterMenu()
-        {
-            if (this.TypeFilterMenu == null)
-            {
+        private void RefreshTypeFilterMenu() {
+            if (this.TypeFilterMenu == null) {
                 return;
             }
 
@@ -520,46 +460,41 @@ namespace BovineLabs.Core.Editor.Windows.Base
 
             this.TypeFilterMenu.menu.MenuItems().Clear();
 
-            foreach (var type in allTypes)
-            {
-                this.TypeFilterMenu.menu.AppendAction(type, action =>
-                {
-                    this.CurrentTypeFilter = action.name;
-                    this.TypeFilterMenu.text = action.name;
-                    this.RefreshItemsList();
-                }, action => action.name == this.CurrentTypeFilter ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
+            foreach (var type in allTypes) {
+                this.TypeFilterMenu.menu.AppendAction(type, action => {
+                        this.CurrentTypeFilter = action.name;
+                        this.TypeFilterMenu.text = action.name;
+                        this.RefreshItemsList();
+                    },
+                    action => action.name == this.CurrentTypeFilter
+                        ? DropdownMenuAction.Status.Checked
+                        : DropdownMenuAction.Status.Normal);
             }
 
-            if (!allTypes.Contains(this.CurrentTypeFilter))
-            {
+            if (!allTypes.Contains(this.CurrentTypeFilter)) {
                 this.CurrentTypeFilter = "All";
                 this.TypeFilterMenu.text = "All";
             }
         }
 
-        private bool ShouldShowItem(TItem item)
-        {
-            if (!string.IsNullOrEmpty(this.CurrentSearchText))
-            {
+        private bool ShouldShowItem(TItem item) {
+            if (!string.IsNullOrEmpty(this.CurrentSearchText)) {
                 var searchLower = this.CurrentSearchText.ToLowerInvariant();
-                if (!item.Name.ToLowerInvariant().Contains(searchLower) && !item.TypeName.ToLowerInvariant().Contains(searchLower))
-                {
+                if (!item.Name.ToLowerInvariant().Contains(searchLower) &&
+                    !item.TypeName.ToLowerInvariant().Contains(searchLower)) {
                     return false;
                 }
             }
 
-            if (this.CurrentTypeFilter != "All" && item.TypeName != this.CurrentTypeFilter)
-            {
+            if (this.CurrentTypeFilter != "All" && item.TypeName != this.CurrentTypeFilter) {
                 return false;
             }
 
             return true;
         }
 
-        private void UpdateStatusLabel()
-        {
-            if (this.StatusLabel == null)
-            {
+        private void UpdateStatusLabel() {
+            if (this.StatusLabel == null) {
                 return;
             }
 
@@ -570,21 +505,17 @@ namespace BovineLabs.Core.Editor.Windows.Base
             this.StatusLabel.text = this.GetStatusText(totalCount, filteredCount, aliveCount);
         }
 
-        private void OnListViewClick(ClickEvent evt)
-        {
+        private void OnListViewClick(ClickEvent evt) {
             var item = this.GetItemAtPosition(evt.localPosition);
-            if (item != null)
-            {
+            if (item != null) {
                 var currentTime = EditorApplication.timeSinceStartup;
                 var timeSinceLastClick = currentTime - this.lastClickTime;
 
-                if (Equals(this.lastClickedItem, item) && timeSinceLastClick < this.Service.DoubleClickThreshold)
-                {
+                if (Equals(this.lastClickedItem, item) && timeSinceLastClick < this.Service.DoubleClickThreshold) {
                     this.OnListItemDoubleClicked(item);
                     this.lastClickedItem = null;
                 }
-                else
-                {
+                else {
                     this.OnListItemClicked(item);
                     this.lastClickedItem = item;
                 }
@@ -593,45 +524,36 @@ namespace BovineLabs.Core.Editor.Windows.Base
             }
         }
 
-        private void OnContextMenu(ContextualMenuPopulateEvent evt)
-        {
+        private void OnContextMenu(ContextualMenuPopulateEvent evt) {
             var item = this.GetItemAtPosition(evt.localMousePosition);
-            if (item != null)
-            {
+            if (item != null) {
                 this.CreateContextMenu(evt, item);
             }
         }
 
-        private void OnSelectionChanged()
-        {
-            if (this.Disposed)
-            {
+        private void OnSelectionChanged() {
+            if (this.Disposed) {
                 return;
             }
 
             this.UpdateItemsVisualState();
         }
 
-        private void ApplySelectionHighlighting(VisualElement container, TItem item)
-        {
-            if (this.Service.HighlightCurrentSelection)
-            {
+        private void ApplySelectionHighlighting(VisualElement container, TItem item) {
+            if (this.Service.HighlightCurrentSelection) {
                 var selection = Selection.activeGameObject ? Selection.activeGameObject : Selection.activeObject;
                 var objectId = GlobalObjectId.GetGlobalObjectIdSlow(selection);
 
-                if (item.GlobalId.Equals(objectId))
-                {
+                if (item.GlobalId.Equals(objectId)) {
                     container.RemoveFromClassList("not-selected");
                     container.AddToClassList("currently-selected");
                 }
-                else
-                {
+                else {
                     container.RemoveFromClassList("currently-selected");
                     container.AddToClassList("not-selected");
                 }
             }
-            else
-            {
+            else {
                 container.RemoveFromClassList("currently-selected");
                 container.RemoveFromClassList("not-selected");
             }

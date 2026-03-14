@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using BovineLabs.Core.Editor.Internal;
     using JetBrains.Annotations;
     using Unity.Entities;
@@ -14,15 +13,13 @@ namespace BovineLabs.Core.Editor.Inspectors
     using Object = UnityEngine.Object;
 
     internal abstract class UnityObjectRefInspector<T> : PropertyInspector<UnityObjectRef<T>>
-        where T : Object
-    {
+        where T : Object {
         private IntegerField? idField;
         private ObjectField? objectField;
         private Foldout? field;
 
         /// <inheritdoc/>
-        public override VisualElement Build()
-        {
+        public override VisualElement Build() {
             this.field = new Foldout { value = false };
 
             this.idField = new IntegerField("Instance Id");
@@ -37,17 +34,13 @@ namespace BovineLabs.Core.Editor.Inspectors
 
             this.Update();
 
-            this.objectField.RegisterValueChangedCallback(evt =>
-            {
-                this.Target = (T)evt.newValue;
-            });
+            this.objectField.RegisterValueChangedCallback(evt => { this.Target = (T)evt.newValue; });
 
             return this.field;
         }
 
         /// <inheritdoc/>
-        public override void Update()
-        {
+        public override void Update() {
             var target = this.Target;
 
             this.idField!.value = target.Id.instanceId;
@@ -57,39 +50,28 @@ namespace BovineLabs.Core.Editor.Inspectors
     }
 
     [UsedImplicitly]
-    internal class GameObjectUnityObjectRefInspector : UnityObjectRefInspector<GameObject>
-    {
-    }
+    internal class GameObjectUnityObjectRefInspector : UnityObjectRefInspector<GameObject> { }
 
     [UsedImplicitly]
-    internal class TransformUnityObjectRefInspector : UnityObjectRefInspector<Transform>
-    {
-    }
+    internal class TransformUnityObjectRefInspector : UnityObjectRefInspector<Transform> { }
 
     [UsedImplicitly]
-    internal class MaterialUnityObjectRefInspector : UnityObjectRefInspector<Material>
-    {
-    }
+    internal class MaterialUnityObjectRefInspector : UnityObjectRefInspector<Material> { }
 
     [UsedImplicitly]
-    internal class MeshUnityObjectRefInspector : UnityObjectRefInspector<Mesh>
-    {
-    }
+    internal class MeshUnityObjectRefInspector : UnityObjectRefInspector<Mesh> { }
 
     [UsedImplicitly]
-    internal class Texture2DArrayUnityObjectRefInspector : UnityObjectRefInspector<Texture2DArray>
-    {
-    }
+    internal class Texture2DArrayUnityObjectRefInspector : UnityObjectRefInspector<Texture2DArray> { }
 
 #if !BL_DISABLE_INPUT
     [UsedImplicitly]
-    internal class InputActionAssetUnityObjectRefInspector : UnityObjectRefInspector<UnityEngine.InputSystem.InputActionAsset>
-    {
-    }
+    internal class
+        InputActionAssetUnityObjectRefInspector : UnityObjectRefInspector<UnityEngine.InputSystem.InputActionAsset> { }
 
     [UsedImplicitly]
-    internal class InputActionReferenceUnityObjectRefInspector : UnityObjectRefInspector<UnityEngine.InputSystem.InputActionReference>
-    {
-    }
+    internal class
+        InputActionReferenceUnityObjectRefInspector : UnityObjectRefInspector<
+        UnityEngine.InputSystem.InputActionReference> { }
 #endif
 }

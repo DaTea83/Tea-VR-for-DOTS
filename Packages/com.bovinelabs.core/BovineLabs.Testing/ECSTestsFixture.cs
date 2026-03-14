@@ -2,16 +2,14 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Testing
-{
+namespace BovineLabs.Testing {
     using BovineLabs.Core;
     using NUnit.Framework;
     using Unity.Entities;
     using Unity.Jobs.LowLevel.Unsafe;
     using UnityEngine.LowLevel;
 
-    public abstract class ECSTestsFixture
-    {
+    public abstract class ECSTestsFixture {
         private bool jobsDebuggerWasEnabled;
         private PlayerLoopSystem previousPlayerLoop;
         private World? previousWorld;
@@ -29,8 +27,7 @@ namespace BovineLabs.Testing
         protected BlobAssetStore BlobAssetStore { get; private set; }
 
         [SetUp]
-        public virtual void Setup()
-        {
+        public virtual void Setup() {
             // unit tests preserve the current player loop to restore later, and start from a blank slate.
             this.previousPlayerLoop = PlayerLoop.GetCurrentPlayerLoop();
             PlayerLoop.SetPlayerLoop(PlayerLoop.GetDefaultPlayerLoop());
@@ -57,8 +54,7 @@ namespace BovineLabs.Testing
         }
 
         [TearDown]
-        public virtual void TearDown()
-        {
+        public virtual void TearDown() {
             this.World.EntityManager.CompleteAllTrackedJobs();
 
             this.World.DestroyAllSystemsAndLogException(out var errorsWhileDestroyingSystems);

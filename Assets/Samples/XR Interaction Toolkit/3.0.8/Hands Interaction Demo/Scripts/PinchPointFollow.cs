@@ -5,15 +5,13 @@ using UnityEngine.XR.Interaction.Toolkit.Utilities.Tweenables.Primitives;
 #endif
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
-namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
-{
+namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands {
     /// <summary>
     /// A class that follows the pinch point between the thumb and index finger using XR Hand Tracking.
     /// It updates its position to the midpoint between the thumb and index tip while optionally adjusting its rotation
     /// to look at a specified target. The rotation towards the target can also be smoothly interpolated over time.
     /// </summary>
-    public class PinchPointFollow : MonoBehaviour
-    {
+    public class PinchPointFollow : MonoBehaviour {
         [Header("Events")]
         [SerializeField]
         [Tooltip("The XR Hand Tracking Events component that will be used to subscribe to hand tracking events.")]
@@ -32,14 +30,10 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         [Tooltip("The transform will use the NearFarInteractor endpoint position to calculate the transform rotation.")]
         NearFarInteractor m_NearFarInteractor;
 
-        [Header("Rotation Config")]
-        [SerializeField]
-        [Tooltip("The transform to match the rotation of.")]
+        [Header("Rotation Config")] [SerializeField] [Tooltip("The transform to match the rotation of.")]
         Transform m_TargetRotation;
 
-        [SerializeField]
-        [Tooltip("How fast to match rotation (0 means no rotation smoothing.)")]
-        [Range(0f, 32f)]
+        [SerializeField] [Tooltip("How fast to match rotation (0 means no rotation smoothing.)")] [Range(0f, 32f)]
 #pragma warning disable CS0414 // Field assigned but its value is never used -- Keep to retain serialized value when XR Hands is not installed
         float m_RotationSmoothingSpeed = 12f;
 #pragma warning restore CS0414
@@ -59,25 +53,25 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void OnEnable()
-        {
+        void OnEnable() {
 #if XR_HANDS_1_2_OR_NEWER
             if (m_XRHandTrackingEvents != null)
                 m_XRHandTrackingEvents.jointsUpdated.AddListener(OnJointsUpdated);
 
             m_OneEuroFilterVector3 = new OneEuroFilterVector3(transform.localPosition);
-            if (m_RayInteractor != null)
-            {
+            if (m_RayInteractor != null) {
                 m_RayProvider = m_RayInteractor;
                 m_HasRayProvider = true;
             }
-            if (m_NearFarInteractor != null)
-            {
+
+            if (m_NearFarInteractor != null) {
                 m_RayProvider = m_NearFarInteractor;
                 m_HasRayProvider = true;
             }
+
             m_HasTargetRotationTransform = m_TargetRotation != null;
-            m_BindingsGroup.AddBinding(m_QuaternionTweenableVariable.Subscribe(newValue => transform.rotation = newValue));
+            m_BindingsGroup.AddBinding(
+                m_QuaternionTweenableVariable.Subscribe(newValue => transform.rotation = newValue));
 #else
             Debug.LogWarning("PinchPointFollow requires XR Hands (com.unity.xr.hands) 1.2.0 or newer. Disabling component.", this);
             enabled = false;
@@ -87,8 +81,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <summary>
         /// See <see cref="MonoBehaviour"/>.
         /// </summary>
-        void OnDisable()
-        {
+        void OnDisable() {
 #if XR_HANDS_1_2_OR_NEWER
             m_BindingsGroup.Clear();
             if (m_XRHandTrackingEvents != null)
@@ -97,23 +90,19 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         }
 
 #if XR_HANDS_1_2_OR_NEWER
-        static bool TryGetPinchPosition(XRHandJointsUpdatedEventArgs args, out Vector3 position)
-        {
+        static bool TryGetPinchPosition(XRHandJointsUpdatedEventArgs args, out Vector3 position) {
 #if XR_HANDS_1_5_OR_NEWER
-            if (args.subsystem != null)
-            {
+            if (args.subsystem != null) {
                 var commonHandGestures = args.hand.handedness == Handedness.Left
                     ? args.subsystem.leftHandCommonGestures
                     : args.hand.handedness == Handedness.Right
                         ? args.subsystem.rightHandCommonGestures
                         : null;
-                if (commonHandGestures != null && commonHandGestures.TryGetPinchPose(out var pinchPose))
-                {
+                if (commonHandGestures != null && commonHandGestures.TryGetPinchPose(out var pinchPose)) {
                     // Protect against platforms returning bad data like (NaN, NaN, NaN)
                     if (!float.IsNaN(pinchPose.position.x) &&
                         !float.IsNaN(pinchPose.position.y) &&
-                        !float.IsNaN(pinchPose.position.z))
-                    {
+                        !float.IsNaN(pinchPose.position.z)) {
                         position = pinchPose.position;
                         return true;
                     }
@@ -122,15 +111,13 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
 #endif
 
             var thumbTip = args.hand.GetJoint(XRHandJointID.ThumbTip);
-            if (!thumbTip.TryGetPose(out var thumbTipPose))
-            {
+            if (!thumbTip.TryGetPose(out var thumbTipPose)) {
                 position = Vector3.zero;
                 return false;
             }
 
             var indexTip = args.hand.GetJoint(XRHandJointID.IndexTip);
-            if (!indexTip.TryGetPose(out var indexTipPose))
-            {
+            if (!indexTip.TryGetPose(out var indexTipPose)) {
                 position = Vector3.zero;
                 return false;
             }
@@ -139,8 +126,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             return true;
         }
 
-        void OnJointsUpdated(XRHandJointsUpdatedEventArgs args)
-        {
+        void OnJointsUpdated(XRHandJointsUpdatedEventArgs args) {
             if (!TryGetPinchPosition(args, out var targetPos))
                 return;
 
@@ -149,13 +135,11 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
             // Hand pose data is in local space relative to the XR Origin.
             transform.localPosition = filteredTargetPos;
 
-            if (m_HasTargetRotationTransform && m_HasRayProvider)
-            {
+            if (m_HasTargetRotationTransform && m_HasRayProvider) {
                 // Given that the ray endpoint is in world space, we need to use the world space transform of this point to determine the target rotation.
                 // This allows us to keep orientation consistent when moving the XR Origin for locomotion.
                 var targetDir = (m_RayProvider.rayEndPoint - transform.position).normalized;
-                if (targetDir != Vector3.zero)
-                {
+                if (targetDir != Vector3.zero) {
                     // Use the parent Transform's up vector if available, otherwise use the world up vector.
                     // The assumption is the parent Transform matches the XR Origin rotation.
                     // This allows the XR Origin to teleport to angled surfaces or upside down surfaces
@@ -171,8 +155,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
                     if (Vector3.Dot(m_TargetRotation.forward, targetDir) > 0.5f)
                         m_QuaternionTweenableVariable.target = targetRot;
                 }
-                else
-                {
+                else {
                     m_QuaternionTweenableVariable.target = m_TargetRotation.rotation;
                 }
 

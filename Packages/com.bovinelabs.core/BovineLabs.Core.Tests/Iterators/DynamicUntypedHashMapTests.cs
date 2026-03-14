@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Iterators
-{
+namespace BovineLabs.Core.Tests.Iterators {
     using BovineLabs.Core.Iterators;
     using BovineLabs.Core.Utility;
     using BovineLabs.Testing;
@@ -11,19 +10,16 @@ namespace BovineLabs.Core.Tests.Iterators
     using Unity.Entities;
     using Unity.Mathematics;
 
-    public class DynamicUntypedHashMapTests : ECSTestsFixture
-    {
+    public class DynamicUntypedHashMapTests : ECSTestsFixture {
         [SetUp]
-        public override void Setup()
-        {
+        public override void Setup() {
             base.Setup();
 
             TypeManagerEx.Initialize();
         }
 
         [Test]
-        public void InitializeAndLarge()
-        {
+        public void InitializeAndLarge() {
             var entity = this.Manager.CreateEntity(typeof(TestBuffer));
             var buffer = this.Manager.GetBuffer<TestBuffer>(entity);
 
@@ -42,15 +38,13 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void StressAdd()
-        {
+        public void StressAdd() {
             var entity = this.Manager.CreateEntity(typeof(TestBuffer));
             var buffer = this.Manager.GetBuffer<TestBuffer>(entity);
 
             var hashMap = buffer.InitializeUntypedHashMap<TestBuffer, int>(0, 0).AsUntypedHashMap<TestBuffer, int>();
 
-            for (var i = 0; i < 50; i++)
-            {
+            for (var i = 0; i < 50; i++) {
                 hashMap.AddOrSet((i * 8) + 0, 1);
                 hashMap.AddOrSet((i * 8) + 1, (short)2);
                 hashMap.AddOrSet((i * 8) + 2, new float3(1, 2, 3));
@@ -61,8 +55,7 @@ namespace BovineLabs.Core.Tests.Iterators
                 hashMap.AddOrSet((i * 8) + 7, (short)2);
             }
 
-            for (var i = 0; i < 50; i++)
-            {
+            for (var i = 0; i < 50; i++) {
                 hashMap.AddOrSet((i * 8) + 0, 1);
                 hashMap.AddOrSet((i * 8) + 1, (short)2);
                 hashMap.AddOrSet((i * 8) + 2, new float3(1, 2, 3));
@@ -75,15 +68,13 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void StressGet()
-        {
+        public void StressGet() {
             var entity = this.Manager.CreateEntity(typeof(TestBuffer));
             var buffer = this.Manager.GetBuffer<TestBuffer>(entity);
 
             var hashMap = buffer.InitializeUntypedHashMap<TestBuffer, int>(0, 0).AsUntypedHashMap<TestBuffer, int>();
 
-            for (var i = 0; i < 50; i++)
-            {
+            for (var i = 0; i < 50; i++) {
                 hashMap.GetOrAddRef((i * 8) + 0, 1);
                 hashMap.GetOrAddRef((i * 8) + 1, (short)2);
                 hashMap.GetOrAddRef((i * 8) + 2, new float3(1, 2, 3));
@@ -94,8 +85,7 @@ namespace BovineLabs.Core.Tests.Iterators
                 hashMap.GetOrAddRef((i * 8) + 7, (short)2);
             }
 
-            for (var i = 0; i < 50; i++)
-            {
+            for (var i = 0; i < 50; i++) {
                 hashMap.GetOrAddRef((i * 8) + 0, 1);
                 hashMap.GetOrAddRef((i * 8) + 1, (short)2);
                 hashMap.GetOrAddRef((i * 8) + 2, new float3(1, 2, 3));
@@ -108,13 +98,11 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [InternalBufferCapacity(0)]
-        private struct TestBuffer : IDynamicUntypedHashMap<int>
-        {
+        private struct TestBuffer : IDynamicUntypedHashMap<int> {
             byte IDynamicUntypedHashMap<int>.Value { get; }
         }
 
-        public struct Large
-        {
+        public struct Large {
             public ulong TestValue0;
             public ulong TestValue1;
         }

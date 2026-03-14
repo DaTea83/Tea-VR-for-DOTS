@@ -2,13 +2,15 @@
 using System.Collections;
 
 
-namespace TMPro.Examples
-{
+namespace TMPro.Examples {
+    public class ObjectSpin : MonoBehaviour {
+#pragma warning disable 0414
+        public enum MotionType {
+            Rotation,
+            SearchLight,
+            Translation
+        };
 
-    public class ObjectSpin : MonoBehaviour
-    {
-        #pragma warning disable 0414
-        public enum MotionType { Rotation, SearchLight, Translation };
         public MotionType Motion;
 
         public Vector3 TranslationDistance = new Vector3(5, 0, 0);
@@ -23,8 +25,7 @@ namespace TMPro.Examples
         private Vector3 m_initial_Position;
         private Color32 m_lightColor;
 
-        void Awake()
-        {
+        void Awake() {
             m_transform = transform;
             m_initial_Rotation = m_transform.rotation.eulerAngles;
             m_initial_Position = m_transform.position;
@@ -35,16 +36,15 @@ namespace TMPro.Examples
 
 
         // Update is called once per frame
-        void Update()
-        {
-            switch (Motion)
-            {
+        void Update() {
+            switch (Motion) {
                 case MotionType.Rotation:
                     m_transform.Rotate(0, SpinSpeed * Time.deltaTime, 0);
                     break;
                 case MotionType.SearchLight:
                     m_time += SpinSpeed * Time.deltaTime;
-                    m_transform.rotation = Quaternion.Euler(m_initial_Rotation.x, Mathf.Sin(m_time) * RotationRange + m_initial_Rotation.y, m_initial_Rotation.z);
+                    m_transform.rotation = Quaternion.Euler(m_initial_Rotation.x,
+                        Mathf.Sin(m_time) * RotationRange + m_initial_Rotation.y, m_initial_Rotation.z);
                     break;
                 case MotionType.Translation:
                     m_time += TranslationSpeed * Time.deltaTime;

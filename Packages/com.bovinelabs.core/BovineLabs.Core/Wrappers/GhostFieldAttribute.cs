@@ -3,13 +3,11 @@
 // </copyright>
 
 #if !UNITY_NETCODE
-namespace Unity.NetCode
-{
+namespace Unity.NetCode {
     using System;
 
     /// <summary>Denotes how <see cref="GhostFieldAttribute"/> values are deserialized when received from snapshots.</summary>
-    public enum SmoothingAction
-    {
+    public enum SmoothingAction {
         /// <summary>The GhostField value will clamp to the latest snapshot value as it's available.</summary>
         Clamp = 0,
 
@@ -32,9 +30,8 @@ namespace Unity.NetCode
     /// </summary>
     /// <remarks>Note that "enableable components" (<see cref="Unity.Entities.IEnableableComponent"/>) will still have their fields replicated, even when disabled.
     /// See <see cref="GhostEnabledBitAttribute"/> to replicate the enabled flag itself.</remarks>
-    [AttributeUsage(AttributeTargets.Field|AttributeTargets.Property)]
-    public class GhostFieldAttribute : Attribute
-    {
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public class GhostFieldAttribute : Attribute {
         /// <summary>
         /// Floating point numbers will be multiplied by this number and rounded to an integer, enabling better delta-compression via huffman encoding.
         /// Quantization is not supported for integer numbers and is disabled by default for floats.
@@ -69,6 +66,7 @@ namespace Unity.NetCode
         /// <summary>Allows you to specify a custom serializer for this GhostField using the <see cref="GhostFieldSubType"/> API.</summary>
         /// <inheritdoc cref="GhostFieldSubType"/>
         public int SubType { get; set; } = 0;
+
         /// <summary>
         /// Default true. If unset (false), instructs code-generation to not include this field in the serialization data.
         /// I.e. Do not replicate this field.
@@ -95,16 +93,12 @@ namespace Unity.NetCode
     /// <remarks>A type will not replicate its enableable flag unless it has this attribute attached to the class.
     /// This can (and should) also be added to variants that serialize enable bits.</remarks>
     [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
-    public sealed class GhostEnabledBitAttribute : Attribute
-    {
-    }
+    public sealed class GhostEnabledBitAttribute : Attribute { }
 
     /// <summary>
     /// Add the attribute to prevent a field ICommandData struct to be serialized.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field|AttributeTargets.Property, Inherited = true)]
-    public class DontSerializeForCommandAttribute : Attribute
-    {
-    }
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = true)]
+    public class DontSerializeForCommandAttribute : Attribute { }
 }
 #endif

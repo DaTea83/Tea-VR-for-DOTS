@@ -2,25 +2,21 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Inspectors
-{
+namespace BovineLabs.Core.Editor.Inspectors {
     using Unity.Mathematics;
     using UnityEditor;
     using UnityEngine.UIElements;
 
     [CustomPropertyDrawer(typeof(half))]
-    public class HalfDrawer : PropertyDrawer
-    {
+    public class HalfDrawer : PropertyDrawer {
         /// <inheritdoc/>
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var valueProperty = property.FindPropertyRelative("value");
 
             var field = new FloatField(property.displayName) { isDelayed = true };
             field.SetValueWithoutNotify(new half { value = (ushort)valueProperty.intValue });
 
-            field.RegisterValueChangedCallback(evt =>
-            {
+            field.RegisterValueChangedCallback(evt => {
                 valueProperty.intValue = new half(evt.newValue).value;
                 property.serializedObject.ApplyModifiedProperties();
                 field.SetValueWithoutNotify(new half { value = (ushort)valueProperty.intValue });
@@ -31,19 +27,16 @@ namespace BovineLabs.Core.Editor.Inspectors
     }
 
     [CustomPropertyDrawer(typeof(half2))]
-    public class Half2Drawer : PropertyDrawer
-    {
+    public class Half2Drawer : PropertyDrawer {
         /// <inheritdoc/>
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var xProperty = property.FindPropertyRelative("x.value");
             var yProperty = property.FindPropertyRelative("y.value");
 
             var field = new Vector2Field(property.displayName);
             SetValue();
 
-            field.RegisterValueChangedCallback(evt =>
-            {
+            field.RegisterValueChangedCallback(evt => {
                 xProperty.intValue = new half(evt.newValue.x).value;
                 yProperty.intValue = new half(evt.newValue.y).value;
                 property.serializedObject.ApplyModifiedProperties();
@@ -52,10 +45,8 @@ namespace BovineLabs.Core.Editor.Inspectors
                 SetValue();
             });
 
-            void SetValue()
-            {
-                field.SetValueWithoutNotify((float2)new half2
-                {
+            void SetValue() {
+                field.SetValueWithoutNotify((float2)new half2 {
                     x = new half { value = (ushort)xProperty.intValue },
                     y = new half { value = (ushort)yProperty.intValue },
                 });
@@ -66,11 +57,9 @@ namespace BovineLabs.Core.Editor.Inspectors
     }
 
     [CustomPropertyDrawer(typeof(half3))]
-    public class Half3Drawer : PropertyDrawer
-    {
+    public class Half3Drawer : PropertyDrawer {
         /// <inheritdoc/>
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var xProperty = property.FindPropertyRelative("x.value");
             var yProperty = property.FindPropertyRelative("y.value");
             var zProperty = property.FindPropertyRelative("z.value");
@@ -78,8 +67,7 @@ namespace BovineLabs.Core.Editor.Inspectors
             var field = new Vector3Field(property.displayName);
             SetValue();
 
-            field.RegisterValueChangedCallback(evt =>
-            {
+            field.RegisterValueChangedCallback(evt => {
                 xProperty.intValue = new half(evt.newValue.x).value;
                 yProperty.intValue = new half(evt.newValue.y).value;
                 zProperty.intValue = new half(evt.newValue.z).value;
@@ -89,10 +77,8 @@ namespace BovineLabs.Core.Editor.Inspectors
                 SetValue();
             });
 
-            void SetValue()
-            {
-                field.SetValueWithoutNotify((float3)new half3
-                {
+            void SetValue() {
+                field.SetValueWithoutNotify((float3)new half3 {
                     x = new half { value = (ushort)xProperty.intValue },
                     y = new half { value = (ushort)yProperty.intValue },
                     z = new half { value = (ushort)zProperty.intValue },
@@ -104,11 +90,9 @@ namespace BovineLabs.Core.Editor.Inspectors
     }
 
     [CustomPropertyDrawer(typeof(half4))]
-    public class Half4Drawer : PropertyDrawer
-    {
+    public class Half4Drawer : PropertyDrawer {
         /// <inheritdoc/>
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var xProperty = property.FindPropertyRelative("x.value");
             var yProperty = property.FindPropertyRelative("y.value");
             var zProperty = property.FindPropertyRelative("z.value");
@@ -117,8 +101,7 @@ namespace BovineLabs.Core.Editor.Inspectors
             var field = new Vector4Field(property.displayName);
             SetValue();
 
-            field.RegisterValueChangedCallback(evt =>
-            {
+            field.RegisterValueChangedCallback(evt => {
                 xProperty.intValue = new half(evt.newValue.x).value;
                 yProperty.intValue = new half(evt.newValue.y).value;
                 zProperty.intValue = new half(evt.newValue.z).value;
@@ -129,10 +112,8 @@ namespace BovineLabs.Core.Editor.Inspectors
                 SetValue();
             });
 
-            void SetValue()
-            {
-                field.SetValueWithoutNotify((float4)new half4
-                {
+            void SetValue() {
+                field.SetValueWithoutNotify((float4)new half4 {
                     x = new half { value = (ushort)xProperty.intValue },
                     y = new half { value = (ushort)yProperty.intValue },
                     z = new half { value = (ushort)zProperty.intValue },

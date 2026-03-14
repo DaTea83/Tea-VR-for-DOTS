@@ -2,19 +2,20 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Internal
-{
+namespace BovineLabs.Core.Internal {
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
     using Unity.Mathematics;
 
-    public static class BlobAssetReferenceInternal
-    {
-        public static unsafe BlobAssetReference<T> Create<T>(void* headerPtr, int headerLength, void* dataPtr, int dataLength)
-            where T : unmanaged
-        {
-            var buffer = (byte*)Memory.Unmanaged.Allocate(sizeof(BlobAssetHeader) + headerLength + dataLength, 16, Allocator.Persistent);
+    public static class BlobAssetReferenceInternal {
+        public static unsafe BlobAssetReference<T> Create<T>(void* headerPtr,
+            int headerLength,
+            void* dataPtr,
+            int dataLength)
+            where T : unmanaged {
+            var buffer = (byte*)Memory.Unmanaged.Allocate(sizeof(BlobAssetHeader) + headerLength + dataLength, 16,
+                Allocator.Persistent);
             UnsafeUtility.MemCpy(buffer + sizeof(BlobAssetHeader), headerPtr, headerLength);
             UnsafeUtility.MemCpy(buffer + sizeof(BlobAssetHeader) + headerLength, dataPtr, dataLength);
 
@@ -35,8 +36,7 @@ namespace BovineLabs.Core.Internal
         }
 
         public static long GetHash<T>(this BlobAssetReference<T> blobAssetReference)
-            where T : unmanaged
-        {
+            where T : unmanaged {
             return blobAssetReference.m_data.m_Align8Union;
         }
     }

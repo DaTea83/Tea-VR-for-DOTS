@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Functions
-{
+namespace BovineLabs.Core.Functions {
     using Unity.Entities;
 
     public unsafe delegate void UpdateFunction(void* target, ref SystemState state);
@@ -15,8 +14,7 @@ namespace BovineLabs.Core.Functions
     /// <summary> An implementation of a forwarding function pointer for extending jobs to other developers or modders. </summary>
     /// <typeparam name="T"> Is the void* data that will be passed to the ExecuteFunction. Also serves as a grouping mechanism for ReflectAll. </typeparam>
     public interface IFunction<T>
-        where T : unmanaged
-    {
+        where T : unmanaged {
         /// <summary>
         /// Gets the OnDestroy forwarding function which must be a static forwarding function however it is never burst compiled.
         /// Should be called from a Systems OnDestroy to cleanup any allocated memory.
@@ -40,8 +38,6 @@ namespace BovineLabs.Core.Functions
 
         /// <summary> Called directly from the builder to setup the struct if required. </summary>
         /// <param name="state"> The system state. </param>
-        void OnCreate(ref SystemState state)
-        {
-        }
+        void OnCreate(ref SystemState state) { }
     }
 }

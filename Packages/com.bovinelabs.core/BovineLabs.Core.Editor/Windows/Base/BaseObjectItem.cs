@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Windows.Base
-{
+namespace BovineLabs.Core.Editor.Windows.Base {
     using System;
     using UnityEditor;
     using UnityEngine;
@@ -12,16 +11,19 @@ namespace BovineLabs.Core.Editor.Windows.Base
     /// Base class for object items that can be displayed in editor windows.
     /// Provides common functionality for managing Unity object references.
     /// </summary>
-    public abstract class BaseObjectItem
-    {
+    public abstract class BaseObjectItem {
         protected BaseObjectItem(UnityEngine.Object obj, GlobalObjectId objectId)
-            : this(obj, obj.name, obj.GetType().Name, AssetDatabase.GetAssetPath(obj), objectId, AssetPreview.GetMiniThumbnail(obj), DateTime.Now)
-        {
-        }
+            : this(obj, obj.name, obj.GetType().Name, AssetDatabase.GetAssetPath(obj), objectId,
+                AssetPreview.GetMiniThumbnail(obj), DateTime.Now) { }
 
         protected BaseObjectItem(
-            UnityEngine.Object? obj, string name, string typeName, string assetPath, GlobalObjectId globalObjectId, Texture2D? icon, DateTime timestamp)
-        {
+            UnityEngine.Object? obj,
+            string name,
+            string typeName,
+            string assetPath,
+            GlobalObjectId globalObjectId,
+            Texture2D? icon,
+            DateTime timestamp) {
             this.Name = name;
             this.TypeName = typeName;
             this.AssetPath = assetPath;
@@ -54,30 +56,27 @@ namespace BovineLabs.Core.Editor.Windows.Base
         public GlobalObjectId GlobalId { get; }
 
         /// <summary>Gets a value indicating whether the referenced object is still alive.</summary>
-        public bool IsAlive => this.ObjectRef is { IsAlive: true, Target: UnityEngine.Object } && this.ObjectRef.Target.GetType().Name == this.TypeName;
+        public bool IsAlive => this.ObjectRef is { IsAlive: true, Target: UnityEngine.Object } &&
+                               this.ObjectRef.Target.GetType().Name == this.TypeName;
 
         /// <summary>Gets a value indicating whether this is an asset (vs scene object).</summary>
         public bool IsAsset => !string.IsNullOrEmpty(this.AssetPath);
 
         /// <summary>Gets the referenced object if it's still alive.</summary>
         /// <returns>The object.</returns>
-        public UnityEngine.Object? GetObject()
-        {
+        public UnityEngine.Object? GetObject() {
             // First try to get from weak reference (fastest)
             var obj = this.ObjectRef.Target as UnityEngine.Object;
 
             // Unity replaces assets with the importer (MonoImporter, AssetImporter) when unloading an asset so it appears loaded, but it's the wrong type
-            if (obj != null && obj.GetType().Name == this.TypeName)
-            {
+            if (obj != null && obj.GetType().Name == this.TypeName) {
                 return obj;
             }
 
             // If weak reference is null, try to reload using GlobalObjectId
-            if (!this.GlobalId.assetGUID.Empty() || this.GlobalId.identifierType != 0)
-            {
+            if (!this.GlobalId.assetGUID.Empty() || this.GlobalId.identifierType != 0) {
                 obj = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(this.GlobalId);
-                if (obj != null)
-                {
+                if (obj != null) {
                     // Update the weak reference for future calls
                     this.ObjectRef.Target = obj;
                     this.AssetPath = AssetDatabase.GetAssetPath(obj);
@@ -87,11 +86,9 @@ namespace BovineLabs.Core.Editor.Windows.Base
             }
 
             // Finally, try asset path for assets (fallback)
-            if (!string.IsNullOrEmpty(this.AssetPath))
-            {
+            if (!string.IsNullOrEmpty(this.AssetPath)) {
                 obj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(this.AssetPath);
-                if (obj != null)
-                {
+                if (obj != null) {
                     this.ObjectRef.Target = obj;
                     this.Icon = AssetPreview.GetMiniThumbnail(obj);
                     return obj;
@@ -107,26 +104,25 @@ namespace BovineLabs.Core.Editor.Windows.Base
         /// <param name="showTypeNames">Should type names be shown.</param>
         /// <param name="timestampFormat">Format string for timestamp display.</param>
         /// <returns>The display text.</returns>
-        public string GetDisplayText(bool showTimestamps = true, bool showAssetPaths = true, bool showTypeNames = true, string timestampFormat = "HH:mm:ss")
-        {
+        public string GetDisplayText(bool showTimestamps = true,
+            bool showAssetPaths = true,
+            bool showTypeNames = true,
+            string timestampFormat = "HH:mm:ss") {
             var result = this.Name;
 
             // Add type information if enabled
-            if (showTypeNames)
-            {
+            if (showTypeNames) {
                 result += $" ({this.TypeName})";
             }
 
             // Add timestamp if enabled
-            if (showTimestamps)
-            {
+            if (showTimestamps) {
                 var timeStr = this.Timestamp.ToString(timestampFormat);
                 result = $"[{timeStr}] {result}";
             }
 
             // Add path information if enabled
-            if (showAssetPaths)
-            {
+            if (showAssetPaths) {
                 var pathStr = this.IsAsset ? $" [{this.AssetPath}]" : " (Scene)";
                 result += pathStr;
             }

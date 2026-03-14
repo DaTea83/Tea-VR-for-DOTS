@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Collections
-{
+namespace BovineLabs.Core.Collections {
     using System;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
@@ -13,8 +12,7 @@ namespace BovineLabs.Core.Collections
     using Unity.Jobs;
 
     public struct NativeKeyedMap<TValue>
-        where TValue : unmanaged
-    {
+        where TValue : unmanaged {
         private UnsafeKeyedMap<TValue> keyedMapData;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -22,7 +20,8 @@ namespace BovineLabs.Core.Collections
         private AtomicSafetyHandle m_Safety;
 
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Required by safety injection.")]
-        private static readonly SharedStatic<int> s_staticSafetyId = SharedStatic<int>.GetOrCreate<NativeKeyedMap<TValue>>();
+        private static readonly SharedStatic<int> s_staticSafetyId =
+            SharedStatic<int>.GetOrCreate<NativeKeyedMap<TValue>>();
 #endif
 
         /// <summary>
@@ -31,16 +30,14 @@ namespace BovineLabs.Core.Collections
         /// <param name="capacity"> The number of key-value pairs that should fit in the initial allocation. </param>
         /// <param name="maxKey"> Max value stored in this map. </param>
         /// <param name="allocator"> The allocator to use. </param>
-        public NativeKeyedMap(int capacity, int maxKey, AllocatorManager.AllocatorHandle allocator)
-        {
+        public NativeKeyedMap(int capacity, int maxKey, AllocatorManager.AllocatorHandle allocator) {
             this.keyedMapData = new UnsafeKeyedMap<TValue>(capacity, maxKey, allocator.Handle);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CollectionHelper.CheckAllocator(allocator);
             this.m_Safety = CollectionHelper.CreateSafetyHandle(allocator);
 
-            if (UnsafeUtility.IsNativeContainerType<TValue>())
-            {
+            if (UnsafeUtility.IsNativeContainerType<TValue>()) {
                 AtomicSafetyHandle.SetNestedContainer(this.m_Safety, true);
             }
 
@@ -61,16 +58,12 @@ namespace BovineLabs.Core.Collections
         /// <value> The number of key-value pairs that fit in the current allocation. </value>
         /// <param name="value"> A new capacity. Must be larger than the current capacity. </param>
         /// <exception cref="Exception"> Thrown if `value` is less than the current capacity. </exception>
-        public int Capacity
-        {
-            get
-            {
+        public int Capacity {
+            get {
                 this.CheckRead();
                 return this.keyedMapData.Capacity;
             }
-
-            set
-            {
+            set {
                 this.CheckWrite();
                 this.keyedMapData.Capacity = value;
             }
@@ -79,8 +72,7 @@ namespace BovineLabs.Core.Collections
         /// <summary>
         /// Releases all resources (memory and safety handles).
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CollectionHelper.DisposeSafetyHandle(ref this.m_Safety);
 #endif
@@ -92,12 +84,9 @@ namespace BovineLabs.Core.Collections
         /// </summary>
         /// <param name="inputDeps"> A job handle. The newly scheduled job will depend upon this handle. </param>
         /// <returns> The handle of a new job that will dispose this hash map. </returns>
-        public unsafe JobHandle Dispose(JobHandle inputDeps)
-        {
-            var jobHandle = new UnsafeKeyedMapDataDisposeJob
-            {
-                Data = new UnsafeKeyedMapDataDispose
-                {
+        public unsafe JobHandle Dispose(JobHandle inputDeps) {
+            var jobHandle = new UnsafeKeyedMapDataDisposeJob {
+                Data = new UnsafeKeyedMapDataDispose {
                     Buffer = this.keyedMapData.buffer,
                     AllocatorLabel = this.keyedMapData.allocator,
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -118,8 +107,7 @@ namespace BovineLabs.Core.Collections
         /// Removes all key-value pairs.
         /// </summary>
         /// <remarks> Does not change the capacity. </remarks>
-        public void Clear()
-        {
+        public void Clear() {
             this.CheckWrite();
             this.keyedMapData.Clear();
         }
@@ -132,8 +120,7 @@ namespace BovineLabs.Core.Collections
         /// </remarks>
         /// <param name="key"> The key to add. </param>
         /// <param name="item"> The value to add. </param>
-        public void Add(int key, TValue item)
-        {
+        public void Add(int key, TValue item) {
             this.CheckWrite();
             this.keyedMapData.Add(key, item);
         }
@@ -145,8 +132,7 @@ namespace BovineLabs.Core.Collections
         /// <param name="item"> Outputs the associated value represented by the iterator. </param>
         /// <param name="it"> Outputs an iterator. </param>
         /// <returns> True if the key was present. </returns>
-        public bool TryGetFirstValue(int key, out TValue item, out UnsafeKeyedMapIterator it)
-        {
+        public bool TryGetFirstValue(int key, out TValue item, out UnsafeKeyedMapIterator it) {
             this.CheckRead();
             return this.keyedMapData.TryGetFirstValue(key, out item, out it);
         }
@@ -157,59 +143,50 @@ namespace BovineLabs.Core.Collections
         /// <param name="item"> Outputs the next value. </param>
         /// <param name="it"> A reference to the iterator to advance. </param>
         /// <returns> True if the key was present and had another value. </returns>
-        public bool TryGetNextValue(out TValue item, ref UnsafeKeyedMapIterator it)
-        {
+        public bool TryGetNextValue(out TValue item, ref UnsafeKeyedMapIterator it) {
             this.CheckRead();
             return this.keyedMapData.TryGetNextValue(out item, ref it);
         }
 
-        public void SetLength(int length)
-        {
+        public void SetLength(int length) {
             this.CheckWrite();
             this.keyedMapData.SetLength(length);
         }
 
-        public void RecalculateBuckets()
-        {
+        public void RecalculateBuckets() {
             this.CheckWrite();
             this.keyedMapData.RecalculateBuckets();
         }
 
-        public unsafe int* GetUnsafeKeysPtr()
-        {
+        public unsafe int* GetUnsafeKeysPtr() {
             this.CheckWrite();
             return this.keyedMapData.GetUnsafeKeysPtr();
         }
 
-        public unsafe TValue* GetUnsafeValuesPtr()
-        {
+        public unsafe TValue* GetUnsafeValuesPtr() {
             this.CheckWrite();
             return this.keyedMapData.GetUnsafeValuesPtr();
         }
 
-        public unsafe int* GetUnsafeReadOnlyKeysPtr()
-        {
+        public unsafe int* GetUnsafeReadOnlyKeysPtr() {
             this.CheckRead();
             return this.keyedMapData.GetUnsafeKeysPtr();
         }
 
-        public unsafe TValue* GetUnsafeReadOnlyValuesPtr()
-        {
+        public unsafe TValue* GetUnsafeReadOnlyValuesPtr() {
             this.CheckRead();
             return this.keyedMapData.GetUnsafeValuesPtr();
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        private void CheckRead()
-        {
+        private void CheckRead() {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckReadAndThrow(this.m_Safety);
 #endif
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        private void CheckWrite()
-        {
+        private void CheckWrite() {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(this.m_Safety);
 #endif

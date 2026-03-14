@@ -2,27 +2,26 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Extensions
-{
+namespace BovineLabs.Core.Extensions {
     using System;
     using System.Diagnostics;
     using System.Threading;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
 
-    public static unsafe class UnsafeListExtensions
-    {
+    public static unsafe class UnsafeListExtensions {
         public static void ReserveNoResize<T>(ref this UnsafeList<T> list, int length, out T* ptr, out int idx)
-            where T : unmanaged
-        {
+            where T : unmanaged {
             idx = list.Length;
             list.Length += length;
             ptr = (T*)((byte*)list.Ptr + (idx * UnsafeUtility.SizeOf<T>()));
         }
 
-        public static void ReserveNoResize<T>(this UnsafeList<T>.ParallelWriter unsafeList, int length, out T* ptr, out int idx)
-            where T : unmanaged
-        {
+        public static void ReserveNoResize<T>(this UnsafeList<T>.ParallelWriter unsafeList,
+            int length,
+            out T* ptr,
+            out int idx)
+            where T : unmanaged {
             var newLength = Interlocked.Add(ref unsafeList.ListData->m_length, length);
             CheckSufficientCapacity(unsafeList.ListData->Capacity, newLength);
             idx = newLength - length;
@@ -30,9 +29,9 @@ namespace BovineLabs.Core.Extensions
         }
 
         public static NativeArray<T> AsArray<T>(this UnsafeList<T> list)
-            where T : unmanaged
-        {
-            var array = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(list.Ptr, list.Length, Allocator.None);
+            where T : unmanaged {
+            var array = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(list.Ptr, list.Length,
+                Allocator.None);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref array, AtomicSafetyHandle.GetTempMemoryHandle());
 #endif
@@ -41,12 +40,9 @@ namespace BovineLabs.Core.Extensions
 
         public static int IndexOf<T, TPredicate>(this UnsafeList<T> collection, TPredicate predicate)
             where T : unmanaged
-            where TPredicate : IPredicate<T>
-        {
-            for (var i = 0; i < collection.Length; i++)
-            {
-                if (predicate.Check(collection[i]))
-                {
+            where TPredicate : IPredicate<T> {
+            for (var i = 0; i < collection.Length; i++) {
+                if (predicate.Check(collection[i])) {
                     return i;
                 }
             }
@@ -56,11 +52,9 @@ namespace BovineLabs.Core.Extensions
 
         public static bool TryGetValue<T, TPredicate>(this UnsafeList<T> collection, TPredicate predicate, out T value)
             where T : unmanaged
-            where TPredicate : IPredicate<T>
-        {
+            where TPredicate : IPredicate<T> {
             var index = collection.IndexOf(predicate);
-            if (index == -1)
-            {
+            if (index == -1) {
                 value = default;
                 return false;
             }
@@ -71,10 +65,8 @@ namespace BovineLabs.Core.Extensions
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         [Conditional("UNITY_DOTS_DEBUG")]
-        private static void CheckSufficientCapacity(int capacity, int length)
-        {
-            if (capacity < length)
-            {
+        private static void CheckSufficientCapacity(int capacity, int length) {
+            if (capacity < length) {
                 throw new InvalidOperationException($"Length {length} exceeds Capacity {capacity}");
             }
         }

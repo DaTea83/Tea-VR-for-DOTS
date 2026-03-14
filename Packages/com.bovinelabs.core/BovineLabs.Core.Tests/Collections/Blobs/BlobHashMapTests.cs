@@ -2,18 +2,15 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Collections.Blobs
-{
+namespace BovineLabs.Core.Tests.Collections.Blobs {
     using BovineLabs.Core.Collections;
     using NUnit.Framework;
     using Unity.Collections;
     using Unity.Entities;
 
-    public class BlobHashMapTests
-    {
+    public class BlobHashMapTests {
         [Test]
-        public void NestedBlobs()
-        {
+        public void NestedBlobs() {
             const int count = 100;
 
             var builder = new BlobBuilder(Allocator.Temp);
@@ -21,26 +18,22 @@ namespace BovineLabs.Core.Tests.Collections.Blobs
 
             var hashMapBuilder = builder.AllocateHashMap(ref root.HashMap, count);
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 ref var value = ref hashMapBuilder.AddUnique(i);
                 var array = builder.Allocate(ref value, i);
 
-                for (var j = 0; j < i; j++)
-                {
+                for (var j = 0; j < i; j++) {
                     array[j] = j;
                 }
             }
 
             using var t = builder.CreateBlobAssetReference<Test>(Allocator.Persistent);
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 ref var b = ref t.Value.HashMap[i];
                 Assert.AreEqual(i, b.Length);
 
-                for (var j = 0; j < b.Length; j++)
-                {
+                for (var j = 0; j < b.Length; j++) {
                     Assert.AreEqual(j, b[j]);
                 }
 
@@ -48,8 +41,7 @@ namespace BovineLabs.Core.Tests.Collections.Blobs
                 ref var b2 = ref ptr.Ref;
                 Assert.AreEqual(i, b2.Length);
 
-                for (var j = 0; j < b2.Length; j++)
-                {
+                for (var j = 0; j < b2.Length; j++) {
                     Assert.AreEqual(j, b2[j]);
                 }
             }
@@ -57,8 +49,7 @@ namespace BovineLabs.Core.Tests.Collections.Blobs
             using var e = t.Value.HashMap.GetEnumerator();
             var iterations = 0;
 
-            while (e.MoveNext())
-            {
+            while (e.MoveNext()) {
                 iterations++;
 
                 var key = e.Current.Key;
@@ -66,8 +57,7 @@ namespace BovineLabs.Core.Tests.Collections.Blobs
 
                 Assert.AreEqual(key, value.Length);
 
-                for (var j = 0; j < value.Length; j++)
-                {
+                for (var j = 0; j < value.Length; j++) {
                     Assert.AreEqual(j, value[j]);
                 }
             }
@@ -75,8 +65,7 @@ namespace BovineLabs.Core.Tests.Collections.Blobs
             Assert.AreEqual(count, iterations);
         }
 
-        private struct Test
-        {
+        private struct Test {
             public BlobHashMap<int, BlobArray<int>> HashMap;
         }
     }

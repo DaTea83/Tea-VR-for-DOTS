@@ -1,28 +1,17 @@
 using Unity.Burst;
 using Unity.Entities;
 
-namespace TeaFramework
-{
+namespace TeaFramework {
     [DisableAutoCreation]
     [BurstCompile]
-    public partial struct ClimbInteractionISystem : ISystem
-    {
+    public partial struct ClimbInteractionISystem : ISystem {
         [BurstCompile]
-        public void OnCreate(ref SystemState state)
-        {
-        
-        }
+        public void OnCreate(ref SystemState state) { }
 
         [BurstCompile]
-        public void OnUpdate(ref SystemState state)
-        {
-        
-        }
+        public void OnUpdate(ref SystemState state) { }
 
         [BurstCompile]
-        public void OnDestroy(ref SystemState state)
-        {
-        
-        }
+        public void OnDestroy(ref SystemState state) { }
     }
 }

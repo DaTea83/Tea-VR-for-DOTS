@@ -2,20 +2,17 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Iterators
-{
+namespace BovineLabs.Core.Tests.Iterators {
     using BovineLabs.Core.Iterators;
     using BovineLabs.Testing;
     using NUnit.Framework;
     using Unity.Collections;
 
-    public class DynamicMultiHashMapTests : ECSTestsFixture
-    {
+    public class DynamicMultiHashMapTests : ECSTestsFixture {
         private const int MinGrowth = 64;
 
         [Test]
-        public void Capacity()
-        {
+        public void Capacity() {
             const int newCapacity = 128;
 
             var hashMap = this.CreateHashMap();
@@ -27,22 +24,19 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void AddRemove()
-        {
+        public void AddRemove() {
             const int count = 1027;
 
             var hashMap = this.CreateHashMap();
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 hashMap.Add(i + i, (byte)i);
                 hashMap.Add(i + i, (byte)i);
             }
 
             Assert.AreEqual(count * 2, hashMap.Count);
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 Assert.AreEqual(2, hashMap.Remove(i + i));
             }
 
@@ -50,8 +44,7 @@ namespace BovineLabs.Core.Tests.Iterators
         }
 
         [Test]
-        public void AddBatchUnsafe()
-        {
+        public void AddBatchUnsafe() {
             const int count = 1027;
             const int keyLimit = 89;
 
@@ -60,8 +53,7 @@ namespace BovineLabs.Core.Tests.Iterators
             var keys = new NativeArray<int>(count, Allocator.Temp);
             var values = new NativeArray<byte>(count, Allocator.Temp);
 
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 keys[i] = i % keyLimit;
                 values[i] = (byte)(i % byte.MaxValue);
             }
@@ -70,15 +62,13 @@ namespace BovineLabs.Core.Tests.Iterators
 
             Assert.AreEqual(count, hashMap.Count);
 
-            for (var i = 0; i < keyLimit; i++)
-            {
+            for (var i = 0; i < keyLimit; i++) {
                 Assert.IsTrue(hashMap.ContainsKey(i));
             }
         }
 
         [Test]
-        public void TryGetValue()
-        {
+        public void TryGetValue() {
             var hashMap = this.CreateHashMap();
             Assert.IsFalse(hashMap.TryGetFirstValue(47, out _, out _));
 
@@ -90,8 +80,7 @@ namespace BovineLabs.Core.Tests.Iterators
             Assert.IsFalse(hashMap.TryGetFirstValue(47, out _, out _));
         }
 
-        private DynamicMultiHashMap<int, byte> CreateHashMap()
-        {
+        private DynamicMultiHashMap<int, byte> CreateHashMap() {
             var entity = this.Manager.CreateEntity(typeof(TestHashMap));
             return this
                 .Manager
@@ -100,8 +89,7 @@ namespace BovineLabs.Core.Tests.Iterators
                 .AsMultiHashMap<TestHashMap, int, byte>();
         }
 
-        private struct TestHashMap : IDynamicMultiHashMap<int, byte>
-        {
+        private struct TestHashMap : IDynamicMultiHashMap<int, byte> {
             byte IDynamicMultiHashMap<int, byte>.Value { get; }
         }
     }

@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.AssemblyBuilder
-{
+namespace BovineLabs.Core.Editor.AssemblyBuilder {
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -14,12 +13,12 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
     using UnityEngine.UIElements;
 
     /// <summary> An editor window that allows easy creation of new assembly definitions. </summary>
-    public class AssemblyBuilderWindow : EditorWindow
-    {
+    public class AssemblyBuilderWindow : EditorWindow {
         private const string AssemblyInfoTemplate =
             "// <copyright file=\"AssemblyInfo.cs\" company=\"{0}\">\n// Copyright (c) {0}. All rights reserved.\n// </copyright>\n\nusing System.Runtime.CompilerServices;\n";
 
-        private const string DisableTypeRegistration = "using Unity.Entities;\n\n[assembly: DisableAutoTypeRegistration]\n";
+        private const string DisableTypeRegistration =
+            "using Unity.Entities;\n\n[assembly: DisableAutoTypeRegistration]\n";
 
         private const string DisableAutoCreationTemplate = "using Unity.Entities;\n\n[assembly: DisableAutoCreation]";
         private const string InternalAccessTemplate = "\n[assembly: InternalsVisibleTo(\"{0}\")]";
@@ -28,31 +27,26 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
         private static readonly UITemplate AssemblyBuilderTemplate = new(RootUIPath + "AssemblyBuilder");
 
         [MenuItem(EditorMenus.RootMenuTools + "Assembly Builder", priority = 1007)]
-        private static void ShowWindow()
-        {
+        private static void ShowWindow() {
             // Get existing open window or if none, make a new one:
             var window = (AssemblyBuilderWindow)GetWindow(typeof(AssemblyBuilderWindow));
             window.titleContent = new GUIContent("Assembly Builder");
             window.Show();
         }
 
-        private static string GetAssemblyInfoPath(string folder)
-        {
+        private static string GetAssemblyInfoPath(string folder) {
             return $"{Directory.GetCurrentDirectory()}/{folder}/AssemblyInfo.cs";
         }
 
-        private static string GetAssemblyInfoHeader()
-        {
+        private static string GetAssemblyInfoHeader() {
             return string.Format(AssemblyInfoTemplate, PlayerSettings.companyName);
         }
 
-        private void Update()
-        {
+        private void Update() {
             this.rootVisualElement.Q<TextField>("directory").value = ProjectView.Internal.GetDirectory();
         }
 
-        private void OnEnable()
-        {
+        private void OnEnable() {
             // Reference to the root of the window.
             var root = this.rootVisualElement;
             AssemblyBuilderTemplate.Clone(root);
@@ -63,31 +57,24 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
             this.rootVisualElement.Q<TextField>("directory").SetEnabled(false);
 
 #if !UNITY_NETCODE
-            foreach (var toggle in this.rootVisualElement.Q("referenceCommon").Children().OfType<Toggle>().ToList())
-            {
-                if (toggle.label is "Unity.NetCode" or "Unity.Networking.Transport")
-                {
+            foreach (var toggle in this.rootVisualElement.Q("referenceCommon").Children().OfType<Toggle>().ToList()) {
+                if (toggle.label is "Unity.NetCode" or "Unity.Networking.Transport") {
                     toggle.RemoveFromHierarchy();
                 }
             }
 
-            foreach (var toggle in this.rootVisualElement.Q("toggleCommon").Children().OfType<Toggle>().ToList())
-            {
-                if (toggle.label == "Server")
-                {
+            foreach (var toggle in this.rootVisualElement.Q("toggleCommon").Children().OfType<Toggle>().ToList()) {
+                if (toggle.label == "Server") {
                     toggle.RemoveFromHierarchy();
                 }
             }
 #endif
         }
 
-        private void BindAssemblyToggle(Toggle toggle)
-        {
-            toggle.RegisterValueChangedCallback(evt =>
-            {
+        private void BindAssemblyToggle(Toggle toggle) {
+            toggle.RegisterValueChangedCallback(evt => {
                 var foldout = this.rootVisualElement.Q<Foldout>($"reference{toggle.label}");
-                if (foldout == null)
-                {
+                if (foldout == null) {
                     return;
                 }
 
@@ -96,11 +83,11 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
             });
         }
 
-        private void Create()
-        {
+        private void Create() {
             var activeFolderPath = ProjectView.Internal.GetDirectory();
 
-            var assemblyToggles = this.rootVisualElement.Query<Toggle>(className: "assembly").Where(t => t.value).ToList();
+            var assemblyToggles = this.rootVisualElement.Query<Toggle>(className: "assembly").Where(t => t.value)
+                .ToList();
 
             // Sort so Data is first, Systems is second, so it can be added to other packages
             assemblyToggles.Sort((t1, t2) => t1.label == "Data" ? -1 :
@@ -110,8 +97,7 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
 
             var nameField = this.rootVisualElement.Q<TextField>("name").value;
 
-            if (string.IsNullOrWhiteSpace(nameField))
-            {
+            if (string.IsNullOrWhiteSpace(nameField)) {
                 BLGlobalLogger.LogErrorString($"AssemblyName '{nameField}' is invalid");
                 return;
             }
@@ -120,22 +106,20 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
             var disableAutoCreation = this.GetToggleValue("disableAutoCreation");
             var allowUnsafeCode = this.GetToggleValue("allowUnsafeCode");
 
-            foreach (var toggle in assemblyToggles)
-            {
+            foreach (var toggle in assemblyToggles) {
                 var label = toggle.label;
                 var assemblyName = label == "Main" ? nameField : $"{nameField}.{label}";
                 var folder = $"{activeFolderPath}/{assemblyName}";
 
-                if (AssetDatabase.IsValidFolder(folder))
-                {
+                if (AssetDatabase.IsValidFolder(folder)) {
                     BLGlobalLogger.LogErrorString($"MenuPath {folder} already exists");
                     continue;
                 }
 
                 var result = AssetDatabase.CreateFolder(activeFolderPath, assemblyName);
-                if (string.IsNullOrWhiteSpace(result))
-                {
-                    BLGlobalLogger.LogErrorString($"Unable to create folder: {activeFolderPath} assembly name: {assemblyName}");
+                if (string.IsNullOrWhiteSpace(result)) {
+                    BLGlobalLogger.LogErrorString(
+                        $"Unable to create folder: {activeFolderPath} assembly name: {assemblyName}");
                     return;
                 }
 
@@ -143,8 +127,9 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
                 definition.name = assemblyName;
                 definition.allowUnsafeCode = allowUnsafeCode;
 
-                var references = this.rootVisualElement.Q<Foldout>($"reference{toggle.label}")?.Children().OfType<Toggle>().Select(t => t.label).ToList() ??
-                    new List<string>();
+                var references = this.rootVisualElement.Q<Foldout>($"reference{toggle.label}")?.Children()
+                                     .OfType<Toggle>().Select(t => t.label).ToList() ??
+                                 new List<string>();
 
                 references.Add("BovineLabs.Core");
                 references.Add("BovineLabs.Core.Extensions");
@@ -152,49 +137,38 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
                 // Also add our main references
                 references.AddRange(this.GetCommonReferences());
 
-                if (label == "Data")
-                {
-                    if (internalAccess)
-                    {
+                if (label == "Data") {
+                    if (internalAccess) {
                         this.WriteAssemblyInfo(nameField, folder, false, "Data");
                     }
                 }
-                else
-                {
+                else {
                     // Add the data assembly
                     references.Add($"{nameField}.Data");
 
                     // Add the systems reference to other assemblies that isn't authoring or itself
-                    if (label != "Main" && label != "System" && label != "Authoring")
-                    {
+                    if (label != "Main" && label != "System" && label != "Authoring") {
                         references.Add($"{nameField}");
 
-                        if (label == "Editor")
-                        {
+                        if (label == "Editor") {
                             references.Add($"{nameField}.Authoring");
                         }
                     }
-                    else
-                    {
-                        if (internalAccess)
-                        {
-                            if (label == "Main")
-                            {
+                    else {
+                        if (internalAccess) {
+                            if (label == "Main") {
                                 this.WriteAssemblyInfo(nameField, folder, false, "Data", "Main", "Authoring");
                             }
-                            else if (label == "Server")
-                            {
+                            else if (label == "Server") {
                                 this.WriteAssemblyInfo(nameField, folder, false, "Data", "Main", "Server", "Authoring");
                             }
-                            else if (label == "Authoring")
-                            {
+                            else if (label == "Authoring") {
                                 this.WriteAssemblyInfo(nameField, folder, true, "Data", "Main", "Authoring", "Debug");
                             }
                         }
                     }
 
-                    switch (label)
-                    {
+                    switch (label) {
                         case "Main":
                             AddAnchor(references);
                             break;
@@ -215,28 +189,24 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
                             break;
 
                         case "Editor":
-                        case "Tests":
-                        {
+                        case "Tests": {
                             // Limit to editor platform
                             definition.includePlatforms.Add("Editor");
 
                             // Add test requirements
-                            if (label == "Tests")
-                            {
+                            if (label == "Tests") {
                                 definition.optionalUnityReferences.Add("TestAssemblies");
 
                                 references.Add("BovineLabs.Testing");
                                 references.Add("Unity.PerformanceTesting");
 
-                                if (disableAutoCreation)
-                                {
+                                if (disableAutoCreation) {
                                     var assemblyInfoPath = GetAssemblyInfoPath(folder);
                                     var text = GetAssemblyInfoHeader() + DisableAutoCreationTemplate;
                                     File.WriteAllText(assemblyInfoPath, text);
                                 }
                             }
-                            else if (label == "Editor")
-                            {
+                            else if (label == "Editor") {
                                 references.Add("BovineLabs.Core.Editor");
                                 references.Add("BovineLabs.Core.Extensions.Editor");
                             }
@@ -262,26 +232,24 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
             AssetDatabase.Refresh();
         }
 
-        private static void AddAnchor(List<string> references)
-        {
+        private static void AddAnchor(List<string> references) {
             references.Add("BovineLabs.Anchor");
             references.Add("Unity.AppUI");
             references.Add("Unity.AppUI.MVVM");
             references.Add("Unity.AppUI.Navigation");
         }
 
-        private IEnumerable<string> GetCommonReferences()
-        {
-            return this.rootVisualElement.Q("referenceCommon").Children().OfType<Toggle>().Where(t => t.value).Select(t => t.label);
+        private IEnumerable<string> GetCommonReferences() {
+            return this.rootVisualElement.Q("referenceCommon").Children().OfType<Toggle>().Where(t => t.value)
+                .Select(t => t.label);
         }
 
-        private bool GetToggleValue(string toggleName)
-        {
-            return this.rootVisualElement.Q<Toggle>(toggleName).value;
-        }
+        private bool GetToggleValue(string toggleName) { return this.rootVisualElement.Q<Toggle>(toggleName).value; }
 
-        private void WriteAssemblyInfo(string nameField, string folder, bool disableAutoTypeRegistration, params string[] ignore)
-        {
+        private void WriteAssemblyInfo(string nameField,
+            string folder,
+            bool disableAutoTypeRegistration,
+            params string[] ignore) {
             var otherAssemblies =
                 this
                     .rootVisualElement
@@ -295,13 +263,11 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
 
             var internalAccessTemplate = GetAssemblyInfoHeader();
 
-            if (disableAutoTypeRegistration)
-            {
+            if (disableAutoTypeRegistration) {
                 internalAccessTemplate += DisableTypeRegistration;
             }
 
-            foreach (var assembly in otherAssemblies.OrderBy(s => s))
-            {
+            foreach (var assembly in otherAssemblies.OrderBy(s => s)) {
                 internalAccessTemplate += string.Format(InternalAccessTemplate, assembly);
             }
 

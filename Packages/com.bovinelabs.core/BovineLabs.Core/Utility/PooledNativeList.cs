@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Utility
-{
+namespace BovineLabs.Core.Utility {
     using System;
     using System.Runtime.InteropServices;
     using Unity.Burst;
@@ -19,8 +18,7 @@ namespace BovineLabs.Core.Utility
     /// </summary>
     /// <typeparam name="T">The unmanaged element type.</typeparam>
     public unsafe struct PooledNativeList<T> : IDisposable
-        where T : unmanaged
-    {
+        where T : unmanaged {
         private NativeList<T> list;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -33,28 +31,24 @@ namespace BovineLabs.Core.Utility
         /// <value>The wrapped NativeList that can be used for all list operations.</value>
         public NativeList<T> List => this.list;
 
-        private PooledNativeList<T> Create()
-        {
+        private PooledNativeList<T> Create() {
             ref var data = ref PooledNativeList.Pool.Data;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            if (!data.IsCreated)
-            {
+            if (!data.IsCreated) {
                 throw new InvalidOperationException("PooledNativeList pool not initialized.");
             }
 #endif
 
             ref var lp = ref PooledNativeList.Pool.Data.GetThreadList();
-            if (lp.Length == 0)
-            {
+            if (lp.Length == 0) {
                 // Nothing in the pool, just create a new one
                 this.list = new NativeList<T>(0, data.Allocator);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 this.oldHandle = this.list.m_Safety;
 #endif
             }
-            else
-            {
+            else {
                 // Pop an existing list out
                 var byteList = lp[^1];
                 lp.RemoveAt(lp.Length - 1);
@@ -80,10 +74,7 @@ namespace BovineLabs.Core.Utility
         /// This method is thread-safe and will reuse previously disposed instances when available.
         /// The returned instance must be disposed to return it to the pool.
         /// </remarks>
-        public static PooledNativeList<T> Make()
-        {
-            return default(PooledNativeList<T>).Create();
-        }
+        public static PooledNativeList<T> Make() { return default(PooledNativeList<T>).Create(); }
 
         /// <summary>
         /// Disposes the PooledNativeList and returns the underlying memory to the thread-local pool for reuse.
@@ -92,10 +83,8 @@ namespace BovineLabs.Core.Utility
         /// This method clears the list contents and converts it back to a byte list for storage in the pool.
         /// The instance should not be used after disposal.
         /// </remarks>
-        public void Dispose()
-        {
-            if (!this.list.IsCreated)
-            {
+        public void Dispose() {
+            if (!this.list.IsCreated) {
                 return;
             }
 
@@ -112,20 +101,17 @@ namespace BovineLabs.Core.Utility
 #endif
 
             // Only add back to pool if we haven't exceeded the max size
-            if (lp.Length < PooledNativeList.MaxPoolSizePerThread)
-            {
+            if (lp.Length < PooledNativeList.MaxPoolSizePerThread) {
                 lp.Add(byteList);
             }
-            else
-            {
+            else {
                 // Pool is full, dispose the list instead
                 byteList.Dispose();
             }
         }
     }
 
-    internal static unsafe class PooledNativeList
-    {
+    internal static unsafe class PooledNativeList {
         internal static readonly SharedStatic<Data> Pool = SharedStatic<Data>.GetOrCreate<Data>();
 
         internal const int MaxPoolSizePerThread = 8;
@@ -141,54 +127,44 @@ namespace BovineLabs.Core.Utility
         [InitializeOnLoadMethod]
 #endif
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void Initialize()
-        {
-            if (Pool.Data.IsCreated)
-            {
+        public static void Initialize() {
+            if (Pool.Data.IsCreated) {
                 return;
             }
 
             Pool.Data = new Data(Allocator.Domain);
         }
 
-        internal struct Data
-        {
+        internal struct Data {
             internal readonly AllocatorManager.AllocatorHandle Allocator;
 
-            [NativeDisableUnsafePtrRestriction]
-            private ThreadData* buffer;
+            [NativeDisableUnsafePtrRestriction] private ThreadData* buffer;
 
-            public Data(AllocatorManager.AllocatorHandle allocator)
-            {
+            public Data(AllocatorManager.AllocatorHandle allocator) {
                 this.Allocator = allocator;
-                this.buffer = (ThreadData*)Memory.Unmanaged.Allocate(sizeof(ThreadData) * JobsUtility.ThreadIndexCount, UnsafeUtility.AlignOf<ThreadData>(),
+                this.buffer = (ThreadData*)Memory.Unmanaged.Allocate(sizeof(ThreadData) * JobsUtility.ThreadIndexCount,
+                    UnsafeUtility.AlignOf<ThreadData>(),
                     allocator);
 
-                for (var i = 0; i < JobsUtility.ThreadIndexCount; i++)
-                {
+                for (var i = 0; i < JobsUtility.ThreadIndexCount; i++) {
                     this.buffer[i].ThreadList = new UnsafeList<NativeList<byte>>(0, this.Allocator);
                 }
             }
 
             public readonly bool IsCreated => this.buffer != null;
 
-            public ref UnsafeList<NativeList<byte>> GetThreadList()
-            {
+            public ref UnsafeList<NativeList<byte>> GetThreadList() {
                 ref var list = ref UnsafeUtility.ArrayElementAsRef<ThreadData>(this.buffer, JobsUtility.ThreadIndex);
                 return ref list.ThreadList;
             }
 
-            public void Dispose()
-            {
-                if (!this.IsCreated)
-                {
+            public void Dispose() {
+                if (!this.IsCreated) {
                     return;
                 }
 
-                for (var i = 0; i < JobsUtility.ThreadIndexCount; i++)
-                {
-                    foreach (var l in this.buffer[i].ThreadList)
-                    {
+                for (var i = 0; i < JobsUtility.ThreadIndexCount; i++) {
+                    foreach (var l in this.buffer[i].ThreadList) {
                         l.Dispose();
                     }
 
@@ -201,10 +177,8 @@ namespace BovineLabs.Core.Utility
         }
 
         [StructLayout(LayoutKind.Explicit, Size = JobsUtility.CacheLineSize)]
-        internal struct ThreadData
-        {
-            [FieldOffset(0)]
-            public UnsafeList<NativeList<byte>> ThreadList;
+        internal struct ThreadData {
+            [FieldOffset(0)] public UnsafeList<NativeList<byte>> ThreadList;
         }
     }
 }

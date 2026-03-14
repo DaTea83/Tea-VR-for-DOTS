@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Dependency
-{
+namespace BovineLabs.Core.Editor.Dependency {
     using System.Collections.Generic;
     using BovineLabs.Core.Editor.SearchWindow;
     using Unity.Entities;
@@ -14,16 +13,13 @@ namespace BovineLabs.Core.Editor.Dependency
     using UnityEngine.UIElements;
     using Resources = Unity.Entities.Editor.Resources;
 
-    internal abstract class DOTSSearchWindow : DOTSEditorWindow
-    {
+    internal abstract class DOTSSearchWindow : DOTSEditorWindow {
         private static readonly List<SearchView.Item> Items = new();
 
         private VisualElement root = null!;
 
         protected DOTSSearchWindow()
-            : base(Analytics.Window.Unknown)
-        {
-        }
+            : base(Analytics.Window.Unknown) { }
 
         protected World? World { get; private set; }
 
@@ -43,14 +39,10 @@ namespace BovineLabs.Core.Editor.Dependency
 
         protected abstract VisualElement CreateView();
 
-        protected void ClearItems()
-        {
-            Items.Clear();
-        }
+        protected void ClearItems() { Items.Clear(); }
 
         /// <inheritdoc/>
-        protected override void OnCreate()
-        {
+        protected override void OnCreate() {
             Resources.AddCommonVariables(this.rootVisualElement);
 
             this.titleContent = EditorGUIUtility.TrTextContent(this.WindowName, EditorIcons.System);
@@ -70,18 +62,15 @@ namespace BovineLabs.Core.Editor.Dependency
         }
 
         /// <inheritdoc/>
-        protected override void OnWorldSelected(World newWorld)
-        {
+        protected override void OnWorldSelected(World newWorld) {
             this.World = newWorld;
 
-            if (this.World != null)
-            {
+            if (this.World != null) {
                 this.Rebuild();
             }
         }
 
-        private void CreateToolBar(VisualElement rootElement)
-        {
+        private void CreateToolBar(VisualElement rootElement) {
             Resources.Templates.SystemScheduleToolbar.Clone(rootElement);
             var leftSide = rootElement.Q(className: UssClasses.SystemScheduleWindow.Toolbar.LeftSide);
 
@@ -97,15 +86,12 @@ namespace BovineLabs.Core.Editor.Dependency
             rightSide.Add(this.Button);
         }
 
-        private void ButtonOnClicked()
-        {
-            if (this.World == null)
-            {
+        private void ButtonOnClicked() {
+            if (this.World == null) {
                 return;
             }
 
-            if (Items.Count == 0)
-            {
+            if (Items.Count == 0) {
                 this.PopulateItems(Items);
             }
 

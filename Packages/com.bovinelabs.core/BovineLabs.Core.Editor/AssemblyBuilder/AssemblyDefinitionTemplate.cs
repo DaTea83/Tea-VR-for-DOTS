@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.AssemblyBuilder
-{
+namespace BovineLabs.Core.Editor.AssemblyBuilder {
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
@@ -16,8 +15,7 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "match expected json.")]
     [SuppressMessage("ReSharper", "SA1600", Justification = "match expected json.")]
     [SuppressMessage("ReSharper", "CollectionNeverQueried.Global", Justification = "match expected json.")]
-    public struct AssemblyDefinitionTemplate
-    {
+    public struct AssemblyDefinitionTemplate {
         public string name;
         public string rootNamespace;
         public List<string> references;
@@ -32,10 +30,8 @@ namespace BovineLabs.Core.Editor.AssemblyBuilder
         public List<string> versionDefines;
         public bool noEngineReferences;
 
-        public static AssemblyDefinitionTemplate New()
-        {
-            return new AssemblyDefinitionTemplate
-            {
+        public static AssemblyDefinitionTemplate New() {
+            return new AssemblyDefinitionTemplate {
                 references = new List<string>(),
                 optionalUnityReferences = new List<string>(),
                 includePlatforms = new List<string>(),

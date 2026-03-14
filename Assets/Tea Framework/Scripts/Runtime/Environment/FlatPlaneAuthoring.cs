@@ -6,35 +6,31 @@ using Unity.Transforms;
 using UnityEditor;
 using UnityEngine;
 
-namespace TeaFramework
-{
+namespace TeaFramework {
     // I'll be honest, the button doesn't work as intended
     // Supposed to be everytime OnValidate is called the system will generate a new plane
     // But it doesn't
     // It works fine when refreshing the subscene, or anything that will refresh the scene
     // But since it doesn't generate errors or made performance worse I'll let it slide
-    
+
     [AddComponentMenu("Tea Framework/Environments/FlatPlaneGenerator")]
-    public class FlatPlaneAuthoring : MonoBehaviour
-    {
+    public class FlatPlaneAuthoring : MonoBehaviour {
         public GameObject planePrefab;
-        
+
         [Tooltip("Scale up the prefab to value + 100")]
         public uint planeSize = 1000;
-        
+
         [Tooltip("The smaller the value is the denser the grid is")]
         public float unitsPerPlane = 1f;
-        public float3 planeOffset; 
-        
-        [Tooltip("Refresh the plane")]
-        public byte seed;
-        
+
+        public float3 planeOffset;
+
+        [Tooltip("Refresh the plane")] public byte seed;
+
         private byte _prevSeed;
-        
-        private void OnValidate()
-        {
-            if (_prevSeed != seed)
-            {
+
+        private void OnValidate() {
+            if (_prevSeed != seed) {
                 if (World.DefaultGameObjectInjectionWorld is null) return;
                 _prevSeed = seed;
                 var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
@@ -45,15 +41,12 @@ namespace TeaFramework
             }
         }
 
-        class FlatPlaneBaker : Baker<FlatPlaneAuthoring>
-        {
-            public override void Bake(FlatPlaneAuthoring authoring)
-            {
-                if(authoring.planePrefab is null) return;
-                
+        class FlatPlaneBaker : Baker<FlatPlaneAuthoring> {
+            public override void Bake(FlatPlaneAuthoring authoring) {
+                if (authoring.planePrefab is null) return;
+
                 var entity = GetEntity(TransformUsageFlags.None);
-                AddComponent(entity, new PlaneGenerationIData
-                {
+                AddComponent(entity, new PlaneGenerationIData {
                     PlanePrefab = GetEntity(authoring.planePrefab, TransformUsageFlags.Dynamic),
                     PlaneSize = math.abs(authoring.planeSize),
                     UnitsPerPlane = math.abs(authoring.unitsPerPlane),
@@ -66,68 +59,68 @@ namespace TeaFramework
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(FlatPlaneAuthoring))]
-    public class FLatPlaneEditor : Editor
-    {
-        public override void OnInspectorGUI()
-        {
+    public class FLatPlaneEditor : Editor {
+        public override void OnInspectorGUI() {
             FlatPlaneAuthoring authoring = (FlatPlaneAuthoring)target;
-            authoring.planePrefab = (GameObject)EditorGUILayout.ObjectField("Prefab", authoring.planePrefab, typeof(GameObject), false);
+            authoring.planePrefab =
+                (GameObject)EditorGUILayout.ObjectField("Prefab", authoring.planePrefab, typeof(GameObject), false);
             authoring.planeSize = (uint)EditorGUILayout.IntField("Size", (int)authoring.planeSize);
             authoring.unitsPerPlane = EditorGUILayout.FloatField("Units per Plane", authoring.unitsPerPlane);
             authoring.planeOffset = EditorGUILayout.Vector3Field("Offset", authoring.planeOffset);
             authoring.seed = (byte)EditorGUILayout.IntField("Seed", authoring.seed);
 
             if (GUILayout.Button("This is a button")) authoring.seed = (byte)UnityEngine.Random.Range(0, byte.MaxValue);
-            
+
             serializedObject.ApplyModifiedProperties();
         }
     }
-#endif    
+#endif
 
-    public struct PlaneGenerationIData : IComponentData
-    {
+    public struct PlaneGenerationIData : IComponentData {
         public Entity PlanePrefab;
         public float PlaneSize;
         public float UnitsPerPlane;
         public float3 PlaneOffset;
     }
-    
+
     /// <summary>
     /// Enableable component to inform the <see cref="PlaneGenerationSystemBase"/> that the level should be regenerated.
     /// </summary>
     public struct RegenerateLevelIFlag : IComponentData, IEnableableComponent { }
-    
+
     /// <summary>
     /// Material property override to set the tile scale
     /// </summary>
     [MaterialProperty("_Tile_Scale")]
-    public struct TilingOverrideIData : IComponentData
-    {
+    public struct TilingOverrideIData : IComponentData {
         public float Value;
     }
-     
+
     [BurstCompile]
-    [WorldSystemFilter(WorldSystemFilterFlags.EntitySceneOptimizations | WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
+    [WorldSystemFilter(WorldSystemFilterFlags.EntitySceneOptimizations | WorldSystemFilterFlags.Editor |
+                       WorldSystemFilterFlags.Default)]
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    public partial class PlaneGenerationSystemBase : SystemBase
-    {
+    public partial class PlaneGenerationSystemBase : SystemBase {
         [BurstCompile]
-        protected override void OnUpdate()
-        {
+        protected override void OnUpdate() {
             var ecb = new EntityCommandBuffer(WorldUpdateAllocator);
-            
-            foreach (var (regenerateLevel, planeGeneration) in SystemAPI.Query<EnabledRefRW<RegenerateLevelIFlag>,PlaneGenerationIData>())
-            {
-                if(!regenerateLevel.ValueRW) continue;
-                
+
+            foreach (var (regenerateLevel, planeGeneration) in SystemAPI
+                         .Query<EnabledRefRW<RegenerateLevelIFlag>, PlaneGenerationIData>()) {
+                if (!regenerateLevel.ValueRW) continue;
+
                 var instance = ecb.Instantiate(planeGeneration.PlanePrefab);
                 var instScale = planeGeneration.PlaneSize + 100;
-                
-                ecb.SetComponent(instance, LocalTransform.FromPositionRotationScale(planeGeneration.PlaneOffset, quaternion.identity, instScale));
-                ecb.AddComponent(instance, new TilingOverrideIData{ Value = instScale / planeGeneration.UnitsPerPlane});
-                
+
+                ecb.SetComponent(instance,
+                    LocalTransform.FromPositionRotationScale(planeGeneration.PlaneOffset, quaternion.identity,
+                        instScale));
+                ecb.AddComponent(instance,
+                    new TilingOverrideIData { Value = instScale / planeGeneration.UnitsPerPlane });
+
                 regenerateLevel.ValueRW = false;
             }
+
             ecb.Playback(EntityManager);
         }
     }

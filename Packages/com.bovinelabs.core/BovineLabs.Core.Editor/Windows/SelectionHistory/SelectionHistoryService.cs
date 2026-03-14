@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Windows.SelectionHistory
-{
+namespace BovineLabs.Core.Editor.Windows.SelectionHistory {
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -15,8 +14,7 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
     /// <summary>
     /// Service that manages selection history tracking in Unity Editor.
     /// </summary>
-    public sealed class SelectionHistoryService : BaseObjectService<SelectionHistoryItem, SelectionHistoryPreferences>
-    {
+    public sealed class SelectionHistoryService : BaseObjectService<SelectionHistoryItem, SelectionHistoryPreferences> {
         public const string PreferenceKey = "Selection History";
 
         private static SelectionHistoryService? instance;
@@ -25,13 +23,13 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
         private readonly List<SelectionHistoryItem> normalItems = new();
 
         private SelectionHistoryService()
-            : base(PreferenceKey)
-        {
+            : base(PreferenceKey) {
             Selection.selectionChanged += this.OnSelectionChanged;
         }
 
         /// <summary>Gets the current history as a read-only list.</summary>
-        public override IReadOnlyList<SelectionHistoryItem> Items => new List<SelectionHistoryItem>(this.lockedItems.Concat(this.normalItems));
+        public override IReadOnlyList<SelectionHistoryItem> Items =>
+            new List<SelectionHistoryItem>(this.lockedItems.Concat(this.normalItems));
 
         /// <summary>Gets the locked items as a read-only list.</summary>
         public IReadOnlyList<SelectionHistoryItem> LockedItems => new List<SelectionHistoryItem>(this.lockedItems);
@@ -40,12 +38,9 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
         public IReadOnlyList<SelectionHistoryItem> NormalItems => new List<SelectionHistoryItem>(this.normalItems);
 
         /// <summary>Gets the singleton instance of the selection history service.</summary>
-        public static SelectionHistoryService Instance
-        {
-            get
-            {
-                if (instance == null || instance.Disposed)
-                {
+        public static SelectionHistoryService Instance {
+            get {
+                if (instance == null || instance.Disposed) {
                     instance = new SelectionHistoryService();
                 }
 
@@ -57,8 +52,7 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
         public int MaxHistorySize => this.Preferences.MaxHistorySize;
 
         /// <summary>Clears all unlocked history items.</summary>
-        public void ClearHistory()
-        {
+        public void ClearHistory() {
             this.normalItems.Clear();
             this.Save();
             this.NotifyItemsChanged();
@@ -66,22 +60,17 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
 
         /// <summary>Toggles the locked state of a history item.</summary>
         /// <param name="item"> The item to lock. </param>
-        public void ToggleLock(SelectionHistoryItem item)
-        {
+        public void ToggleLock(SelectionHistoryItem item) {
             item.IsLocked = !item.IsLocked;
 
             // Move item between collections based on new locked state
-            if (item.IsLocked)
-            {
-                if (this.normalItems.Remove(item))
-                {
+            if (item.IsLocked) {
+                if (this.normalItems.Remove(item)) {
                     this.lockedItems.Add(item);
                 }
             }
-            else
-            {
-                if (this.lockedItems.Remove(item))
-                {
+            else {
+                if (this.lockedItems.Remove(item)) {
                     this.normalItems.Add(item);
                 }
             }
@@ -93,12 +82,10 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
         /// <summary>Reorders a locked item to a new position.</summary>
         /// <param name="fromIndex">The current index of the item.</param>
         /// <param name="toIndex">The target index for the item.</param>
-        public void ReorderLockedItem(int fromIndex, int toIndex)
-        {
+        public void ReorderLockedItem(int fromIndex, int toIndex) {
             if (fromIndex < 0 || fromIndex >= this.lockedItems.Count ||
                 toIndex < 0 || toIndex >= this.lockedItems.Count ||
-                fromIndex == toIndex)
-            {
+                fromIndex == toIndex) {
                 return;
             }
 
@@ -111,40 +98,31 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
         }
 
         /// <summary>Cleans up service-specific resources.</summary>
-        protected override void CleanupServices()
-        {
+        protected override void CleanupServices() {
             base.CleanupServices();
 
             Selection.selectionChanged -= this.OnSelectionChanged;
         }
 
         /// <inheritdoc/>
-        protected override bool TryRemoveItem(SelectionHistoryItem item)
-        {
+        protected override bool TryRemoveItem(SelectionHistoryItem item) {
             var changed = this.lockedItems.Remove(item);
             changed |= this.normalItems.Remove(item);
             return changed;
         }
 
         /// <inheritdoc/>
-        protected override void SelectFolder(Object folder)
-        {
-            this.SelectObject(folder);
-        }
+        protected override void SelectFolder(Object folder) { this.SelectObject(folder); }
 
         /// <inheritdoc/>
-        protected override void Save()
-        {
-            try
-            {
+        protected override void Save() {
+            try {
                 this.Preferences.LockedHistoryData.Clear();
                 this.Preferences.NormalHistoryData.Clear();
 
                 // Save locked items
-                foreach (var item in this.lockedItems)
-                {
-                    var serializableItem = new SerializableHistoryItem
-                    {
+                foreach (var item in this.lockedItems) {
+                    var serializableItem = new SerializableHistoryItem {
                         Name = item.Name,
                         TypeName = item.TypeName,
                         AssetPath = item.AssetPath,
@@ -159,12 +137,10 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
 
                 // Save normal items (respect max history size)
                 var normalCount = Math.Min(this.normalItems.Count, this.MaxHistorySize);
-                for (int i = 0; i < normalCount; i++)
-                {
+                for (int i = 0; i < normalCount; i++) {
                     var item = this.normalItems[this.normalItems.Count - normalCount + i]; // Take most recent items
 
-                    var serializableItem = new SerializableHistoryItem
-                    {
+                    var serializableItem = new SerializableHistoryItem {
                         Name = item.Name,
                         TypeName = item.TypeName,
                         AssetPath = item.AssetPath,
@@ -177,19 +153,15 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
                     this.Preferences.NormalHistoryData.Add(serializableItem);
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 Debug.LogWarning($"Failed to save selection history: {ex.Message}");
             }
         }
 
         /// <inheritdoc/>
-        protected override void Load()
-        {
-            try
-            {
-                if (this.Preferences.LockedHistoryData.Count == 0 && this.Preferences.NormalHistoryData.Count == 0)
-                {
+        protected override void Load() {
+            try {
+                if (this.Preferences.LockedHistoryData.Count == 0 && this.Preferences.NormalHistoryData.Count == 0) {
                     return;
                 }
 
@@ -197,67 +169,59 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
                 var allObjects = Resources.FindObjectsOfTypeAll<Object>().ToList();
 
                 // Load locked items
-                foreach (var item in this.Preferences.LockedHistoryData)
-                {
+                foreach (var item in this.Preferences.LockedHistoryData) {
                     GlobalObjectId.TryParse(item.GlobalIdString, out var savedGlobalId);
                     var obj = TryGetAssetIfLoaded(item.AssetPath, allObjects, pathCache);
                     var timestamp = DateTime.FromBinary(item.Timestamp);
                     GlobalObjectId.TryParse(item.Icon, out var iconId);
                     var icon = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(iconId) as Texture2D;
 
-                    var historyItem = new SelectionHistoryItem(obj, item.Name, item.TypeName, item.AssetPath, savedGlobalId, icon, timestamp, item.IsLocked);
+                    var historyItem = new SelectionHistoryItem(obj, item.Name, item.TypeName, item.AssetPath,
+                        savedGlobalId, icon, timestamp, item.IsLocked);
                     this.lockedItems.Add(historyItem);
                 }
 
                 // Load normal items
-                foreach (var item in this.Preferences.NormalHistoryData)
-                {
+                foreach (var item in this.Preferences.NormalHistoryData) {
                     GlobalObjectId.TryParse(item.GlobalIdString, out var savedGlobalId);
                     var obj = TryGetAssetIfLoaded(item.AssetPath, allObjects, pathCache);
                     var timestamp = DateTime.FromBinary(item.Timestamp);
                     GlobalObjectId.TryParse(item.Icon, out var iconId);
                     var icon = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(iconId) as Texture2D;
 
-                    var historyItem = new SelectionHistoryItem(obj, item.Name, item.TypeName, item.AssetPath, savedGlobalId, icon, timestamp, item.IsLocked);
+                    var historyItem = new SelectionHistoryItem(obj, item.Name, item.TypeName, item.AssetPath,
+                        savedGlobalId, icon, timestamp, item.IsLocked);
                     this.normalItems.Add(historyItem);
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 Debug.LogWarning($"Failed to load selection history: {ex.Message}");
             }
         }
 
-        private void OnSelectionChanged()
-        {
-            if (this.Disposed)
-            {
+        private void OnSelectionChanged() {
+            if (this.Disposed) {
                 return;
             }
 
             var objs = Selection.objects;
-            if (objs is { Length: > 1 })
-            {
+            if (objs is { Length: > 1 }) {
                 // If we are multi selecting, history is a confusing so just ignore it
                 return;
             }
 
             Object? activeObject = Selection.activeGameObject;
-            if (activeObject == null)
-            {
+            if (activeObject == null) {
                 activeObject = Selection.activeObject;
-                if (activeObject == null)
-                {
+                if (activeObject == null) {
                     return;
                 }
             }
 
             // Check if we should track scene objects
-            if (!this.Preferences.TrackSceneObjects)
-            {
+            if (!this.Preferences.TrackSceneObjects) {
                 var assetPath = AssetDatabase.GetAssetPath(activeObject);
-                if (string.IsNullOrEmpty(assetPath))
-                {
+                if (string.IsNullOrEmpty(assetPath)) {
                     // This is a scene object and we're not tracking scene objects, so skip it
                     return;
                 }
@@ -266,14 +230,12 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
             this.SelectObject(activeObject);
         }
 
-        private void SelectObject(Object activeObject)
-        {
+        private void SelectObject(Object activeObject) {
             var objectId = GlobalObjectId.GetGlobalObjectIdSlow(activeObject);
 
             // Check if this object is already in locked items - if so, don't move it
             var existingLockedItem = this.lockedItems.FirstOrDefault(item => item.GlobalId.Equals(objectId));
-            if (existingLockedItem != null)
-            {
+            if (existingLockedItem != null) {
                 // Object is locked, don't move it - but still notify to refresh visual state
                 this.NotifyItemsChanged();
                 return;
@@ -281,18 +243,15 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
 
             // Find existing entry in normal items
             var existingNormalIndex = -1;
-            for (int i = 0; i < this.normalItems.Count; i++)
-            {
-                if (this.normalItems[i].GlobalId.Equals(objectId))
-                {
+            for (int i = 0; i < this.normalItems.Count; i++) {
+                if (this.normalItems[i].GlobalId.Equals(objectId)) {
                     existingNormalIndex = i;
                     break;
                 }
             }
 
             // If found in normal items, remove it (it will be re-added at the end)
-            if (existingNormalIndex >= 0)
-            {
+            if (existingNormalIndex >= 0) {
                 this.normalItems.RemoveAt(existingNormalIndex);
             }
 
@@ -301,8 +260,7 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
             this.normalItems.Add(historyItem);
 
             // Trim normal history if it exceeds max size (locked items don't count against the limit)
-            while (this.normalItems.Count > this.MaxHistorySize)
-            {
+            while (this.normalItems.Count > this.MaxHistorySize) {
                 this.normalItems.RemoveAt(0);
             }
 

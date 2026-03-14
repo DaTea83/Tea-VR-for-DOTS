@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Jobs
-{
+namespace BovineLabs.Core.Jobs {
     using System;
     using Unity.Burst;
     using Unity.Collections;
@@ -26,16 +25,14 @@ namespace BovineLabs.Core.Jobs
     /// one after another on the worker threads.
     /// </summary>
     [JobProducerType(typeof(IJobParallelForDeferBatchExtensions.IJobParallelForDeferBatchProducer<>))]
-    public interface IJobParallelForDeferBatch
-    {
+    public interface IJobParallelForDeferBatch {
         void Execute(int startIndex, int count);
     }
 
     /// <summary>
     /// Extension class for the IJobParallelForDeferBatch job type providing custom overloads for scheduling and running.
     /// </summary>
-    public static class IJobParallelForDeferBatchExtensions
-    {
+    public static class IJobParallelForDeferBatchExtensions {
         /// <summary>
         /// Gathers and caches reflection data for the internal job system's managed bindings. Unity is responsible for calling this method - don't call it yourself.
         /// </summary>
@@ -47,8 +44,7 @@ namespace BovineLabs.Core.Jobs
         /// IJobParallelForDefer&amp;lt;MyJobType&amp;lt;T&amp;gt;&amp;gt;) manually for each specialization with [[Unity.Jobs.RegisterGenericJobTypeAttribute]].
         /// </remarks>
         public static void EarlyJobInit<T>()
-            where T : unmanaged, IJobParallelForDeferBatch
-        {
+            where T : unmanaged, IJobParallelForDeferBatch {
             IJobParallelForDeferBatchProducer<T>.Initialize();
         }
 
@@ -70,10 +66,12 @@ namespace BovineLabs.Core.Jobs
         /// <returns> JobHandle The handle identifying the scheduled job. Can be used as a dependency for a later job or ensure completion on the main thread. </returns>
         /// <typeparam name="T"> Job type </typeparam>
         /// <typeparam name="U"> List element type </typeparam>
-        public static unsafe JobHandle ScheduleParallel<T, U>(this T jobData, NativeList<U> list, int innerloopBatchCount, JobHandle dependsOn = default)
+        public static unsafe JobHandle ScheduleParallel<T, U>(this T jobData,
+            NativeList<U> list,
+            int innerloopBatchCount,
+            JobHandle dependsOn = default)
             where T : unmanaged, IJobParallelForDeferBatch
-            where U : unmanaged
-        {
+            where U : unmanaged {
             void* atomicSafetyHandlePtr = null;
             // Calculate the deferred atomic safety handle before constructing JobScheduleParameters so
             // DOTS Runtime can validate the deferred list statically similar to the reflection based
@@ -82,7 +80,8 @@ namespace BovineLabs.Core.Jobs
             var safety = NativeListUnsafeUtility.GetAtomicSafetyHandle(ref list);
             atomicSafetyHandlePtr = UnsafeUtility.AddressOf(ref safety);
 #endif
-            return ScheduleParallelBatchInternal(ref jobData, innerloopBatchCount, NativeListUnsafeUtility.GetInternalListDataPtrUnchecked(ref list),
+            return ScheduleParallelBatchInternal(ref jobData, innerloopBatchCount,
+                NativeListUnsafeUtility.GetInternalListDataPtrUnchecked(ref list),
                 atomicSafetyHandlePtr, dependsOn);
         }
 
@@ -104,10 +103,12 @@ namespace BovineLabs.Core.Jobs
         /// <returns> JobHandle The handle identifying the scheduled job. Can be used as a dependency for a later job or ensure completion on the main thread. </returns>
         /// <typeparam name="T"> Job type. </typeparam>
         /// <typeparam name="TU"> List element type. </typeparam>
-        public static unsafe JobHandle Schedule<T, TU>(this T jobData, NativeList<TU> list, int innerloopBatchCount, JobHandle dependsOn = default)
+        public static unsafe JobHandle Schedule<T, TU>(this T jobData,
+            NativeList<TU> list,
+            int innerloopBatchCount,
+            JobHandle dependsOn = default)
             where T : unmanaged, IJobParallelForDeferBatch
-            where TU : unmanaged
-        {
+            where TU : unmanaged {
             // ReSharper disable once RedundantAssignment
             void* atomicSafetyHandlePtr = null;
 
@@ -118,7 +119,8 @@ namespace BovineLabs.Core.Jobs
             var safety = NativeListUnsafeUtility.GetAtomicSafetyHandle(ref list);
             atomicSafetyHandlePtr = UnsafeUtility.AddressOf(ref safety);
 #endif
-            return ScheduleBatchInternal(ref jobData, innerloopBatchCount, NativeListUnsafeUtility.GetInternalListDataPtrUnchecked(ref list),
+            return ScheduleBatchInternal(ref jobData, innerloopBatchCount,
+                NativeListUnsafeUtility.GetInternalListDataPtrUnchecked(ref list),
                 atomicSafetyHandlePtr, dependsOn);
         }
 
@@ -144,10 +146,12 @@ namespace BovineLabs.Core.Jobs
         /// <typeparam name="T"> Job type </typeparam>
         /// <typeparam name="U"> List element type </typeparam>
         public static unsafe JobHandle ScheduleParallelByRef<T, U>(
-            this ref T jobData, NativeList<U> list, int innerloopBatchCount, JobHandle dependsOn = default)
+            this ref T jobData,
+            NativeList<U> list,
+            int innerloopBatchCount,
+            JobHandle dependsOn = default)
             where T : unmanaged, IJobParallelForDeferBatch
-            where U : unmanaged
-        {
+            where U : unmanaged {
             void* atomicSafetyHandlePtr = null;
             // Calculate the deferred atomic safety handle before constructing JobScheduleParameters so
             // DOTS Runtime can validate the deferred list statically similar to the reflection based
@@ -156,7 +160,8 @@ namespace BovineLabs.Core.Jobs
             var safety = NativeListUnsafeUtility.GetAtomicSafetyHandle(ref list);
             atomicSafetyHandlePtr = UnsafeUtility.AddressOf(ref safety);
 #endif
-            return ScheduleParallelBatchInternal(ref jobData, innerloopBatchCount, NativeListUnsafeUtility.GetInternalListDataPtrUnchecked(ref list),
+            return ScheduleParallelBatchInternal(ref jobData, innerloopBatchCount,
+                NativeListUnsafeUtility.GetInternalListDataPtrUnchecked(ref list),
                 atomicSafetyHandlePtr, dependsOn);
         }
 
@@ -178,17 +183,21 @@ namespace BovineLabs.Core.Jobs
         /// <returns> JobHandle The handle identifying the scheduled job. Can be used as a dependency for a later job or ensure completion on the main thread. </returns>
         /// <typeparam name="T"> Job type </typeparam>
         /// <returns> </returns>
-        public static unsafe JobHandle ScheduleParallel<T>(this T jobData, int* forEachCount, int innerloopBatchCount, JobHandle dependsOn = default)
-            where T : unmanaged, IJobParallelForDeferBatch
-        {
+        public static unsafe JobHandle ScheduleParallel<T>(this T jobData,
+            int* forEachCount,
+            int innerloopBatchCount,
+            JobHandle dependsOn = default)
+            where T : unmanaged, IJobParallelForDeferBatch {
             var forEachListPtr = (byte*)forEachCount - sizeof(void*);
             return ScheduleParallelBatchInternal(ref jobData, innerloopBatchCount, forEachListPtr, null, dependsOn);
         }
 
         public static unsafe JobHandle ScheduleParallel<T>(
-            this T jobData, NativeReference<int> forEachCount, int innerloopBatchCount, JobHandle dependsOn = default)
-            where T : unmanaged, IJobParallelForDeferBatch
-        {
+            this T jobData,
+            NativeReference<int> forEachCount,
+            int innerloopBatchCount,
+            JobHandle dependsOn = default)
+            where T : unmanaged, IJobParallelForDeferBatch {
             var forEachListPtr = (byte*)forEachCount.GetUnsafePtrWithoutChecks() - sizeof(void*);
             return ScheduleParallelBatchInternal(ref jobData, innerloopBatchCount, forEachListPtr, null, dependsOn);
         }
@@ -214,62 +223,79 @@ namespace BovineLabs.Core.Jobs
         /// <returns> JobHandle The handle identifying the scheduled job. Can be used as a dependency for a later job or ensure completion on the main thread. </returns>
         /// <typeparam name="T"> </typeparam>
         /// <returns> </returns>
-        public static unsafe JobHandle ScheduleParallelByRef<T>(this ref T jobData, int* forEachCount, int innerloopBatchCount, JobHandle dependsOn = default)
-            where T : unmanaged, IJobParallelForDeferBatch
-        {
+        public static unsafe JobHandle ScheduleParallelByRef<T>(this ref T jobData,
+            int* forEachCount,
+            int innerloopBatchCount,
+            JobHandle dependsOn = default)
+            where T : unmanaged, IJobParallelForDeferBatch {
             var forEachListPtr = (byte*)forEachCount - sizeof(void*);
             return ScheduleParallelBatchInternal(ref jobData, innerloopBatchCount, forEachListPtr, null, dependsOn);
         }
 
         private static unsafe JobHandle ScheduleParallelBatchInternal<T>(
-            ref T jobData, int innerloopBatchCount, void* forEachListPtr, void* atomicSafetyHandlePtr, JobHandle dependsOn)
-            where T : unmanaged, IJobParallelForDeferBatch
-        {
+            ref T jobData,
+            int innerloopBatchCount,
+            void* forEachListPtr,
+            void* atomicSafetyHandlePtr,
+            JobHandle dependsOn)
+            where T : unmanaged, IJobParallelForDeferBatch {
             IJobParallelForDeferBatchProducer<T>.Initialize();
             var reflectionData = IJobParallelForDeferBatchProducer<T>.JobReflectionData.Data;
             CollectionHelper.CheckReflectionDataCorrect<T>(reflectionData);
-            var scheduleParams = new JobsUtility.JobScheduleParameters(UnsafeUtility.AddressOf(ref jobData), reflectionData, dependsOn, ScheduleMode.Parallel);
-            return JobsUtility.ScheduleParallelForDeferArraySize(ref scheduleParams, innerloopBatchCount, forEachListPtr, atomicSafetyHandlePtr);
+            var scheduleParams = new JobsUtility.JobScheduleParameters(UnsafeUtility.AddressOf(ref jobData),
+                reflectionData, dependsOn, ScheduleMode.Parallel);
+            return JobsUtility.ScheduleParallelForDeferArraySize(ref scheduleParams, innerloopBatchCount,
+                forEachListPtr, atomicSafetyHandlePtr);
         }
 
         private static unsafe JobHandle ScheduleBatchInternal<T>(
-            ref T jobData, int innerloopBatchCount, void* forEachListPtr, void* atomicSafetyHandlePtr, JobHandle dependsOn)
-            where T : unmanaged, IJobParallelForDeferBatch
-        {
+            ref T jobData,
+            int innerloopBatchCount,
+            void* forEachListPtr,
+            void* atomicSafetyHandlePtr,
+            JobHandle dependsOn)
+            where T : unmanaged, IJobParallelForDeferBatch {
             IJobParallelForDeferBatchProducer<T>.Initialize();
             var reflectionData = IJobParallelForDeferBatchProducer<T>.JobReflectionData.Data;
             CollectionHelper.CheckReflectionDataCorrect<T>(reflectionData);
-            var scheduleParams = new JobsUtility.JobScheduleParameters(UnsafeUtility.AddressOf(ref jobData), reflectionData, dependsOn, ScheduleMode.Single);
-            return JobsUtility.ScheduleParallelForDeferArraySize(ref scheduleParams, innerloopBatchCount, forEachListPtr, atomicSafetyHandlePtr);
+            var scheduleParams = new JobsUtility.JobScheduleParameters(UnsafeUtility.AddressOf(ref jobData),
+                reflectionData, dependsOn, ScheduleMode.Single);
+            return JobsUtility.ScheduleParallelForDeferArraySize(ref scheduleParams, innerloopBatchCount,
+                forEachListPtr, atomicSafetyHandlePtr);
         }
 
         internal struct IJobParallelForDeferBatchProducer<T>
-            where T : unmanaged, IJobParallelForDeferBatch
-        {
-            internal static readonly SharedStatic<IntPtr> JobReflectionData = SharedStatic<IntPtr>.GetOrCreate<IJobParallelForDeferBatchProducer<T>>();
+            where T : unmanaged, IJobParallelForDeferBatch {
+            internal static readonly SharedStatic<IntPtr> JobReflectionData =
+                SharedStatic<IntPtr>.GetOrCreate<IJobParallelForDeferBatchProducer<T>>();
 
             [BurstDiscard]
-            internal static void Initialize()
-            {
-                if (JobReflectionData.Data == IntPtr.Zero)
-                {
-                    JobReflectionData.Data = JobsUtility.CreateJobReflectionData(typeof(T), (ExecuteJobFunction)Execute);
+            internal static void Initialize() {
+                if (JobReflectionData.Data == IntPtr.Zero) {
+                    JobReflectionData.Data =
+                        JobsUtility.CreateJobReflectionData(typeof(T), (ExecuteJobFunction)Execute);
                 }
             }
 
-            public delegate void ExecuteJobFunction(ref T jobData, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
+            public delegate void ExecuteJobFunction(ref T jobData,
+                IntPtr additionalPtr,
+                IntPtr bufferRangePatchData,
+                ref JobRanges ranges,
+                int jobIndex);
 
-            public static unsafe void Execute(ref T jobData, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex)
-            {
-                while (true)
-                {
-                    if (!JobsUtility.GetWorkStealingRange(ref ranges, jobIndex, out var begin, out var end))
-                    {
+            public static unsafe void Execute(ref T jobData,
+                IntPtr additionalPtr,
+                IntPtr bufferRangePatchData,
+                ref JobRanges ranges,
+                int jobIndex) {
+                while (true) {
+                    if (!JobsUtility.GetWorkStealingRange(ref ranges, jobIndex, out var begin, out var end)) {
                         break;
                     }
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-                    JobsUtility.PatchBufferMinMaxRanges(bufferRangePatchData, UnsafeUtility.AddressOf(ref jobData), begin, end - begin);
+                    JobsUtility.PatchBufferMinMaxRanges(bufferRangePatchData, UnsafeUtility.AddressOf(ref jobData),
+                        begin, end - begin);
 #endif
 
                     jobData.Execute(begin, end - begin);

@@ -3,26 +3,22 @@ using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 
-namespace TeaFramework
-{
+namespace TeaFramework {
     [AddComponentMenu("Tea Framework/Tags/Camera Tag")]
-    public sealed class CameraTagAuthoring : MonoBehaviour
-    {
-        private class CameraTagBaker : Baker<CameraTagAuthoring>
-        {
-            public override void Bake(CameraTagAuthoring authoring)
-            {
+    public sealed class CameraTagAuthoring : MonoBehaviour {
+        private class CameraTagBaker : Baker<CameraTagAuthoring> {
+            public override void Bake(CameraTagAuthoring authoring) {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent<CameraISingletonTag>(entity);
                 AddComponent<InitializeCameraTargetITag>(entity);
             }
         }
     }
-    
+
     public struct CameraISingletonTag : IComponentData { }
-    
+
     public struct InitializeCameraTargetITag : IComponentData { }
-    
+
     /// <summary>
     /// Find any entity with the InitializeTag that doesn't have CameraTargetIData
     /// Add the IData component
@@ -30,23 +26,18 @@ namespace TeaFramework
     /// Remove the InitializeTag
     /// </summary>
     [UpdateInGroup(typeof(Tea_InitializationSystemGroup))]
-    public partial struct InitializeCameraTargetISystem : ISystem
-    {
-        public void OnUpdate(ref SystemState state)
-        {
+    public partial struct InitializeCameraTargetISystem : ISystem {
+        public void OnUpdate(ref SystemState state) {
             if (CameraController.Instance is null || Camera.main is null) return;
             var camTargetTransform = CameraController.Instance.transform;
 
             var ecb = new EntityCommandBuffer(state.WorldUpdateAllocator);
 
-            foreach (var (_, entity) 
+            foreach (var (_, entity)
                      in SystemAPI.Query<RefRO<InitializeCameraTargetITag>>()
-                         .WithNone<ObjTransformIData>().WithEntityAccess())
-            {
-                ecb.AddComponent(entity, new ObjTransformIData
-                {
-                    Transform = new UnityObjectRef<Transform>
-                    {
+                         .WithNone<ObjTransformIData>().WithEntityAccess()) {
+                ecb.AddComponent(entity, new ObjTransformIData {
+                    Transform = new UnityObjectRef<Transform> {
                         Value = camTargetTransform
                     },
                     Offset = float3.zero,
@@ -54,23 +45,24 @@ namespace TeaFramework
                 });
                 ecb.RemoveComponent<InitializeCameraTargetITag>(entity);
             }
+
             ecb.Playback(state.EntityManager);
         }
     }
-    
+
 #if UNITY_EDITOR
-    
+
     [CustomEditor(typeof(CameraTagAuthoring))]
-    public class CameraTagEditor : Editor
-    {
-        public override void OnInspectorGUI()
-        {
+    public class CameraTagEditor : Editor {
+        public override void OnInspectorGUI() {
             EditorGUILayout.HelpBox("Don't put this in the camera", MessageType.Warning);
             EditorGUILayout.HelpBox("For camera use CameraTrackerController", MessageType.Warning);
-            EditorGUILayout.HelpBox("This is used for the camera to track the attached entity's transform", MessageType.Info);
-            EditorGUILayout.HelpBox("Make sure only have a single entity have this component in any given runtime!!!", MessageType.Warning);
+            EditorGUILayout.HelpBox("This is used for the camera to track the attached entity's transform",
+                MessageType.Info);
+            EditorGUILayout.HelpBox("Make sure only have a single entity have this component in any given runtime!!!",
+                MessageType.Warning);
         }
     }
-    
-#endif    
+
+#endif
 }

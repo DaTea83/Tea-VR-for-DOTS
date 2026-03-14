@@ -2,22 +2,17 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Extensions
-{
+namespace BovineLabs.Core.Extensions {
     using System;
     using System.Collections.Generic;
 
-    public static class EnumerableExtensions
-    {
+    public static class EnumerableExtensions {
         public static int IndexOf<T>(this IEnumerable<T> e, T value)
-            where T : IEquatable<T>
-        {
+            where T : IEquatable<T> {
             var index = 0;
 
-            foreach (var t in e)
-            {
-                if (t.Equals(value))
-                {
+            foreach (var t in e) {
+                if (t.Equals(value)) {
                     return index;
                 }
 
@@ -27,14 +22,11 @@ namespace BovineLabs.Core.Extensions
             return -1;
         }
 
-        public static int IndexOf<T>(this IEnumerable<T> e, Func<T, bool> predicate)
-        {
+        public static int IndexOf<T>(this IEnumerable<T> e, Func<T, bool> predicate) {
             var index = 0;
 
-            foreach (var t in e)
-            {
-                if (predicate.Invoke(t))
-                {
+            foreach (var t in e) {
+                if (predicate.Invoke(t)) {
                     return index;
                 }
 

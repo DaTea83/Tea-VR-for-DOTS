@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Internal
-{
+namespace BovineLabs.Core.Editor.Internal {
     using BovineLabs.Core.Internal;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
@@ -11,11 +10,9 @@ namespace BovineLabs.Core.Editor.Internal
     using UnityEditor;
     using UnityEngine;
 
-    public static class UnityObjectRefExtensions
-    {
+    public static class UnityObjectRefExtensions {
         public static UntypedWeakReferenceId ToUntypedWeakReferenceId<T>(this UnityObjectRef<T> unityObjectRef)
-            where T : Object
-        {
+            where T : Object {
 #if UNITY_6000_3_OR_NEWER
             var guid = GlobalObjectId.GetGlobalObjectIdSlow((EntityId)unityObjectRef.GetInstanceId());
 #else

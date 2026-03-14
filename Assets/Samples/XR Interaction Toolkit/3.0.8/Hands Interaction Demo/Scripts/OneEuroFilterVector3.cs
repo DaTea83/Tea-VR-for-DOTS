@@ -1,7 +1,6 @@
 using UnityEngine.XR.Interaction.Toolkit.Utilities;
 
-namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
-{
+namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands {
     /// <summary>
     /// Provides a means to smooth jittery <see cref="Vector3"/> signals.
     /// This filter is particularly effective for small and rapid movements,
@@ -20,8 +19,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
     /// </item>
     /// </list>
     /// </remarks>
-    public class OneEuroFilterVector3
-    {
+    public class OneEuroFilterVector3 {
         Vector3 m_LastRawValue;
         Vector3 m_LastFilteredValue;
         readonly float m_MinCutoff;
@@ -57,8 +55,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// </list>
         /// </remarks>
         /// <seealso cref="Initialize"/>
-        public OneEuroFilterVector3(Vector3 initialRawValue, float minCutoff = 0.1f, float beta = 0.02f)
-        {
+        public OneEuroFilterVector3(Vector3 initialRawValue, float minCutoff = 0.1f, float beta = 0.02f) {
             m_LastRawValue = initialRawValue;
             m_LastFilteredValue = initialRawValue;
             m_MinCutoff = minCutoff;
@@ -69,8 +66,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// Resets the initial raw value. Useful to recover from tracking loss.
         /// </summary>
         /// <param name="initialRawValue">Raw value to reset filtering basis to.</param>
-        public void Initialize(Vector3 initialRawValue)
-        {
+        public void Initialize(Vector3 initialRawValue) {
             m_LastRawValue = initialRawValue;
             m_LastFilteredValue = initialRawValue;
         }
@@ -81,8 +77,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <param name="rawValue">The raw <see cref="Vector3"/> value to be filtered.</param>
         /// <param name="deltaTime">The time since the last filter update.</param>
         /// <returns>The filtered <see cref="Vector3"/> value.</returns>
-        public Vector3 Filter(Vector3 rawValue, float deltaTime)
-        {
+        public Vector3 Filter(Vector3 rawValue, float deltaTime) {
             return Filter(rawValue, deltaTime, m_MinCutoff, m_Beta);
         }
 
@@ -96,8 +91,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.Hands
         /// <param name="minCutoff">The minimum cutoff value for the filter. Influences the amount of smoothing at low speeds.</param>
         /// <param name="beta">Determines the filter's adjustment to speed changes, influencing its responsiveness.</param>
         /// <returns>The filtered <see cref="Vector3"/> value.</returns>
-        public Vector3 Filter(Vector3 rawValue, float deltaTime, float minCutoff, float beta)
-        {
+        public Vector3 Filter(Vector3 rawValue, float deltaTime, float minCutoff, float beta) {
             // Calculate speed as a Vector3
             Vector3 speed = (rawValue - m_LastRawValue) / deltaTime;
 

@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Tests.Collections.ThreadStream
-{
+namespace BovineLabs.Core.Tests.Collections.ThreadStream {
     using System;
     using BovineLabs.Core.Collections;
     using BovineLabs.Testing;
@@ -11,15 +10,12 @@ namespace BovineLabs.Core.Tests.Collections.ThreadStream
     using Unity.Collections;
     using Unity.Jobs.LowLevel.Unsafe;
 
-    internal partial class NativeThreadStreamTests
-    {
-        internal class Reader : ECSTestsFixture
-        {
+    internal partial class NativeThreadStreamTests {
+        internal class Reader : ECSTestsFixture {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             /// <summary> Ensures that reading with begin throws an exception. </summary>
             [Test]
-            public void ReadWithoutBeginThrows()
-            {
+            public void ReadWithoutBeginThrows() {
                 var stream = new NativeThreadStream(Allocator.Temp);
                 stream.AsWriter().Write(0);
 
@@ -29,8 +25,7 @@ namespace BovineLabs.Core.Tests.Collections.ThreadStream
 
             /// <summary> Ensures that begin reading out of range throws an exception. </summary>
             [Test]
-            public void BeginOutOfRangeThrows()
-            {
+            public void BeginOutOfRangeThrows() {
                 var stream = new NativeThreadStream(Allocator.Temp);
 
                 var reader = stream.AsReader();
@@ -41,8 +36,7 @@ namespace BovineLabs.Core.Tests.Collections.ThreadStream
 
             /// <summary> Ensures reading past the end throws an exception. </summary>
             [Test]
-            public void TooManyReadsThrows()
-            {
+            public void TooManyReadsThrows() {
                 var stream = new NativeThreadStream(Allocator.Temp);
                 stream.AsWriter().Write(0);
 

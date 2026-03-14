@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.ObjectManagement
-{
+namespace BovineLabs.Core.ObjectManagement {
     using System;
     using System.IO;
     using BovineLabs.Core.Extensions;
@@ -28,24 +27,29 @@ namespace BovineLabs.Core.ObjectManagement
     /// </code>
     /// </example>
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class AutoRefAttribute : Attribute
-    {
+    public class AutoRefAttribute : Attribute {
         public AutoRefAttribute(string managerType, string fieldName)
-            : this(managerType, fieldName, null, null, null, false)
-        {
+            : this(managerType, fieldName, null, null, null, false) {
             this.ManagerType = managerType;
             this.FieldName = fieldName;
         }
 
-        public AutoRefAttribute(string managerType, string fieldName, string key, string subDirectory, bool createNull = true)
-            : this(managerType, fieldName, NameToDirectory(key), Path.Combine("Assets/Settings/", subDirectory), $"{key.FirstCharToUpper()}.asset",
-                createNull)
-        {
-        }
+        public AutoRefAttribute(string managerType,
+            string fieldName,
+            string key,
+            string subDirectory,
+            bool createNull = true)
+            : this(managerType, fieldName, NameToDirectory(key), Path.Combine("Assets/Settings/", subDirectory),
+                $"{key.FirstCharToUpper()}.asset",
+                createNull) { }
 
         public AutoRefAttribute(
-            string managerType, string fieldName, string directoryKey, string defaultDirectory, string defaultFileName, bool createNull = true)
-        {
+            string managerType,
+            string fieldName,
+            string directoryKey,
+            string defaultDirectory,
+            string defaultFileName,
+            bool createNull = true) {
             this.ManagerType = managerType;
             this.FieldName = fieldName;
 

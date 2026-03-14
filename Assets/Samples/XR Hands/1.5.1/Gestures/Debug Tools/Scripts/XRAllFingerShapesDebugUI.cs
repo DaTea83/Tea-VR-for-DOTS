@@ -1,19 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine.XR.Hands.Gestures;
 
-namespace UnityEngine.XR.Hands.Samples.Gestures.DebugTools
-{
+namespace UnityEngine.XR.Hands.Samples.Gestures.DebugTools {
     /// <summary>
     /// Controls the debug UI for finger state values by setting that values in each <see cref="XRFingerStateDebugUI"/>.
     /// </summary>
-    public class XRAllFingerShapesDebugUI : MonoBehaviour
-    {
-        [SerializeField]
-        [Tooltip("The handedness to get the finger states for.")]
+    public class XRAllFingerShapesDebugUI : MonoBehaviour {
+        [SerializeField] [Tooltip("The handedness to get the finger states for.")]
         Handedness m_Handedness;
 
-        [SerializeField]
-        [Tooltip("The five debugs graphs for each finger in the order of Thumb to Little.")]
+        [SerializeField] [Tooltip("The five debugs graphs for each finger in the order of Thumb to Little.")]
         XRFingerShapeDebugUI[] m_XRFingerShapeDebugGraphs = new XRFingerShapeDebugUI[5];
 
         XRFingerShape[] m_XRFingerShapes;
@@ -25,11 +21,10 @@ namespace UnityEngine.XR.Hands.Samples.Gestures.DebugTools
         /// </summary>
         public XRFingerShapeDebugUI[] xrFingerShapeDebugGraphs => m_XRFingerShapeDebugGraphs;
 
-        void Start()
-        {
-            if (m_Handedness == Handedness.Invalid)
-            {
-                Debug.LogWarning($"The Handedness property of { GetType() } is set to Invalid and will default to Right.", this);
+        void Start() {
+            if (m_Handedness == Handedness.Invalid) {
+                Debug.LogWarning($"The Handedness property of {GetType()} is set to Invalid and will default to Right.",
+                    this);
                 m_Handedness = Handedness.Right;
             }
 
@@ -37,14 +32,12 @@ namespace UnityEngine.XR.Hands.Samples.Gestures.DebugTools
             UpdateFingerNames();
         }
 
-        void UpdateFingerNames()
-        {
+        void UpdateFingerNames() {
             for (var i = 0; i < m_XRFingerShapeDebugGraphs.Length; i++)
                 m_XRFingerShapeDebugGraphs[i].SetFingerName(((XRHandFingerID)i).ToString());
         }
 
-        void Update()
-        {
+        void Update() {
             var subsystem = TryGetSubsystem();
             if (subsystem == null)
                 return;
@@ -52,20 +45,17 @@ namespace UnityEngine.XR.Hands.Samples.Gestures.DebugTools
             var hand = m_Handedness == Handedness.Left ? subsystem.leftHand : subsystem.rightHand;
             for (var fingerIndex = (int)XRHandFingerID.Thumb;
                  fingerIndex <= (int)XRHandFingerID.Little;
-                 ++fingerIndex)
-            {
+                 ++fingerIndex) {
                 m_XRFingerShapes[fingerIndex] = hand.CalculateFingerShape(
                     (XRHandFingerID)fingerIndex, XRFingerShapeTypes.All);
                 UpdateFingerShapeUIs(fingerIndex);
             }
         }
 
-        void UpdateFingerShapeUIs(int fingerIndex)
-        {
+        void UpdateFingerShapeUIs(int fingerIndex) {
             var graph = m_XRFingerShapeDebugGraphs[fingerIndex];
             var shapes = m_XRFingerShapes[fingerIndex];
-            for (var i = 0; i < m_XRFingerShapeDebugGraphs.Length; i++)
-            {
+            for (var i = 0; i < m_XRFingerShapeDebugGraphs.Length; i++) {
                 if (shapes.TryGetFullCurl(out var fullCurl))
                     graph.SetFingerShape((int)XRFingerShapeType.FullCurl, fullCurl);
                 else
@@ -93,8 +83,7 @@ namespace UnityEngine.XR.Hands.Samples.Gestures.DebugTools
             }
         }
 
-        static XRHandSubsystem TryGetSubsystem()
-        {
+        static XRHandSubsystem TryGetSubsystem() {
             SubsystemManager.GetSubsystems(s_SubsystemsReuse);
             return s_SubsystemsReuse.Count > 0 ? s_SubsystemsReuse[0] : null;
         }

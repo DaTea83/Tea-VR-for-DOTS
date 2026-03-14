@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Extensions
-{
+namespace BovineLabs.Core.Extensions {
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -14,8 +13,7 @@ namespace BovineLabs.Core.Extensions
     /// <summary>
     /// Extensions for Native Containers.
     /// </summary>
-    public static class ListExtensions
-    {
+    public static class ListExtensions {
         /// <summary>
         /// Adds a native version of <see cref="List{T}.AddRange(IEnumerable{T})" />.
         /// </summary>
@@ -23,8 +21,7 @@ namespace BovineLabs.Core.Extensions
         /// <param name="list"> The <see cref="List{T}" /> to add to. </param>
         /// <param name="array"> The native array to add to the list. </param>
         public static void AddRangeNative<T>(this List<T> list, NativeArray<T> array)
-            where T : struct
-        {
+            where T : struct {
             AddRangeNative(list, array, array.Length);
         }
 
@@ -36,8 +33,7 @@ namespace BovineLabs.Core.Extensions
         /// <param name="array"> The array to add to the list. </param>
         /// <param name="length"> The length of the array to add to the list. </param>
         public static unsafe void AddRangeNative<T>(this List<T> list, NativeArray<T> array, int length)
-            where T : struct
-        {
+            where T : struct {
             list.AddRangeNative(array.GetUnsafeReadOnlyPtr(), length);
         }
 
@@ -48,8 +44,7 @@ namespace BovineLabs.Core.Extensions
         /// <param name="list"> The <see cref="List{T}" /> to add to. </param>
         /// <param name="nativeSlice"> The array to add to the list. </param>
         public static unsafe void AddRangeNative<T>(this List<T> list, NativeSlice<T> nativeSlice)
-            where T : struct
-        {
+            where T : struct {
             list.AddRangeNative(nativeSlice.GetUnsafeReadOnlyPtr(), nativeSlice.Length);
         }
 
@@ -61,10 +56,8 @@ namespace BovineLabs.Core.Extensions
         /// <param name="arrayBuffer"> The Buffer to add from. </param>
         /// <param name="length"> The length of the Buffer. </param>
         public static unsafe void AddRangeNative<T>(this List<T> list, void* arrayBuffer, int length)
-            where T : struct
-        {
-            if (length == 0)
-            {
+            where T : struct {
+            if (length == 0) {
                 return;
             }
 
@@ -72,8 +65,7 @@ namespace BovineLabs.Core.Extensions
             var newLength = index + length;
 
             // Resize our list if we require
-            if (list.Capacity < newLength)
-            {
+            if (list.Capacity < newLength) {
                 list.Capacity = newLength;
             }
 
@@ -89,24 +81,19 @@ namespace BovineLabs.Core.Extensions
             NoAllocHelpers.ResizeList(list, newLength);
         }
 
-        public static void ClearAddRange<T>(this List<T> list, IEnumerable<T> range)
-        {
+        public static void ClearAddRange<T>(this List<T> list, IEnumerable<T> range) {
             list.Clear();
             list.AddRange(range);
         }
 
-        public static void Resize<T>(this List<T> list, int size, T element)
-        {
+        public static void Resize<T>(this List<T> list, int size, T element) {
             var count = list.Count;
 
-            if (size < count)
-            {
+            if (size < count) {
                 list.RemoveRange(size, count - size);
             }
-            else if (size > count)
-            {
-                if (size > list.Capacity)
-                {
+            else if (size > count) {
+                if (size > list.Capacity) {
                     list.Capacity = size;
                 }
 

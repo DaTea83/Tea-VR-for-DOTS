@@ -1,11 +1,7 @@
 ﻿using EugeneC.Singleton;
 using UnityEngine;
 
-namespace VRForDOTS.Core
-{
+namespace VRForDOTS.Core {
     [DisallowMultipleComponent]
-    public sealed class Bootstrap : GenericSingleton<Bootstrap>
-    {
-        
-    }
+    public sealed class Bootstrap : GenericSingleton<Bootstrap> { }
 }

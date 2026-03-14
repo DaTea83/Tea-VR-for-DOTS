@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Settings
-{
+namespace BovineLabs.Core.Editor.Settings {
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -18,8 +17,7 @@ namespace BovineLabs.Core.Editor.Settings
     using Object = UnityEngine.Object;
 
     /// <summary> Utility for setting up and getting settings. </summary>
-    public static class EditorSettingsUtility
-    {
+    public static class EditorSettingsUtility {
         private static readonly Dictionary<Type, ISettings> CachedSettings = new();
 
         /// <summary> Gets a settings file. Create if it doesn't exist and ensures it is setup properly. </summary>
@@ -27,8 +25,7 @@ namespace BovineLabs.Core.Editor.Settings
         /// <returns> The settings instance. </returns>
         /// <exception cref="Exception"> Thrown if more than 1 instance found in project. </exception>
         public static T GetSettings<T>()
-            where T : ScriptableObject, ISettings
-        {
+            where T : ScriptableObject, ISettings {
             var type = typeof(T);
             return (T)GetSettings(type);
         }
@@ -37,10 +34,8 @@ namespace BovineLabs.Core.Editor.Settings
         /// <param name="type"> The type. </param>
         /// <returns> The settings instance. </returns>
         /// <exception cref="Exception"> Thrown if more than 1 instance found in project. </exception>
-        public static ISettings GetSettings(Type type)
-        {
-            if (CachedSettings.TryGetValue(type, out var cached) && cached != null)
-            {
+        public static ISettings GetSettings(Type type) {
+            if (CachedSettings.TryGetValue(type, out var cached) && cached != null) {
                 return cached;
             }
 
@@ -54,8 +49,7 @@ namespace BovineLabs.Core.Editor.Settings
         /// <typeparam name="T"> The settings type. </typeparam>
         /// <returns> True if settings is created. </returns>
         /// <exception cref="Exception"> Thrown if more than 1 instance found in project. </exception>
-        public static bool TryGetSettings<T>(out T? settings)
-        {
+        public static bool TryGetSettings<T>(out T? settings) {
             var type = typeof(T);
             var result = TryGetSettings(type, out var settingsUntyped);
             settings = (T?)settingsUntyped;
@@ -67,16 +61,13 @@ namespace BovineLabs.Core.Editor.Settings
         /// <param name="settings"> The settings if found. </param>
         /// <returns> True if settings is created. </returns>
         /// <exception cref="Exception"> Thrown if more than 1 instance found in project. </exception>
-        public static bool TryGetSettings(Type type, out ISettings? settings)
-        {
-            if (CachedSettings.TryGetValue(type, out settings) && settings != null)
-            {
+        public static bool TryGetSettings(Type type, out ISettings? settings) {
+            if (CachedSettings.TryGetValue(type, out settings) && settings != null) {
                 return true;
             }
 
             settings = GetOrCreateSettings(type, false);
-            if (settings == null)
-            {
+            if (settings == null) {
                 return false;
             }
 
@@ -85,27 +76,25 @@ namespace BovineLabs.Core.Editor.Settings
         }
 
         // Can only be null if allowCreate is false
-        public static string? GetAssetDirectory(string key, string defaultDirectory, string subDirectory = "", bool allowCreate = true)
-        {
+        public static string? GetAssetDirectory(string key,
+            string defaultDirectory,
+            string subDirectory = "",
+            bool allowCreate = true) {
             GetEditorSettings()?.GetOrAddPath(key, ref defaultDirectory);
 
-            if (!string.IsNullOrWhiteSpace(subDirectory))
-            {
+            if (!string.IsNullOrWhiteSpace(subDirectory)) {
                 defaultDirectory = Path.Combine(defaultDirectory, subDirectory);
             }
 
-            if (!AssetDatabaseHelper.CheckOrCreateDirectories(ref defaultDirectory, allowCreate))
-            {
+            if (!AssetDatabaseHelper.CheckOrCreateDirectories(ref defaultDirectory, allowCreate)) {
                 return null;
             }
 
             return defaultDirectory;
         }
 
-        public static void AddSettingsToAuthoring(EditorSettings editorSettings, SettingsBase settingsBase)
-        {
-            if (!editorSettings.DefaultSettingsAuthoring)
-            {
+        public static void AddSettingsToAuthoring(EditorSettings editorSettings, SettingsBase settingsBase) {
+            if (!editorSettings.DefaultSettingsAuthoring) {
                 return;
             }
 
@@ -113,29 +102,23 @@ namespace BovineLabs.Core.Editor.Settings
 
             var authorings = new HashSet<SettingsAuthoring>();
 
-            if (worlds == null)
-            {
+            if (worlds == null) {
                 authorings.Add(editorSettings.DefaultSettingsAuthoring);
             }
-            else
-            {
+            else {
                 var any = false;
 
-                foreach (var world in worlds)
-                {
+                foreach (var world in worlds) {
                     SettingsAuthoring? authoring;
 
-                    if (string.IsNullOrWhiteSpace(world))
-                    {
+                    if (string.IsNullOrWhiteSpace(world)) {
                         authoring = editorSettings.DefaultSettingsAuthoring;
                     }
-                    else
-                    {
+                    else {
                         editorSettings.TryGetAuthoring(world, out authoring);
                     }
 
-                    if (!authoring)
-                    {
+                    if (!authoring) {
                         continue;
                     }
 
@@ -144,23 +127,19 @@ namespace BovineLabs.Core.Editor.Settings
                 }
 
                 // If no matches, then just pass to default
-                if (!any)
-                {
+                if (!any) {
                     authorings.Add(editorSettings.DefaultSettingsAuthoring);
                 }
             }
 
-            foreach (var authoring in authorings)
-            {
+            foreach (var authoring in authorings) {
                 var so = new SerializedObject(authoring);
                 var settingsProperty = so.FindProperty("settings");
 
                 // Clear up null references
-                for (var index = settingsProperty.arraySize - 1; index >= 0; index--)
-                {
+                for (var index = settingsProperty.arraySize - 1; index >= 0; index--) {
                     var element = settingsProperty.GetArrayElementAtIndex(index);
-                    if (element.objectReferenceValue)
-                    {
+                    if (element.objectReferenceValue) {
                         continue;
                     }
 
@@ -168,11 +147,9 @@ namespace BovineLabs.Core.Editor.Settings
                 }
 
                 // Early out if it already exists
-                for (var index = 0; index < settingsProperty.arraySize; index++)
-                {
+                for (var index = 0; index < settingsProperty.arraySize; index++) {
                     var element = settingsProperty.GetArrayElementAtIndex(index);
-                    if (element.objectReferenceValue == settingsBase)
-                    {
+                    if (element.objectReferenceValue == settingsBase) {
                         return;
                     }
                 }
@@ -184,14 +161,13 @@ namespace BovineLabs.Core.Editor.Settings
                 var length = settingsProperty.arraySize;
 
                 // Insertion sort
-                for (var i = 1; i < length; i++)
-                {
+                for (var i = 1; i < length; i++) {
                     var key = settingsProperty.GetArrayElementAtIndex(i).objectReferenceValue;
                     var j = i - 1;
 
-                    while (j >= 0 && Compare(settingsProperty.GetArrayElementAtIndex(j).objectReferenceValue, key))
-                    {
-                        settingsProperty.GetArrayElementAtIndex(j + 1).objectReferenceValue = settingsProperty.GetArrayElementAtIndex(j).objectReferenceValue;
+                    while (j >= 0 && Compare(settingsProperty.GetArrayElementAtIndex(j).objectReferenceValue, key)) {
+                        settingsProperty.GetArrayElementAtIndex(j + 1).objectReferenceValue =
+                            settingsProperty.GetArrayElementAtIndex(j).objectReferenceValue;
                         j -= 1;
                     }
 
@@ -203,10 +179,8 @@ namespace BovineLabs.Core.Editor.Settings
             }
         }
 
-        private static ISettings? GetOrCreateSettings(Type type, bool allowCreate = true)
-        {
-            if (!typeof(ISettings).IsAssignableFrom(type))
-            {
+        private static ISettings? GetOrCreateSettings(Type type, bool allowCreate = true) {
+            if (!typeof(ISettings).IsAssignableFrom(type)) {
                 throw new Exception("Settings must implement ISettings");
             }
 
@@ -215,31 +189,29 @@ namespace BovineLabs.Core.Editor.Settings
 
             ScriptableObject? instance;
 
-            switch (assets.Length)
-            {
-                case 0:
-                {
+            switch (assets.Length) {
+                case 0: {
                     string? directory;
                     var resourceAttribute = type.GetCustomAttribute<ResourceSettingsAttribute>();
-                    if (resourceAttribute != null)
-                    {
+                    if (resourceAttribute != null) {
                         var resources = "Resources";
-                        if (!string.IsNullOrWhiteSpace(resourceAttribute.Directory))
-                        {
+                        if (!string.IsNullOrWhiteSpace(resourceAttribute.Directory)) {
                             resources = Path.Combine(resources, resourceAttribute.Directory);
                         }
 
-                        directory = GetAssetDirectory(EditorSettings.SettingsResourceKey, EditorSettings.DefaultSettingsResourceDirectory, resources, allowCreate);
+                        directory = GetAssetDirectory(EditorSettings.SettingsResourceKey,
+                            EditorSettings.DefaultSettingsResourceDirectory, resources, allowCreate);
                     }
-                    else
-                    {
+                    else {
                         var subDirectoryAttribute = type.GetCustomAttribute<SettingSubDirectoryAttribute>();
-                        var subDirectory = subDirectoryAttribute != null ? subDirectoryAttribute.Directory : string.Empty;
-                        directory = GetAssetDirectory(EditorSettings.SettingsKey, EditorSettings.DefaultSettingsDirectory, subDirectory, allowCreate: allowCreate);
+                        var subDirectory = subDirectoryAttribute != null
+                            ? subDirectoryAttribute.Directory
+                            : string.Empty;
+                        directory = GetAssetDirectory(EditorSettings.SettingsKey,
+                            EditorSettings.DefaultSettingsDirectory, subDirectory, allowCreate: allowCreate);
                     }
 
-                    if (directory == null)
-                    {
+                    if (directory == null) {
                         return null;
                     }
 
@@ -249,10 +221,8 @@ namespace BovineLabs.Core.Editor.Settings
                     // So before creating a new instance, try to directly look it up where we expect it
                     instance = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
 
-                    if (!instance)
-                    {
-                        if (!allowCreate)
-                        {
+                    if (!instance) {
+                        if (!allowCreate) {
                             return null;
                         }
 
@@ -264,72 +234,64 @@ namespace BovineLabs.Core.Editor.Settings
                     break;
                 }
 
-                case 1:
-                {
+                case 1: {
                     // Return
                     var asset = assets.First();
                     instance = AssetDatabase.LoadAssetAtPath<ScriptableObject>(AssetDatabase.GUIDToAssetPath(asset));
                     break;
                 }
 
-                default:
-                {
+                default: {
                     // Error
-                    BLGlobalLogger.LogErrorString($"More than 1 instance of {type.Name} found. {string.Join(",", assets)}");
+                    BLGlobalLogger.LogErrorString(
+                        $"More than 1 instance of {type.Name} found. {string.Join(",", assets)}");
                     var asset = assets.First();
                     instance = AssetDatabase.LoadAssetAtPath<ScriptableObject>(AssetDatabase.GUIDToAssetPath(asset));
                     break;
                 }
             }
 
-            Assert.IsNotNull(instance, $"{type.Name} returned null from asset database. Might need to reimport something.");
+            Assert.IsNotNull(instance,
+                $"{type.Name} returned null from asset database. Might need to reimport something.");
 
             TryAddToSettingsAuthoring(instance);
 
             return (ISettings)instance;
         }
 
-        private static void TryAddToSettingsAuthoring(ScriptableObject settings)
-        {
-            if (settings is not SettingsBase settingsBase)
-            {
+        private static void TryAddToSettingsAuthoring(ScriptableObject settings) {
+            if (settings is not SettingsBase settingsBase) {
                 return;
             }
 
             var editorSettings = GetEditorSettings();
-            if (!editorSettings)
-            {
+            if (!editorSettings) {
                 return;
             }
 
             AddSettingsToAuthoring(editorSettings, settingsBase);
         }
 
-        private static bool Compare(Object obj1, Object obj2)
-        {
-            if (!obj1)
-            {
+        private static bool Compare(Object obj1, Object obj2) {
+            if (!obj1) {
                 return false;
             }
 
-            if (!obj2)
-            {
+            if (!obj2) {
                 return true;
             }
 
             return string.Compare(obj1.name, obj2.name, StringComparison.Ordinal) > 0;
         }
 
-        private static EditorSettings? GetEditorSettings()
-        {
+        private static EditorSettings? GetEditorSettings() {
             var assets = AssetDatabase.FindAssets($"t:{nameof(EditorSettings)}");
 
             // No editor settings, use the default
-            if (assets.Length != 0)
-            {
-                if (assets.Length > 2)
-                {
-                    BLGlobalLogger.LogErrorString($"More than 1 EditorSettings found, using {AssetDatabase.GUIDToAssetPath(assets[0])}");
+            if (assets.Length != 0) {
+                if (assets.Length > 2) {
+                    BLGlobalLogger.LogErrorString(
+                        $"More than 1 EditorSettings found, using {AssetDatabase.GUIDToAssetPath(assets[0])}");
                 }
 
                 return AssetDatabase.LoadAssetAtPath<EditorSettings>(AssetDatabase.GUIDToAssetPath(assets[0]));

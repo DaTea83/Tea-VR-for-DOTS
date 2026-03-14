@@ -4,8 +4,7 @@
 
 #pragma warning disable CS8632
 
-namespace BovineLabs.Core.Editor.ChangeFilterTracking
-{
+namespace BovineLabs.Core.Editor.ChangeFilterTracking {
     using System.Collections.Generic;
     using Unity.Entities;
     using Unity.Entities.Editor;
@@ -14,8 +13,7 @@ namespace BovineLabs.Core.Editor.ChangeFilterTracking
     using UnityEngine.UIElements;
     using UITemplate = BovineLabs.Core.Editor.UI.UITemplate;
 
-    internal class ChangeFilterTrackingWindow : DOTSEditorWindow
-    {
+    internal class ChangeFilterTrackingWindow : DOTSEditorWindow {
         private const float UpdateRate = 0.5f;
         private const string RootUIPath = "Packages/com.bovinelabs.core/Editor Default Resources/ChangeFilterTracking/";
         private static readonly UITemplate TreeViewHeader = new(RootUIPath + "header");
@@ -34,20 +32,16 @@ namespace BovineLabs.Core.Editor.ChangeFilterTracking
         private World? world;
 
         public ChangeFilterTrackingWindow()
-            : base(Analytics.Window.Unknown)
-        {
-        }
+            : base(Analytics.Window.Unknown) { }
 
         [MenuItem(EditorMenus.RootMenuTools + "Change Filter")]
-        public static void OpenWindow()
-        {
+        public static void OpenWindow() {
             var window = GetWindow<ChangeFilterTrackingWindow>();
             window.Show();
         }
 
         /// <inheritdoc/>
-        protected override void OnCreate()
-        {
+        protected override void OnCreate() {
             Resources.AddCommonVariables(this.rootVisualElement);
 
             this.titleContent = EditorGUIUtility.TrTextContent(WindowName, EditorIcons.System);
@@ -65,23 +59,19 @@ namespace BovineLabs.Core.Editor.ChangeFilterTracking
         }
 
         /// <inheritdoc />
-        protected override void OnUpdate()
-        {
-            if (this.world == null)
-            {
+        protected override void OnUpdate() {
+            if (this.world == null) {
                 return;
             }
 
-            if (EditorApplication.timeSinceStartup < this.lastUpdateTime + UpdateRate)
-            {
+            if (EditorApplication.timeSinceStartup < this.lastUpdateTime + UpdateRate) {
                 return;
             }
 
             this.lastUpdateTime = EditorApplication.timeSinceStartup;
 
             var systemHandle = this.world.Unmanaged.GetExistingUnmanagedSystem<ChangeFilterTrackingSystem>();
-            if (systemHandle == SystemHandle.Null)
-            {
+            if (systemHandle == SystemHandle.Null) {
                 return;
             }
 
@@ -93,27 +83,23 @@ namespace BovineLabs.Core.Editor.ChangeFilterTracking
 
             var rebuild = this.sources.Count != typeTracks.Length;
 
-            if (rebuild)
-            {
+            if (rebuild) {
                 this.sources.Clear();
 
                 // Initial setup
-                foreach (var t in typeTracks)
-                {
+                foreach (var t in typeTracks) {
                     this.sources.Add(new ComponentData(t.TypeName.ToString(), t.Short.Value, t.Long.Value));
                 }
 
                 this.listView!.Rebuild();
             }
-            else
-            {
-                for (var index = 0; index < typeTracks.Length; index++)
-                {
+            else {
+                for (var index = 0; index < typeTracks.Length; index++) {
                     var t = typeTracks[index];
                     var source = this.sources[index];
 
-                    if (math.abs(source.Short - t.Short.Value) > math.EPSILON || math.abs(source.Long - t.Long.Value) > math.EPSILON)
-                    {
+                    if (math.abs(source.Short - t.Short.Value) > math.EPSILON ||
+                        math.abs(source.Long - t.Long.Value) > math.EPSILON) {
                         source.Short = t.Short.Value;
                         source.Long = t.Long.Value;
                         ApplyElement(this.elements[index], source);
@@ -123,22 +109,19 @@ namespace BovineLabs.Core.Editor.ChangeFilterTracking
         }
 
         /// <inheritdoc />
-        protected override void OnWorldSelected(World newWorld)
-        {
+        protected override void OnWorldSelected(World newWorld) {
             this.world = newWorld;
             this.sources.Clear();
             this.listView!.Rebuild();
         }
 
-        private static void ApplyElement(VisualElement element, ComponentData itemData)
-        {
+        private static void ApplyElement(VisualElement element, ComponentData itemData) {
             element.Q<Label>("column1").text = itemData.Name;
             element.Q<Label>("column2").text = $"{itemData.Short:0.00%}";
             element.Q<Label>("column3").text = $"{itemData.Long:0.00%}";
         }
 
-        private void CreateToolBar(VisualElement rootElement)
-        {
+        private void CreateToolBar(VisualElement rootElement) {
             Resources.Templates.SystemScheduleToolbar.Clone(rootElement);
             var leftSide = rootElement.Q(className: UssClasses.SystemScheduleWindow.Toolbar.LeftSide);
 
@@ -147,22 +130,19 @@ namespace BovineLabs.Core.Editor.ChangeFilterTracking
             worldSelector.SetVisibility(true);
         }
 
-        private void CreateListView(VisualElement rootElement)
-        {
+        private void CreateListView(VisualElement rootElement) {
             TreeViewHeader.Clone(rootElement);
 
             this.listView = rootElement.Q<ListView>("ListView");
             this.listView.itemsSource = this.sources;
             this.listView.makeItem = () => TreeViewItemTemplate.Clone();
-            this.listView.bindItem = (element, item) =>
-            {
+            this.listView.bindItem = (element, item) => {
                 this.elements[item] = element;
                 ApplyElement(element, this.sources[item]);
             };
         }
 
-        private record ComponentData(string Name, float Short, float Long)
-        {
+        private record ComponentData(string Name, float Short, float Long) {
             public string Name { get; } = Name;
 
             public float Short { get; set; } = Short;

@@ -2,20 +2,14 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Iterators
-{
+namespace BovineLabs.Core.Iterators {
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
 
-    public unsafe struct UnsafeEnableableLookup
-    {
-        [NativeDisableUnsafePtrRestriction]
-        private readonly EntityDataAccess* access;
+    public unsafe struct UnsafeEnableableLookup {
+        [NativeDisableUnsafePtrRestriction] private readonly EntityDataAccess* access;
 
-        internal UnsafeEnableableLookup(EntityDataAccess* access)
-        {
-            this.access = access;
-        }
+        internal UnsafeEnableableLookup(EntityDataAccess* access) { this.access = access; }
 
         /// <summary>
         /// Reports whether the specified <see cref="Entity" /> instance still refers to a valid entity and that it has a
@@ -27,8 +21,7 @@ namespace BovineLabs.Core.Iterators
         /// True if the entity has a component of type T, and false if it does not. Also returns false if
         /// the Entity instance refers to an entity that has been destroyed.
         /// </returns>
-        public bool HasComponent(Entity entity, ComponentType componentType)
-        {
+        public bool HasComponent(Entity entity, ComponentType componentType) {
             return this.access->HasComponent(entity, componentType);
         }
 
@@ -41,8 +34,7 @@ namespace BovineLabs.Core.Iterators
         /// <param name="componentType"> The the component type to enabled. </param>
         /// <returns> True if the specified component is enabled, or false if it is disabled. </returns>
         /// <seealso cref="SetComponentEnabled" />
-        public bool IsComponentEnabled(Entity entity, ComponentType componentType)
-        {
+        public bool IsComponentEnabled(Entity entity, ComponentType componentType) {
             return this.access->IsComponentEnabled(entity, componentType.TypeIndex);
         }
 
@@ -56,8 +48,7 @@ namespace BovineLabs.Core.Iterators
         /// <param name="componentType"> The the component type to enabled. </param>
         /// <param name="value"> True if the specified component should be enabled, or false if it should be disabled. </param>
         /// <seealso cref="IsComponentEnabled" />
-        public void SetComponentEnabled(Entity entity, ComponentType componentType, bool value)
-        {
+        public void SetComponentEnabled(Entity entity, ComponentType componentType, bool value) {
             this.access->SetComponentEnabled(entity, componentType.TypeIndex, value);
         }
     }

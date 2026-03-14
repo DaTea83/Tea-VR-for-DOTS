@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Editor.Windows.SelectionHistory
-{
+namespace BovineLabs.Core.Editor.Windows.SelectionHistory {
     using System;
     using System.Collections.Generic;
     using BovineLabs.Core.Editor.EditorPreferences;
@@ -15,48 +14,33 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
     /// </summary>
     [CoreEditorPreference("Selection History")]
     [Serializable]
-    public class SelectionHistoryPreferences : BaseDisplayPreferences
-    {
-        [SerializeField]
-        [Tooltip("Maximum number of items to keep in selection history")]
-        [Min(1)]
+    public class SelectionHistoryPreferences : BaseDisplayPreferences {
+        [SerializeField] [Tooltip("Maximum number of items to keep in selection history")] [Min(1)]
         private int maxHistorySize = 10;
 
-        [SerializeField]
-        [Tooltip("Whether to track scene objects in selection history")]
+        [SerializeField] [Tooltip("Whether to track scene objects in selection history")]
         private bool trackSceneObjects;
 
-        [SerializeField]
-        [HideInInspector] // Hide from preferences UI
+        [SerializeField] [HideInInspector] // Hide from preferences UI
         private List<SerializableHistoryItem> lockedHistoryData = new();
 
-        [SerializeField]
-        [HideInInspector] // Hide from preferences UI
+        [SerializeField] [HideInInspector] // Hide from preferences UI
         private List<SerializableHistoryItem> normalHistoryData = new();
 
         /// <summary>
         /// Gets or sets the maximum number of items to keep in selection history.
         /// </summary>
-        public int MaxHistorySize
-        {
-            get => Math.Max(10, this.maxHistorySize);
-            set => this.maxHistorySize = value;
-        }
+        public int MaxHistorySize { get => Math.Max(10, this.maxHistorySize); set => this.maxHistorySize = value; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to track scene objects in selection history.
         /// </summary>
-        public bool TrackSceneObjects
-        {
-            get => this.trackSceneObjects;
-            set => this.trackSceneObjects = value;
-        }
+        public bool TrackSceneObjects { get => this.trackSceneObjects; set => this.trackSceneObjects = value; }
 
         /// <summary>
         /// Gets or sets the locked history data. Hidden from preferences UI.
         /// </summary>
-        public List<SerializableHistoryItem> LockedHistoryData
-        {
+        public List<SerializableHistoryItem> LockedHistoryData {
             get => this.lockedHistoryData;
             set => this.lockedHistoryData = value ?? new List<SerializableHistoryItem>();
         }
@@ -64,22 +48,19 @@ namespace BovineLabs.Core.Editor.Windows.SelectionHistory
         /// <summary>
         /// Gets or sets the normal history data. Hidden from preferences UI.
         /// </summary>
-        public List<SerializableHistoryItem> NormalHistoryData
-        {
+        public List<SerializableHistoryItem> NormalHistoryData {
             get => this.normalHistoryData;
             set => this.normalHistoryData = value ?? new List<SerializableHistoryItem>();
         }
 
         /// <inheritdoc />
-        public override string[] GetSearchKeywords()
-        {
+        public override string[] GetSearchKeywords() {
             return IEditorPreference.GetSearchKeywordsFromType(typeof(SelectionHistoryPreferences));
         }
     }
 
     [Serializable]
-    public class SerializableHistoryItem
-    {
+    public class SerializableHistoryItem {
         public string Name = string.Empty;
         public string TypeName = string.Empty;
         public string AssetPath = string.Empty;

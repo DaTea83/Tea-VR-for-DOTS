@@ -2,14 +2,12 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Extensions
-{
+namespace BovineLabs.Core.Extensions {
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
 
     /// <summary> Extensions for NativeThreadStream. </summary>
-    public static unsafe class NativeStreamExtensions
-    {
+    public static unsafe class NativeStreamExtensions {
         private static readonly int MaxSize = UnsafeStreamBlockData.AllocationSize - sizeof(void*);
 
         /// <summary> Allocate a chunk of memory that can be larger than the max allocation size. </summary>
@@ -17,8 +15,7 @@ namespace BovineLabs.Core.Extensions
         /// <param name="array"> The array to write. </param>
         /// <typeparam name="T"> The type of the array. </typeparam>
         public static void WriteLarge<T>(this ref NativeStream.Writer writer, NativeArray<T> array)
-            where T : unmanaged
-        {
+            where T : unmanaged {
             var byteArray = array.Reinterpret<byte>(UnsafeUtility.SizeOf<T>());
             WriteLarge(ref writer, (byte*)byteArray.GetUnsafeReadOnlyPtr(), byteArray.Length);
         }
@@ -28,8 +25,7 @@ namespace BovineLabs.Core.Extensions
         /// <param name="data"> The data to write. </param>
         /// <typeparam name="T"> The type of the slice. </typeparam>
         public static void WriteLarge<T>(this ref NativeStream.Writer writer, NativeSlice<T> data)
-            where T : unmanaged
-        {
+            where T : unmanaged {
             var num = UnsafeUtility.SizeOf<T>();
             var countPerAllocate = MaxSize / num;
 
@@ -43,14 +39,13 @@ namespace BovineLabs.Core.Extensions
 
             // Write the remainder first as this helps avoid an extra allocation most of the time
             // as you'd usually write at minimum the length beforehand
-            if (allocationRemainder > 0)
-            {
+            if (allocationRemainder > 0) {
                 var dst = writer.Allocate(allocationRemainder * num);
-                UnsafeUtility.MemCpyStride(dst, num, src + (allocationCount * maxOffset), data.Stride, num, allocationRemainder);
+                UnsafeUtility.MemCpyStride(dst, num, src + (allocationCount * maxOffset), data.Stride, num,
+                    allocationRemainder);
             }
 
-            for (var i = 0; i < allocationCount; i++)
-            {
+            for (var i = 0; i < allocationCount; i++) {
                 var dst = writer.Allocate(maxSize);
                 UnsafeUtility.MemCpyStride(dst, num, src + (i * maxOffset), data.Stride, num, countPerAllocate);
             }
@@ -60,21 +55,18 @@ namespace BovineLabs.Core.Extensions
         /// <param name="writer"> The writer. </param>
         /// <param name="data"> The data to write. </param>
         /// <param name="size"> The size of the data. For an array, this is UnsafeUtility.SizeOf{T} * length. </param>
-        public static void WriteLarge(this ref NativeStream.Writer writer, byte* data, int size)
-        {
+        public static void WriteLarge(this ref NativeStream.Writer writer, byte* data, int size) {
             var allocationCount = size / MaxSize;
             var allocationRemainder = size % MaxSize;
 
             // Write the remainder first as this helps avoid an extra allocation most of the time
             // as you'd usually write at minimum the length beforehand
-            if (allocationRemainder > 0)
-            {
+            if (allocationRemainder > 0) {
                 var ptr = writer.Allocate(allocationRemainder);
                 UnsafeUtility.MemCpy(ptr, data + (allocationCount * MaxSize), allocationRemainder);
             }
 
-            for (var i = 0; i < allocationCount; i++)
-            {
+            for (var i = 0; i < allocationCount; i++) {
                 var ptr = writer.Allocate(MaxSize);
                 UnsafeUtility.MemCpy(ptr, data + (i * MaxSize), MaxSize);
             }
@@ -84,20 +76,17 @@ namespace BovineLabs.Core.Extensions
         /// <param name="reader"> The reader. </param>
         /// <param name="buffer"> A Buffer to write back to. </param>
         /// <param name="size"> For an array, this is UnsafeUtility.SizeOf{T} * length. </param>
-        public static void ReadLarge(this ref NativeStream.Reader reader, byte* buffer, int size)
-        {
+        public static void ReadLarge(this ref NativeStream.Reader reader, byte* buffer, int size) {
             var allocationCount = size / MaxSize;
             var allocationRemainder = size % MaxSize;
 
             // Write the remainder first as this helps avoid an extra chunk allocation most times
-            if (allocationRemainder > 0)
-            {
+            if (allocationRemainder > 0) {
                 var ptr = reader.ReadUnsafePtr(allocationRemainder);
                 UnsafeUtility.MemCpy(buffer + (allocationCount * MaxSize), ptr, allocationRemainder);
             }
 
-            for (var i = 0; i < allocationCount; i++)
-            {
+            for (var i = 0; i < allocationCount; i++) {
                 var ptr = reader.ReadUnsafePtr(MaxSize);
                 UnsafeUtility.MemCpy(buffer + (i * MaxSize), ptr, MaxSize);
             }

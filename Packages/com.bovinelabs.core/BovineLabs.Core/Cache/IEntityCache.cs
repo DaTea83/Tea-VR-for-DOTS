@@ -2,12 +2,10 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Core.Cache
-{
+namespace BovineLabs.Core.Cache {
     using Unity.Entities;
 
-    public interface IEntityCache
-    {
+    public interface IEntityCache {
         Entity Entity { get; set; }
     }
 }

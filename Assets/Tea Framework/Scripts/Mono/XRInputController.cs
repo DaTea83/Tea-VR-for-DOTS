@@ -1,4 +1,5 @@
 namespace TeaFramework {
+    
     public sealed class XRInputController : GenericSingleton<XRInputController> {
         public XRDefault Input { get; private set; }
 

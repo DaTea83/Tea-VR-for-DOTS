@@ -12,33 +12,44 @@ namespace EugeneC.Utilities {
         public static float Modulo(float x, float y) => (x % y + y) % y;
 
         public static int Modulo(int x, int y) => (x % y + y) % y;
-
-        // Reminder is recommended to use RandomAuthoring so u don't need to keep constructs a new Random instance
+        
         public static float RandomValue(Entity entity, double et) {
             var ran = Random.CreateFromIndex((uint)entity.Index + (uint)et << 4 + 1);
             return ran.NextFloat();
         }
 
-        public static float RandomValue(this GameObject obj) {
+        public static float RandomValue(this Component obj) {
             var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount +
                                              (uint)Time.deltaTime);
             return ran.NextFloat();
         }
 
-        public static float RandomValue(this GameObject obj, float min, float max) {
+        public static float RandomValue(this Component obj, float min, float max) {
             var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount +
                                              (uint)Time.deltaTime);
             return ran.NextFloat(min, max);
         }
 
-        public static int RandomValue(this GameObject obj, int min, int max) {
+        public static int RandomValue(this Component obj, int min, int max) {
             var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount +
                                              (uint)Time.deltaTime);
             return ran.NextInt(min, max);
         }
+        
+        public static float2 RandomValue2(this Component obj) {
+            var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount +
+                                             (uint)Time.deltaTime);
+            return ran.NextFloat2();
+        }
+        
+        public static float3 RandomValue3(this Component obj) {
+            var ran = Random.CreateFromIndex((uint)obj.GetInstanceID() + (uint)Environment.TickCount +
+                                             (uint)Time.deltaTime);
+            return ran.NextFloat3();
+        }
 
-        public static float3
-            GetClosestPointInSplineSegment(float3 lineStart, float3 lineEnd, float3 point, out float t) {
+        public static float3 GetClosestPointInSplineSegment(float3 lineStart, float3 lineEnd, 
+            float3 point, out float t) {
             t = 0f;
             var vec = lineEnd - lineStart;
             var lenSq = math.lengthsq(vec);
@@ -49,10 +60,9 @@ namespace EugeneC.Utilities {
             return lineStart + vec * t;
         }
 
-        public static void SampleAtDistance(ref SplineVectorBlob spline,
-            float targetDist,
-            out float3 position,
-            out quaternion rotation) {
+        public static void SampleAtDistance(ref SplineVectorBlob spline, float targetDist,
+            out float3 position, out quaternion rotation) {
+            
             ref var posArr = ref spline.Position;
             ref var dstArr = ref spline.Distance;
             ref var rotArr = ref spline.Rotation;

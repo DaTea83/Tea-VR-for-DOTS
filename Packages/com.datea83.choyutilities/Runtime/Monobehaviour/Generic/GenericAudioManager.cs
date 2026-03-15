@@ -1,27 +1,26 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Pool;
 
 namespace EugeneC.Singleton {
-#if UNITY_2023_2_OR_NEWER
-
-    // For audio randomization use the Unity new Random Audio Container, hence why there's a version requirement
-    public abstract class GenericAudioManager<TEnum, TMono> : GenericSingleton<TMono>
+    
+    public abstract class GenericAudioManager<TEnum, TMono> : GenericPoolingManager<TEnum, AudioSource, TMono> 
         where TEnum : Enum
-        where TMono : MonoBehaviour {
+        where TMono : MonoBehaviour{
+        
         [Serializable]
         public struct AudioResourceSerialize {
-            public TEnum id;
             public AudioResource audio;
+            public TEnum id;
         }
-
+        
         [Serializable]
         public struct AudioMixerSerialize {
-            public AudioMixerGroup mixerGroup;
-            public string mixerName;
+            public AudioMixer mixer;
             public AnimationCurve volumeCurve;
+            public string mixerName;
             [Range(-80f, 20f)] public float defaultVolume, focusedVolume, unfocusedVolume;
         }
 
@@ -46,97 +45,59 @@ namespace EugeneC.Singleton {
 
         [SerializeField] protected AudioResourceSerialize[] audioResource;
         [SerializeField] protected AudioSource audioSourcePrefab;
-        [SerializeField] protected byte poolCount = 32;
         [SerializeField] protected bool loop;
         [SerializeField] protected EAudioPriority priority = EAudioPriority.High;
-
-        [Header("Audio Mixer Groups")] [SerializeField]
-        protected AudioMixerSerialize masterAudioMixerGroup = new AudioMixerSerialize {
-            mixerName = "Master",
-        };
-
+        
+        [Header("Audio Mixer Groups")] 
+        [SerializeField] protected AudioMixerSerialize masterAudioMixerGroup = new() { mixerName = "Master", };
         [SerializeField] protected AudioMixerSerialize sfxMixerGroup, narrationMixerGroup, musicMixerGroup;
 
-        protected AudioSource[] AudioSources;
-        protected int CurrentIndex;
-        protected int PreviousIndex;
-        protected List<int> PauseIndexes;
-
-        protected virtual async void Start() {
+        protected override async void Start() {
             try {
                 await Awaitable.NextFrameAsync(Token);
                 if (audioSourcePrefab is null) throw new Exception("Audio Source Prefab is not set");
-                if (masterAudioMixerGroup.mixerGroup is null)
-                    throw new Exception("Master Audio Mixer Group is not set");
+                
+                Pools = new ObjectPool<AudioSource>[1];
+                RuntimePools = new RuntimePoolSerialize[1];
+                
+                Pools[0] = InitPool(() => {
+                    var spawn = Instantiate(audioSourcePrefab, transform);
+                    spawn.loop = loop;
+                    spawn.outputAudioMixerGroup = masterAudioMixerGroup.mixer.outputAudioMixerGroup;
+                    spawn.priority = (int)priority;
+                    return spawn;
+                });
 
-                AudioSources = new AudioSource[poolCount];
+                RuntimePools[0].spawn = new AudioSource[poolCount];
+
                 for (var i = 0; i < poolCount; i++) {
-                    var spawnAudio = Instantiate(audioSourcePrefab, transform);
-                    spawnAudio.loop = loop;
-                    spawnAudio.outputAudioMixerGroup = masterAudioMixerGroup.mixerGroup;
-                    spawnAudio.priority = (int)priority;
-                    AudioSources[i] = spawnAudio;
+                    var spawnAudio = Pools[0].Get();
+                    RuntimePools[0].spawn[i] = spawnAudio;
                 }
+                
+                masterAudioMixerGroup.mixer.SetFloat(masterAudioMixerGroup.mixerName, masterAudioMixerGroup.defaultVolume);
+                sfxMixerGroup.mixer?.SetFloat(sfxMixerGroup.mixerName, sfxMixerGroup.defaultVolume);
+                narrationMixerGroup.mixer?.SetFloat(narrationMixerGroup.mixerName, narrationMixerGroup.defaultVolume);
+                musicMixerGroup.mixer?.SetFloat(musicMixerGroup.mixerName, musicMixerGroup.defaultVolume);
             }
             catch (Exception e) {
-                Debug.LogException(e);
+                Debug.Log(e);
             }
         }
-
+        
         public virtual float PlayClipAtPos(TEnum id, float3 pos, byte audioPriority = (byte)EAudioPriority.Average) {
-            if (!Enum.IsDefined(typeof(TEnum), id)) return 0f;
-            var resourceIndex = Array.FindIndex(audioResource,
-                r => EqualityComparer<TEnum>.Default.Equals(r.id, id));
+            
+            var index = GetPoolIndex(id);
+            if (index == -1) return 0f;
 
-            var resource = audioResource[resourceIndex].audio;
-            return PlayClipAtPos(resource, pos, masterAudioMixerGroup.mixerGroup, audioPriority);
+            var resource = audioResource[index].audio;
+            return PlayClipAtPos(resource, pos, masterAudioMixerGroup.mixer.outputAudioMixerGroup, audioPriority);
         }
 
-        public virtual float PlayClipAtPos(AudioResource resource,
-            float3 pos,
-            AudioMixerGroup channel = null,
+        public virtual float PlayClipAtPos(AudioResource resource, float3 pos, AudioMixerGroup channel = null,
             byte audioPriority = (byte)EAudioPriority.Average) {
-            var currentSource = AudioSources[CurrentIndex];
-
-            currentSource.transform.localPosition = pos;
-            currentSource.outputAudioMixerGroup = channel ?? masterAudioMixerGroup.mixerGroup;
-            currentSource.resource = resource;
-            currentSource.priority = audioPriority;
-            currentSource.Play();
-
-            var lengthSeconds = currentSource.clip?.length ?? 0f;
-
-            PreviousIndex = CurrentIndex;
-            CurrentIndex++;
-            CurrentIndex %= AudioSources.Length;
-
-            return lengthSeconds;
-        }
-
-        public virtual float PlayClipAtPos(TEnum id,
-            float3 pos,
-            EMixerType mixerType,
-            byte audioPriority = (byte)EAudioPriority.Average) {
-            if (!Enum.IsDefined(typeof(TEnum), id)) return 0f;
-            var resourceIndex = Array.FindIndex(audioResource,
-                r => EqualityComparer<TEnum>.Default.Equals(r.id, id));
-
-            var resource = audioResource[resourceIndex].audio;
-            return PlayClipAtPos(resource, pos, mixerType, audioPriority);
-        }
-
-        public virtual float PlayClipAtPos(AudioResource resource,
-            float3 pos,
-            EMixerType mixerType,
-            byte audioPriority = (byte)EAudioPriority.Average) {
-            var channel = mixerType switch {
-                EMixerType.Sfx => sfxMixerGroup.mixerGroup ?? masterAudioMixerGroup.mixerGroup,
-                EMixerType.Narration => narrationMixerGroup.mixerGroup ?? masterAudioMixerGroup.mixerGroup,
-                EMixerType.Music => musicMixerGroup.mixerGroup ?? masterAudioMixerGroup.mixerGroup,
-                _ => throw new ArgumentOutOfRangeException(nameof(mixerType), mixerType, null)
-            };
-
-            var currentSource = AudioSources[CurrentIndex];
+            
+            var currentSource = RuntimePools[0].spawn[RuntimePools[0].currentIndex];
 
             currentSource.transform.localPosition = pos;
             currentSource.outputAudioMixerGroup = channel;
@@ -146,60 +107,120 @@ namespace EugeneC.Singleton {
 
             var lengthSeconds = currentSource.clip?.length ?? 0f;
 
-            PreviousIndex = CurrentIndex;
-            CurrentIndex++;
-            CurrentIndex %= AudioSources.Length;
+            RuntimePools[0].previousIndex = RuntimePools[0].currentIndex;
+            RuntimePools[0].currentIndex++;
+            RuntimePools[0].currentIndex %= RuntimePools[0].spawn.Length;
 
             return lengthSeconds;
         }
 
-
-        //TODO
-        public virtual async Awaitable<float> PlayFocusClip(TEnum id,
-            float3 pos,
-            EMixerType mixerType,
+        public virtual float PlayClipAtPos(TEnum id, float3 pos, EMixerType mixerType,
             byte audioPriority = (byte)EAudioPriority.Average) {
-            var curve = mixerType switch {
-                EMixerType.Sfx => sfxMixerGroup.volumeCurve ?? masterAudioMixerGroup.volumeCurve,
-                EMixerType.Narration => narrationMixerGroup.volumeCurve ?? masterAudioMixerGroup.volumeCurve,
-                EMixerType.Music => musicMixerGroup.volumeCurve ?? masterAudioMixerGroup.volumeCurve,
-                _ => throw new ArgumentOutOfRangeException(nameof(mixerType), mixerType, null)
+            
+            var index = GetPoolIndex(id);
+            if (index == -1) return 0f;
+
+            var resource = audioResource[index].audio;
+            return PlayClipAtPos(resource, pos, mixerType, audioPriority);
+        }
+
+        private AudioMixerSerialize GetMixerType(EMixerType mixerType) {
+            return mixerType switch {
+                EMixerType.Sfx => sfxMixerGroup,
+                EMixerType.Narration => narrationMixerGroup,
+                EMixerType.Music => musicMixerGroup,
+                _ => masterAudioMixerGroup
             };
+        }
+        
+        private AudioMixerSerialize GetMixerType(EMixerType mixerType, 
+            out (AudioMixerSerialize, AudioMixerSerialize) others) {
+            switch (mixerType) {
+                case EMixerType.Sfx:
+                    others = (narrationMixerGroup, musicMixerGroup);
+                    return sfxMixerGroup;
+                case EMixerType.Narration:
+                    others = (sfxMixerGroup, musicMixerGroup);
+                    return narrationMixerGroup;
+                case EMixerType.Music:
+                    others = (narrationMixerGroup, sfxMixerGroup);
+                    return musicMixerGroup;
+                default:
+                    others = (default, default);
+                    return masterAudioMixerGroup;
+            }
+        }
 
-            if (!Enum.IsDefined(typeof(TEnum), id)) return 0f;
-            var resourceIndex = Array.FindIndex(audioResource,
-                r => EqualityComparer<TEnum>.Default.Equals(r.id, id));
+        public virtual float PlayClipAtPos(AudioResource resource, float3 pos, EMixerType mixerType,
+            byte audioPriority = (byte)EAudioPriority.Average) {
+            
+            var channel = GetMixerType(mixerType).mixer;
+            var currentSource = RuntimePools[0].spawn[RuntimePools[0].currentIndex];
 
-            var resource = audioResource[resourceIndex].audio;
+            currentSource.transform.localPosition = pos;
+            currentSource.outputAudioMixerGroup = channel.outputAudioMixerGroup;
+            currentSource.resource = resource;
+            currentSource.priority = audioPriority;
+            currentSource.Play();
+
+            var lengthSeconds = currentSource.clip?.length ?? 0f;
+
+            RuntimePools[0].previousIndex = RuntimePools[0].currentIndex;
+            RuntimePools[0].currentIndex++;
+            RuntimePools[0].currentIndex %= RuntimePools[0].spawn.Length;
+
+            return lengthSeconds;
+        }
+        
+        public virtual async Awaitable<float> PlayFocusClip(TEnum id, float3 pos, EMixerType mixerType,
+            byte audioPriority = (byte)EAudioPriority.Average) {
+            
+            var index = GetPoolIndex(id);
+            if (index == -1) return 0f;
+
+            var resource = audioResource[index].audio;
             var delay = PlayClipAtPos(resource, pos, mixerType, audioPriority);
+            var curve = GetMixerType(mixerType).volumeCurve;
+            var c0 = GetMixerType(mixerType, out var others);
+            var (c1, c2) = others;
 
             var time = 0f;
             while (time < delay) {
                 time += Time.deltaTime;
+                c0.mixer?.SetFloat(c0.mixerName, curve.Evaluate(time/delay) * c0.focusedVolume);
+                c1.mixer?.SetFloat(c1.mixerName, curve.Evaluate(1 - (time/delay)) * c1.unfocusedVolume);
+                c2.mixer?.SetFloat(c2.mixerName, curve.Evaluate(1 - (time/delay)) * c2.unfocusedVolume);
+                await Awaitable.NextFrameAsync(Token);
             }
-
-            await Awaitable.WaitForSecondsAsync(delay, Token);
+            
+            c0.mixer?.SetFloat(c0.mixerName, c0.defaultVolume);
+            c1.mixer?.SetFloat(c1.mixerName, c1.defaultVolume);
+            c2.mixer?.SetFloat(c2.mixerName, c2.defaultVolume);
+            
             return delay;
         }
-
+        
         public virtual float PlayClip(TEnum id, byte audioPriority = (byte)EAudioPriority.Average) =>
             PlayClipAtPos(id, float3.zero, audioPriority);
 
         public virtual float PlayClip(AudioResource resource, byte audioPriority = (byte)EAudioPriority.Average) =>
-            PlayClipAtPos(resource, float3.zero, masterAudioMixerGroup.mixerGroup, audioPriority);
+            PlayClipAtPos(resource, float3.zero, masterAudioMixerGroup.mixer.outputAudioMixerGroup, audioPriority);
+        
+        public virtual async Awaitable<float> PlayClip(TEnum id, float3 pos, EMixerType mixerType, byte audioPriority = (byte)EAudioPriority.Average) =>
+            await PlayFocusClip(id, pos, mixerType, audioPriority);
 
         public virtual bool StopClip(int idx = -1) {
-            idx = idx == -1 ? PreviousIndex : idx;
-            var source = AudioSources[idx];
+            idx = idx == -1 ? RuntimePools[0].previousIndex : idx;
+            var source = RuntimePools[0].spawn[idx];
             if (!source.isPlaying) return false;
             source.Stop();
             return true;
         }
 
         public virtual bool PauseAllClips(bool isStop = false) {
-            PauseIndexes = new List<int>();
-            for (var i = 0; i < AudioSources.Length; i++) {
-                var currentSource = AudioSources[i];
+            PauseIndexes = ListPool<int>.Get();
+            for (var i = 0; i < RuntimePools[0].spawn.Length; i++) {
+                var currentSource = RuntimePools[0].spawn[i];
                 if (!currentSource.isPlaying) continue;
                 if (!isStop)
                     currentSource.Pause();
@@ -208,20 +229,17 @@ namespace EugeneC.Singleton {
                 PauseIndexes.Add(i);
             }
 
-            return PauseIndexes.Count == AudioSources.Length;
+            return PauseIndexes.Count == RuntimePools[0].spawn.Length;
         }
 
         public virtual bool ResumeClips() {
             if (PauseIndexes is null) return false;
 
             foreach (var index in PauseIndexes)
-                AudioSources[index].Play();
+                RuntimePools[0].spawn[index].Play();
 
-            PauseIndexes.Clear();
-
+            ListPool<int>.Release(PauseIndexes);
             return true;
         }
     }
-
-#endif
 }

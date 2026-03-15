@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace EugeneC.Utilities {
+    
     public abstract class GenericFsm<T, TEnum> : MonoBehaviour
         where T : GenericFsm<T, TEnum>
         where TEnum : Enum {
+        
         public abstract class State : MonoBehaviour {
             public abstract TEnum StateEnum { get; }
 

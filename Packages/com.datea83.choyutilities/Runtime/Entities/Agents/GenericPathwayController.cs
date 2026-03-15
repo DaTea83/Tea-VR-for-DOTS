@@ -6,10 +6,12 @@ using Unity.Mathematics;
 using UnityEngine;
 
 namespace EugeneC.ECS {
+    
     [DisallowMultipleComponent]
     public abstract class GenericPathwayController<T, TEnum> : MonoBehaviour
         where T : GenericPathwayController<T, TEnum>
         where TEnum : Enum {
+        
         [Serializable]
         public struct PathSerializable {
             public TEnum type;
@@ -33,6 +35,7 @@ namespace EugeneC.ECS {
         [SerializeField] protected PathSerializable[] pathIds;
 
         protected BlobAssetReference<BlobArray<PathwayBlob>> BakePathways() {
+            
             using var builder = new BlobBuilder(Allocator.Temp);
             ref var pathwaysBlob = ref builder.ConstructRoot<BlobArray<PathwayBlob>>();
 

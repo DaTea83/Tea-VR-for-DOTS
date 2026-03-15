@@ -13,6 +13,12 @@ namespace EugeneC.Utilities {
         Z = 1 << 1
     }
 
+    public enum ETwoAxis : byte {
+        XY = 0,
+        XZ = 1 << 0,
+        YZ = 1 << 1,
+    }
+
     public enum EControlSchemeEnum : byte {
         Keyboard,
         Gamepad,
